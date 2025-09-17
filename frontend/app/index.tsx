@@ -63,8 +63,23 @@ interface AnimeResponse {
   };
 }
 
+interface Genre {
+  mal_id: number;
+  name: string;
+}
+
+interface FilterState {
+  genres: number[];
+  year: string;
+  status: string;
+  type: string;
+  rating: string;
+  order_by: string;
+  sort: string;
+}
+
 export default function Index() {
-  const [activeTab, setActiveTab] = useState<'popular' | 'search' | 'seasonal'>('popular');
+  const [activeTab, setActiveTab] = useState<'popular' | 'search' | 'seasonal' | 'filter'>('popular');
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,6 +88,20 @@ export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filteredResults, setFilteredResults] = useState<Anime[]>([]);
+  const [filterLoading, setFilterLoading] = useState(false);
+  
+  const [filters, setFilters] = useState<FilterState>({
+    genres: [],
+    year: '',
+    status: '',
+    type: '',
+    rating: '',
+    order_by: 'score',
+    sort: 'desc'
+  });
 
   // Enable RTL for Arabic
   useEffect(() => {
