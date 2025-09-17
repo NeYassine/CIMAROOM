@@ -315,12 +315,12 @@ export default function Index() {
   };
 
   // Render section header
-  const renderSectionHeader = (title: string, onViewAll?: () => void) => (
+  const renderSectionHeader = (title: string, onLoadMore?: () => void) => (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      {onViewAll && (
-        <TouchableOpacity onPress={onViewAll} style={styles.viewAllButton}>
-          <Text style={styles.viewAllText}>عرض الكل</Text>
+      {onLoadMore && (
+        <TouchableOpacity onPress={onLoadMore} style={styles.loadMoreButton}>
+          <Text style={styles.loadMoreText}>تحميل مزيد</Text>
           <Ionicons name="chevron-back" size={16} color="#FFD700" />
         </TouchableOpacity>
       )}
