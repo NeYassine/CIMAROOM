@@ -444,6 +444,119 @@ async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# YouTube API routes for Arabic anime recaps
+@api_router.get("/anime/recaps")
+async def get_anime_recaps(page_token: str = None, max_results: int = 20):
+    """Get anime recaps from Bta3AnimeOfficial YouTube channel"""
+    try:
+        params = {
+            'key': YOUTUBE_API_KEY,
+            'channelId': YOUTUBE_CHANNEL_ID,
+            'part': 'snippet,id',
+            'order': 'date',
+            'maxResults': max_results,
+            'type': 'video'
+        }
+        
+        if page_token:
+            params['pageToken'] = page_token
+            
+        # Search for videos with anime-related keywords in Arabic
+        search_params = params.copy()
+        search_params['q'] = 'ملخص أنمي'  # "anime recap" in Arabic
+        
+        response = await make_youtube_request("/search", search_params)
+        
+        # Format the response
+        videos = []
+        for item in response.get('items', []):
+            if item['id'].get('videoId'):
+                video = {
+                    'id': item['id']['videoId'],
+                    'title': item['snippet']['title'],
+                    'description': item['snippet']['description'],
+                    'thumbnail': item['snippet']['thumbnails']['high']['url'],
+                    'publishedAt': item['snippet']['publishedAt'],
+                    'channelTitle': item['snippet']['channelTitle'],
+                    'url': f"https://www.youtube.com/watch?v={item['id']['videoId']}"
+                }
+                videos.append(video)
+        
+        return {
+            'videos': videos,
+            'nextPageToken': response.get('nextPageToken'),
+            'totalResults': response.get('pageInfo', {}).get('totalResults', 0)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/recaps/search")
+async def search_anime_recaps(q: str, max_results: int = 10):
+    """Search for specific anime recaps"""
+    try:
+        params = {
+            'key': YOUTUBE_API_KEY,
+            'channelId': YOUTUBE_CHANNEL_ID,
+            'part': 'snippet,id',
+            'order': 'relevance',
+            'maxResults': max_results,
+            'type': 'video',
+            'q': f'ملخص {q}'  # Search for "recap [anime_name]" in Arabic
+        }
+        
+        response = await make_youtube_request("/search", params)
+        
+        videos = []
+        for item in response.get('items', []):
+            if item['id'].get('videoId'):
+                video = {
+                    'id': item['id']['videoId'],
+                    'title': item['snippet']['title'],
+                    'description': item['snippet']['description'],
+                    'thumbnail': item['snippet']['thumbnails']['high']['url'],
+                    'publishedAt': item['snippet']['publishedAt'],
+                    'channelTitle': item['snippet']['channelTitle'],
+                    'url': f"https://www.youtube.com/watch?v={item['id']['videoId']}"
+                }
+                videos.append(video)
+        
+        return {'videos': videos}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def make_youtube_request(endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+    """Make request to YouTube API with error handling."""
+    if params is None:
+        params = {}
+    
+    # Check cache first
+    cache_key = f"youtube_{endpoint}_{hashlib.md5(str(sorted(params.items())).encode()).hexdigest()}"
+    if cache_key in cache:
+        cached_data, timestamp = cache[cache_key]
+        if time.time() - timestamp < CACHE_TTL:
+            return cached_data
+    
+    url = f"{YOUTUBE_BASE_URL}{endpoint}"
+    
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                # Cache the response
+                cache[cache_key] = (data, time.time())
+                return data
+            elif response.status_code == 403:
+                raise HTTPException(status_code=403, detail="YouTube API quota exceeded")
+            else:
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch data from YouTube API")
+        except httpx.TimeoutException:
+            raise HTTPException(status_code=408, detail="Request timeout")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"YouTube API request failed: {str(e)}")
+
 @api_router.get("/anime/genres")
 async def get_anime_genres():
     """Get all available anime genres in Arabic"""
