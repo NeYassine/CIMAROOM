@@ -1,6 +1,6 @@
 {
   "summary": {
-    "passed": 7,
+    "passed": 9,
     "total": 9
   },
   "results": [
@@ -74,9 +74,11 @@
     },
     {
       "endpoint": "GET /api/anime/current-season",
-      "status": "FAIL",
-      "details": "HTTP 422: {\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"anime_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"current-season\",\"url\":\"https://errors.pydantic.dev/2.11/v/int_parsing\"}]}",
-      "response_data": null
+      "status": "PASS",
+      "details": "Retrieved 25 currently airing anime",
+      "response_data": {
+        "count": 25
+      }
     },
     {
       "endpoint": "GET /api/anime/seasonal/2025/winter",
@@ -104,9 +106,17 @@
     },
     {
       "endpoint": "GET /api/anime/genres",
-      "status": "FAIL",
-      "details": "HTTP 422: {\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"anime_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"genres\",\"url\":\"https://errors.pydantic.dev/2.11/v/int_parsing\"}]}",
-      "response_data": null
+      "status": "PASS",
+      "details": "Retrieved 78 anime genres",
+      "response_data": {
+        "sample_genres": [
+          "Action",
+          "Adventure",
+          "Avant Garde",
+          "Award Winning",
+          "Boys Love"
+        ]
+      }
     },
     {
       "endpoint": "ERROR TEST: Invalid anime ID",
