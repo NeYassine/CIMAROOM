@@ -559,9 +559,10 @@ export default function Index() {
               data={seasonalAnime}
               renderItem={renderAnimeCard}
               keyExtractor={(item) => item.id.toString()}
-              numColumns={2}
-              scrollEnabled={false}
-              contentContainerStyle={styles.gridContainer}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollContainer}
+              ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
             />
           </View>
         )}
