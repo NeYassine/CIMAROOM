@@ -263,6 +263,37 @@ export default function Index() {
     fetchPopularAnime();
   }, []);
 
+  // Fetch anime media and recommendations
+  const fetchAnimeDetails = async (anime: Anime) => {
+    setDetailsLoading(true);
+    try {
+      // Fetch videos
+      const videosResponse = await fetch(
+        `${BACKEND_URL}/api/anime/${anime.id}/videos?content_type=${anime.content_type}`
+      );
+      const videosData = await videosResponse.json();
+      setAnimeVideos(videosData.videos || []);
+
+      // Fetch images
+      const imagesResponse = await fetch(
+        `${BACKEND_URL}/api/anime/${anime.id}/images?content_type=${anime.content_type}`
+      );
+      const imagesData = await imagesResponse.json();
+      setAnimeImages(imagesData || {});
+
+      // Fetch recommendations
+      const recommendationsResponse = await fetch(
+        `${BACKEND_URL}/api/anime/${anime.id}/recommendations?content_type=${anime.content_type}`
+      );
+      const recommendationsData = await recommendationsResponse.json();
+      setAnimeRecommendations(recommendationsData.recommendations || []);
+    } catch (error) {
+      console.error('Error fetching anime details:', error);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
   // Handle opening watch website
   const handleWatchAnime = async () => {
     try {
