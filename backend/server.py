@@ -92,12 +92,22 @@ async def search_anime(q: str, page: int = 1, limit: int = 25):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
-async def get_anime_details(anime_id: int):
-    """Get detailed information about a specific anime"""
+# Define specific routes BEFORE generic routes to avoid path conflicts
+@api_router.get("/anime/current-season", response_model=AnimeSearchResponse)
+async def get_current_season_anime(page: int = 1):
+    """Get currently airing anime"""
     try:
-        data = await make_jikan_request(f"/anime/{anime_id}")
-        return AnimeDetailResponse(**data)
+        data = await make_jikan_request(f"/seasons/now?page={page}")
+        return AnimeSearchResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/genres")
+async def get_anime_genres():
+    """Get all available anime genres"""
+    try:
+        data = await make_jikan_request("/genres/anime")
+        return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -114,21 +124,12 @@ async def get_seasonal_anime(year: int, season: str, page: int = 1):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/current-season", response_model=AnimeSearchResponse)
-async def get_current_season_anime(page: int = 1):
-    """Get currently airing anime"""
+@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
+async def get_anime_details(anime_id: int):
+    """Get detailed information about a specific anime"""
     try:
-        data = await make_jikan_request(f"/seasons/now?page={page}")
-        return AnimeSearchResponse(**data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/anime/genres")
-async def get_anime_genres():
-    """Get all available anime genres"""
-    try:
-        data = await make_jikan_request("/genres/anime")
-        return data
+        data = await make_jikan_request(f"/anime/{anime_id}")
+        return AnimeDetailResponse(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
