@@ -156,13 +156,82 @@ export default function Index() {
     }
   };
 
+  // Fetch genres
+  const fetchGenres = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/anime/genres`);
+      const data = await response.json();
+      setGenres(data.data || []);
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  };
+
+  // Apply filters
+  const applyFilters = async () => {
+    try {
+      setFilterLoading(true);
+      const params = new URLSearchParams();
+      
+      if (filters.genres.length > 0) {
+        params.append('genres', filters.genres.join(','));
+      }
+      if (filters.year) {
+        params.append('start_date', `${filters.year}-01-01`);
+        params.append('end_date', `${filters.year}-12-31`);
+      }
+      if (filters.status) {
+        params.append('status', filters.status);
+      }
+      if (filters.type) {
+        params.append('type', filters.type);
+      }
+      if (filters.rating) {
+        params.append('rating', filters.rating);
+      }
+      if (filters.order_by) {
+        params.append('order_by', filters.order_by);
+      }
+      if (filters.sort) {
+        params.append('sort', filters.sort);
+      }
+      
+      params.append('limit', '20');
+      
+      const response = await fetch(`${BACKEND_URL}/api/anime/search?${params.toString()}`);
+      const data: AnimeResponse = await response.json();
+      setFilteredResults(data.data || []);
+    } catch (error) {
+      console.error('Error applying filters:', error);
+      setFilteredResults([]);
+    } finally {
+      setFilterLoading(false);
+    }
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      genres: [],
+      year: '',
+      status: '',
+      type: '',
+      rating: '',
+      order_by: 'score',
+      sort: 'desc'
+    });
+    setFilteredResults([]);
+  };
+
   // Handle tab change
-  const handleTabChange = (tab: 'popular' | 'search' | 'seasonal') => {
+  const handleTabChange = (tab: 'popular' | 'search' | 'seasonal' | 'filter') => {
     setActiveTab(tab);
     if (tab === 'popular') {
       fetchPopularAnime();
     } else if (tab === 'seasonal') {
       fetchSeasonalAnime();
+    } else if (tab === 'filter' && genres.length === 0) {
+      fetchGenres();
     }
   };
 
