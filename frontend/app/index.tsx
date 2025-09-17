@@ -288,7 +288,8 @@ export default function Index() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AnimeHub</Text>
+        <View style={styles.headerSpacer} />
+        <Text style={styles.headerTitle}>cimaroom</Text>
         <Ionicons name="heart" size={24} color="#ff6b6b" />
       </View>
 
