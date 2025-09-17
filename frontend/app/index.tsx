@@ -377,8 +377,8 @@ export default function Index() {
                 <Ionicons name="film-outline" size={64} color="#666" />
                 <Text style={styles.emptyText}>
                   {activeTab === 'search' && searchQuery
-                    ? 'No anime found'
-                    : 'No anime available'}
+                    ? 'لم يتم العثور على أنيمي'
+                    : 'لا توجد أنيمي متاحة'}
                 </Text>
               </View>
             }
