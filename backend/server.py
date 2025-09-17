@@ -352,11 +352,11 @@ async def get_anime_details(anime_id: int, content_type: str = "tv"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/current-season", response_model=AnimeSearchResponse)
-async def get_current_season_anime(page: int = 1):
+@api_router.get("/anime/current-season")
+async def get_current_season_anime(page: int = 1, limit: int = 20):
     """Get currently popular anime (simulates seasonal anime)"""
     try:
-        # Get popular anime TV shows
+        # Get popular anime TV shows with recent dates
         tv_params = {
             'page': page,
             'with_genres': '16',  # Animation
@@ -376,7 +376,7 @@ async def get_current_season_anime(page: int = 1):
         anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
         
         return AnimeSearchResponse(
-            results=anime_results[:20],
+            results=anime_results[:limit],
             page=page,
             total_pages=tv_data.get('total_pages', 1),
             total_results=len(anime_results)
