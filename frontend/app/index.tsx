@@ -147,6 +147,20 @@ export default function Index() {
     fetchPopularAnime();
   }, []);
 
+  // Handle opening watch website
+  const handleWatchAnime = async () => {
+    try {
+      const canOpen = await Linking.canOpenURL('https://witanime.red/');
+      if (canOpen) {
+        await Linking.openURL('https://witanime.red/');
+      } else {
+        Alert.alert('Error', 'Unable to open the website');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Unable to open the website');
+    }
+  };
+
   // Refresh handler
   const onRefresh = () => {
     setRefreshing(true);
