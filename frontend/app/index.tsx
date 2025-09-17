@@ -134,6 +134,43 @@ export default function Index() {
     }
   };
 
+  // Fetch more seasonal anime for infinite scroll
+  const fetchMoreSeasonalAnime = async (page: number = 1) => {
+    try {
+      setMoreSeasonalLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/current-season?page=${page}&limit=20`);
+      const data: AnimeResponse = await response.json();
+      
+      if (page === 1) {
+        setMoreSeasonalAnime(data.results || []);
+      } else {
+        setMoreSeasonalAnime(prev => [...prev, ...(data.results || [])]);
+      }
+      
+      setHasMoreSeasonalPages(data.page < data.total_pages);
+    } catch (error) {
+      console.error('Error fetching more seasonal anime:', error);
+    } finally {
+      setMoreSeasonalLoading(false);
+    }
+  };
+
+  // Handle load more seasonal anime
+  const handleLoadMoreSeasonal = () => {
+    setShowMoreSeasonal(true);
+    setMoreSeasonalPage(1);
+    fetchMoreSeasonalAnime(1);
+  };
+
+  // Handle infinite scroll in more seasonal page
+  const handleLoadSeasonalNextPage = () => {
+    if (!moreSeasonalLoading && hasMoreSeasonalPages) {
+      const nextPage = moreSeasonalPage + 1;
+      setMoreSeasonalPage(nextPage);
+      fetchMoreSeasonalAnime(nextPage);
+    }
+  };
+
   // Fetch more popular anime for infinite scroll
   const fetchMorePopularAnime = async (page: number = 1) => {
     try {
