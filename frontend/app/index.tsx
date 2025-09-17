@@ -626,7 +626,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
     backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 20,
     paddingVertical: 20,
