@@ -438,6 +438,9 @@ async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/genres")
+async def get_anime_genres():
     """Get all available anime genres in Arabic"""
     try:
         # Get TV genres
