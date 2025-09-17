@@ -396,55 +396,106 @@ export default function Index() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerSpacer} />
-        <Text style={styles.headerTitle}>cimaroom</Text>
-        <Ionicons name="heart" size={24} color="#ff6b6b" />
-      </View>
+      {/* Show Filter Results Page */}
+      {showFilterResults ? (
+        <View style={styles.filterResultsContainer}>
+          {/* Filter Results Header */}
+          <View style={styles.filterResultsHeader}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => setShowFilterResults(false)}
+            >
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Text style={styles.backButtonText}>رجوع للفلاتر</Text>
+            </TouchableOpacity>
+            <Text style={styles.filterResultsTitle}>
+              نتائج البحث ({filteredResults.length})
+            </Text>
+          </View>
 
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'popular' && styles.activeTab]}
-          onPress={() => handleTabChange('popular')}
-        >
-          <Ionicons name="flame" size={20} color={activeTab === 'popular' ? '#fff' : '#666'} />
-          <Text style={[styles.tabText, activeTab === 'popular' && styles.activeTabText]}>
-            الأكثر شعبية
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'search' && styles.activeTab]}
-          onPress={() => handleTabChange('search')}
-        >
-          <Ionicons name="search" size={20} color={activeTab === 'search' ? '#fff' : '#666'} />
-          <Text style={[styles.tabText, activeTab === 'search' && styles.activeTabText]}>
-            البحث
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
-          onPress={() => handleTabChange('filter')}
-        >
-          <Ionicons name="options" size={20} color={activeTab === 'filter' ? '#fff' : '#666'} />
-          <Text style={[styles.tabText, activeTab === 'filter' && styles.activeTabText]}>
-            الفلاتر
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'seasonal' && styles.activeTab]}
-          onPress={() => handleTabChange('seasonal')}
-        >
-          <Ionicons name="calendar" size={20} color={activeTab === 'seasonal' ? '#fff' : '#666'} />
-          <Text style={[styles.tabText, activeTab === 'seasonal' && styles.activeTabText]}>
-            الموسمية
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {/* Filter Results Content */}
+          <View style={styles.content}>
+            {filterLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#ff6b6b" />
+                <Text style={styles.loadingText}>جاري البحث...</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={filteredResults}
+                renderItem={renderAnimeCard}
+                keyExtractor={(item) => item.mal_id.toString()}
+                numColumns={2}
+                contentContainerStyle={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <View style={styles.emptyContainer}>
+                    <Ionicons name="search-outline" size={64} color="#666" />
+                    <Text style={styles.emptyText}>لا توجد نتائج للفلاتر المحددة</Text>
+                    <TouchableOpacity
+                      style={styles.modifyFiltersButton}
+                      onPress={() => setShowFilterResults(false)}
+                    >
+                      <Text style={styles.modifyFiltersButtonText}>تعديل الفلاتر</Text>
+                    </TouchableOpacity>
+                  </View>
+                }
+              />
+            )}
+          </View>
+        </View>
+      ) : (
+        /* Main App Interface */
+        <>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerSpacer} />
+            <Text style={styles.headerTitle}>cimaroom</Text>
+            <Ionicons name="heart" size={24} color="#ff6b6b" />
+          </View>
+
+          {/* Tab Navigation */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'popular' && styles.activeTab]}
+              onPress={() => handleTabChange('popular')}
+            >
+              <Ionicons name="flame" size={20} color={activeTab === 'popular' ? '#fff' : '#666'} />
+              <Text style={[styles.tabText, activeTab === 'popular' && styles.activeTabText]}>
+                الأكثر شعبية
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'search' && styles.activeTab]}
+              onPress={() => handleTabChange('search')}
+            >
+              <Ionicons name="search" size={20} color={activeTab === 'search' ? '#fff' : '#666'} />
+              <Text style={[styles.tabText, activeTab === 'search' && styles.activeTabText]}>
+                البحث
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
+              onPress={() => handleTabChange('filter')}
+            >
+              <Ionicons name="options" size={20} color={activeTab === 'filter' ? '#fff' : '#666'} />
+              <Text style={[styles.tabText, activeTab === 'filter' && styles.activeTabText]}>
+                الفلاتر
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'seasonal' && styles.activeTab]}
+              onPress={() => handleTabChange('seasonal')}
+            >
+              <Ionicons name="calendar" size={20} color={activeTab === 'seasonal' ? '#fff' : '#666'} />
+              <Text style={[styles.tabText, activeTab === 'seasonal' && styles.activeTabText]}>
+                الموسمية
+              </Text>
+            </TouchableOpacity>
+          </View>
 
       {/* Filter Section */}
       {activeTab === 'filter' && (
