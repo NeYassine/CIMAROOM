@@ -31,7 +31,7 @@ api_router = APIRouter(prefix="/api")
 
 # TMDB API configuration
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
-TMDB_API_KEY = "8fe33ba75aebaa9bb9d95b08c1a8e1d8"  # Free API key for development
+TMDB_API_KEY = "65f569aae60ff787bee86e5ad78f07ff"  # Your valid TMDB API key
 TMDB_LANGUAGE = "ar"  # Arabic language support
 
 # Cache for frequently accessed data
