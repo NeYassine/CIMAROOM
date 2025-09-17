@@ -203,7 +203,7 @@ export default function Index() {
       
       const response = await fetch(`${BACKEND_URL}/api/anime/search?${params.toString()}`);
       const data: AnimeResponse = await response.json();
-      setFilteredResults(data.data || []);
+      setFilteredResults(data.results || []);
       
       // Show results page
       setShowFilterResults(true);
