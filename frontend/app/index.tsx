@@ -696,6 +696,16 @@ export default function Index() {
             </TouchableOpacity>
             
             <TouchableOpacity
+              style={[styles.tab, activeTab === 'recaps' && styles.activeTab]}
+              onPress={() => handleTabChange('recaps')}
+            >
+              <Text style={styles.tabEmoji}>📝</Text>
+              {activeTab === 'recaps' && (
+                <Text style={[styles.tabText, styles.activeTabText]}>الملخصات</Text>
+              )}
+            </TouchableOpacity>
+            
+            <TouchableOpacity
               style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
               onPress={() => handleTabChange('filter')}
             >
