@@ -37,30 +37,32 @@ interface AnimeImage {
 }
 
 interface Anime {
-  mal_id: number;
+  id: number;
   title: string;
-  title_english?: string;
-  images: {
-    jpg: AnimeImage['jpg'];
-    webp: AnimeImage['webp'];
-  };
-  score?: number;
-  episodes?: number;
+  title_arabic?: string;
+  original_title?: string;
+  poster_path?: string;
+  backdrop_path?: string;
+  overview?: string;
+  overview_arabic?: string;
+  vote_average?: number;
+  vote_count?: number;
+  popularity?: number;
+  release_date?: string;
+  first_air_date?: string;
+  episode_count?: number;
   status?: string;
-  synopsis?: string;
   genres?: Array<{ name: string }>;
-  aired?: {
-    string: string;
-  };
+  origin_country?: string[];
+  content_type: string;
+  anime_confidence?: number;
 }
 
 interface AnimeResponse {
-  data: Anime[];
-  pagination: {
-    current_page: number;
-    has_next_page: boolean;
-    last_visible_page: number;
-  };
+  results: Anime[];
+  page: number;
+  total_pages: number;
+  total_results: number;
 }
 
 interface Genre {
