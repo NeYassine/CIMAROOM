@@ -174,34 +174,45 @@ export default function Index() {
 
   // Render anime card
   const renderAnimeCard = ({ item }: { item: Anime }) => (
-    <TouchableOpacity
-      style={styles.animeCard}
-      onPress={() => {
-        setSelectedAnime(item);
-        setShowDetails(true);
-      }}
-    >
-      <Image
-        source={{ uri: item.images.jpg.large_image_url }}
-        style={styles.animeImage}
-        resizeMode="cover"
-      />
-      <View style={styles.animeInfo}>
-        <Text style={styles.animeTitle} numberOfLines={2}>
-          {item.title_english || item.title}
-        </Text>
-        <View style={styles.animeMetadata}>
-          <View style={styles.scoreContainer}>
-            <Ionicons name="star" size={14} color="#FFD700" />
-            <Text style={styles.scoreText}>{item.score?.toFixed(1) || 'N/A'}</Text>
-          </View>
-          <Text style={styles.episodeText}>
-            {item.episodes ? `${item.episodes} eps` : 'Unknown'}
+    <View style={styles.animeCard}>
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedAnime(item);
+          setShowDetails(true);
+        }}
+      >
+        <Image
+          source={{ uri: item.images.jpg.large_image_url }}
+          style={styles.animeImage}
+          resizeMode="cover"
+        />
+        <View style={styles.animeInfo}>
+          <Text style={styles.animeTitle} numberOfLines={2}>
+            {item.title_english || item.title}
           </Text>
+          <View style={styles.animeMetadata}>
+            <View style={styles.scoreContainer}>
+              <Ionicons name="star" size={14} color="#FFD700" />
+              <Text style={styles.scoreText}>{item.score?.toFixed(1) || 'N/A'}</Text>
+            </View>
+            <Text style={styles.episodeText}>
+              {item.episodes ? `${item.episodes} eps` : 'Unknown'}
+            </Text>
+          </View>
+          <Text style={styles.statusText}>{item.status}</Text>
         </View>
-        <Text style={styles.statusText}>{item.status}</Text>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      
+      {/* Watch Button */}
+      <TouchableOpacity
+        style={styles.watchButton}
+        onPress={handleWatchAnime}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="play-circle" size={20} color="#fff" />
+        <Text style={styles.watchButtonText}>Watch Now</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   // Render anime details modal
