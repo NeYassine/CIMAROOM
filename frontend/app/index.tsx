@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold } from '@expo-google-fonts/tajawal';
+import * as SplashScreen from 'expo-splash-screen';
 
 const { width: screenWidth } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
