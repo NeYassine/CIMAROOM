@@ -816,11 +816,19 @@ const styles = StyleSheet.create({
   gridContainer: {
     paddingHorizontal: 15,
   },
+  horizontalScrollContainer: {
+    paddingHorizontal: 20,
+    paddingRight: 40, // Extra padding for right edge
+  },
+  cardSeparator: {
+    width: 15, // Space between cards in horizontal scroll
+  },
   animeCard: {
     backgroundColor: '#1A1A1A',
     borderRadius: 12,
     marginBottom: 15,
     overflow: 'hidden',
+    width: 140, // Fixed width for horizontal scroll
   },
   leftCard: {
     marginRight: 7.5,
@@ -832,7 +840,7 @@ const styles = StyleSheet.create({
   },
   animeImage: {
     width: '100%',
-    height: 200,
+    height: 180, // Adjusted height for horizontal cards
     backgroundColor: '#333',
   },
   ratingBadge: {
