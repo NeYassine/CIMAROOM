@@ -516,6 +516,22 @@ const styles = StyleSheet.create({
     color: '#ff6b6b',
     fontWeight: '500',
   },
+  watchButton: {
+    backgroundColor: '#ff6b6b',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    marginHorizontal: 12,
+    marginBottom: 12,
+    borderRadius: 8,
+  },
+  watchButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
