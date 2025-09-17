@@ -186,32 +186,33 @@ export default function Index() {
           style={styles.animeImage}
           resizeMode="cover"
         />
-        <View style={styles.animeInfo}>
-          <Text style={styles.animeTitle} numberOfLines={2}>
-            {item.title_english || item.title}
-          </Text>
-          <View style={styles.animeMetadata}>
-            <View style={styles.scoreContainer}>
-              <Ionicons name="star" size={14} color="#FFD700" />
-              <Text style={styles.scoreText}>{item.score?.toFixed(1) || 'N/A'}</Text>
-            </View>
-            <Text style={styles.episodeText}>
-              {item.episodes ? `${item.episodes} eps` : 'Unknown'}
-            </Text>
-          </View>
-          <Text style={styles.statusText}>{item.status}</Text>
-        </View>
       </TouchableOpacity>
       
-      {/* Watch Button */}
-      <TouchableOpacity
-        style={styles.watchButton}
-        onPress={handleWatchAnime}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="play-circle" size={20} color="#fff" />
-        <Text style={styles.watchButtonText}>Watch Now</Text>
-      </TouchableOpacity>
+      <View style={styles.animeInfo}>
+        <Text style={styles.animeTitle} numberOfLines={2}>
+          {item.title_english || item.title}
+        </Text>
+        <View style={styles.animeMetadata}>
+          <View style={styles.scoreContainer}>
+            <Ionicons name="star" size={14} color="#FFD700" />
+            <Text style={styles.scoreText}>{item.score?.toFixed(1) || 'غير متاح'}</Text>
+          </View>
+          <Text style={styles.episodeText}>
+            {item.episodes ? `${item.episodes} حلقة` : 'غير معروف'}
+          </Text>
+        </View>
+        <Text style={styles.statusText}>{item.status}</Text>
+        
+        {/* Watch Button Inside Card */}
+        <TouchableOpacity
+          style={styles.watchButton}
+          onPress={handleWatchAnime}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="play-circle" size={16} color="#fff" />
+          <Text style={styles.watchButtonText}>شاهد الآن</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
