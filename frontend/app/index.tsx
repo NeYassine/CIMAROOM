@@ -277,7 +277,7 @@ export default function Index() {
   const fetchAnimeRecaps = async () => {
     try {
       setRecapLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/anime/recaps?max_results=20`);
+      const response = await fetch(`${BACKEND_URL}/api/recaps?max_results=20`);
       const data = await response.json();
       setRecapVideos(data.videos || []);
     } catch (error) {
@@ -296,7 +296,7 @@ export default function Index() {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/anime/recaps/search?q=${encodeURIComponent(query)}&max_results=10`);
+      const response = await fetch(`${BACKEND_URL}/api/recaps/search?q=${encodeURIComponent(query)}&max_results=10`);
       const data = await response.json();
       setRecapSearchResults(data.videos || []);
     } catch (error) {
