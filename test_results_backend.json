@@ -120,8 +120,8 @@
     },
     {
       "endpoint": "ERROR TEST: Invalid anime ID",
-      "status": "FAIL",
-      "details": "Unexpected HTTP 500: {\"detail\":\"500: API request failed: 404: Failed to fetch data from Jikan API\"}",
+      "status": "PASS",
+      "details": "Properly handled error with HTTP 404",
       "response_data": null
     },
     {
