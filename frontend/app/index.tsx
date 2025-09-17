@@ -15,12 +15,10 @@ import {
   Platform,
   Linking,
   Alert,
-  I18nManager,
-  Modal
+  I18nManager
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { WebView } from 'react-native-webview';
 
 const { width: screenWidth } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -54,24 +52,11 @@ interface AnimeResponse {
   total_results: number;
 }
 
-interface Genre {
-  mal_id: number;
-  name: string;
-}
-
-interface FilterState {
-  genres: number[];
-  year: string;
-  status: string;
-  type: string;
-  rating: string;
-  order_by: string;
-  sort: string;
-}
-
 export default function Index() {
-  const [activeTab, setActiveTab] = useState<'popular' | 'search' | 'seasonal' | 'filter' | 'recaps'>('popular');
-  const [animeList, setAnimeList] = useState<Anime[]>([]);
+  const [popularAnime, setPopularAnime] = useState<Anime[]>([]);
+  const [seasonalAnime, setSeasonalAnime] = useState<Anime[]>([]);
+  const [topRatedAnime, setTopRatedAnime] = useState<Anime[]>([]);
+  const [featuredAnime, setFeaturedAnime] = useState<Anime | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
@@ -79,140 +64,62 @@ export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filteredResults, setFilteredResults] = useState<Anime[]>([]);
-  const [filterLoading, setFilterLoading] = useState(false);
-  const [showFilterResults, setShowFilterResults] = useState(false);
-  const [animeVideos, setAnimeVideos] = useState<any[]>([]);
-  const [animeImages, setAnimeImages] = useState<any>({});
-  const [animeRecommendations, setAnimeRecommendations] = useState<Anime[]>([]);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [activeDetailTab, setActiveDetailTab] = useState<'info' | 'media' | 'recommendations'>('info');
-  
-  // Recap-related states
-  const [recapVideos, setRecapVideos] = useState<any[]>([]);
-  const [recapLoading, setRecapLoading] = useState(false);
-  const [recapSearchQuery, setRecapSearchQuery] = useState('');
-  const [recapSearchResults, setRecapSearchResults] = useState<any[]>([]);
-  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
-  
-  const [filters, setFilters] = useState<FilterState>({
-    genres: [],
-    year: '',
-    status: '',
-    type: '',
-    rating: '',
-    order_by: 'score',
-    sort: 'desc'
-  });
+  const [showSearch, setShowSearch] = useState(false);
 
   // Enable RTL for Arabic
   useEffect(() => {
     I18nManager.forceRTL(true);
   }, []);
 
-  // Fetch genres
-  const fetchGenres = async () => {
+  // Fetch popular anime
+  const fetchPopularAnime = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/anime/genres`);
-      const data = await response.json();
-      setGenres(data.data || []);
-    } catch (error) {
-      console.error('Error fetching genres:', error);
-    }
-  };
-
-  // Fetch anime media and recommendations
-  const fetchAnimeDetails = async (anime: Anime) => {
-    setDetailsLoading(true);
-    try {
-      // Fetch videos
-      const videosResponse = await fetch(
-        `${BACKEND_URL}/api/anime/${anime.id}/videos?content_type=${anime.content_type}`
-      );
-      const videosData = await videosResponse.json();
-      setAnimeVideos(videosData.videos || []);
-
-      // Fetch images
-      const imagesResponse = await fetch(
-        `${BACKEND_URL}/api/anime/${anime.id}/images?content_type=${anime.content_type}`
-      );
-      const imagesData = await imagesResponse.json();
-      setAnimeImages(imagesData || {});
-
-      // Fetch recommendations
-      const recommendationsResponse = await fetch(
-        `${BACKEND_URL}/api/anime/${anime.id}/recommendations?content_type=${anime.content_type}`
-      );
-      const recommendationsData = await recommendationsResponse.json();
-      setAnimeRecommendations(recommendationsData.recommendations || []);
-    } catch (error) {
-      console.error('Error fetching anime details:', error);
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
-  // Apply filters
-  const applyFilters = async () => {
-    try {
-      setFilterLoading(true);
-      const params = new URLSearchParams();
-      
-      if (filters.genres.length > 0) {
-        params.append('genres', filters.genres.join(','));
-      }
-      if (filters.year) {
-        params.append('start_date', `${filters.year}-01-01`);
-        params.append('end_date', `${filters.year}-12-31`);
-      }
-      if (filters.status) {
-        params.append('status', filters.status);
-      }
-      if (filters.type) {
-        params.append('type', filters.type);
-      }
-      if (filters.rating) {
-        params.append('rating', filters.rating);
-      }
-      if (filters.order_by) {
-        params.append('order_by', filters.order_by);
-      }
-      if (filters.sort) {
-        params.append('sort', filters.sort);
-      }
-      
-      params.append('limit', '20');
-      
-      const response = await fetch(`${BACKEND_URL}/api/anime/search?${params.toString()}`);
+      const response = await fetch(`${BACKEND_URL}/api/anime/top?limit=10`);
       const data: AnimeResponse = await response.json();
-      setFilteredResults(data.results || []);
+      const animeList = data.results || [];
+      setPopularAnime(animeList);
       
-      // Show results page
-      setShowFilterResults(true);
+      // Set featured anime (first one with highest rating)
+      if (animeList.length > 0) {
+        const featured = animeList.reduce((prev, current) => 
+          (prev.vote_average || 0) > (current.vote_average || 0) ? prev : current
+        );
+        setFeaturedAnime(featured);
+      }
     } catch (error) {
-      console.error('Error applying filters:', error);
-      setFilteredResults([]);
-      Alert.alert('خطأ', 'حدث خطأ أثناء تطبيق الفلاتر');
-    } finally {
-      setFilterLoading(false);
+      console.error('Error fetching popular anime:', error);
     }
   };
 
-  // Reset filters
-  const resetFilters = () => {
-    setFilters({
-      genres: [],
-      year: '',
-      status: '',
-      type: '',
-      rating: '',
-      order_by: 'score',
-      sort: 'desc'
-    });
-    setFilteredResults([]);
+  // Fetch seasonal anime
+  const fetchSeasonalAnime = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/anime/current-season?limit=8`);
+      const data: AnimeResponse = await response.json();
+      setSeasonalAnime(data.results || []);
+    } catch (error) {
+      console.error('Error fetching seasonal anime:', error);
+    }
+  };
+
+  // Search anime
+  const searchAnime = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/search?q=${encodeURIComponent(query)}&limit=15`);
+      const data: AnimeResponse = await response.json();
+      setSearchResults(data.results || []);
+    } catch (error) {
+      console.error('Error searching anime:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
   };
 
   // Handle opening watch website
@@ -229,310 +136,156 @@ export default function Index() {
     }
   };
 
-  // Fetch popular anime
-  const fetchPopularAnime = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/anime/top?limit=20`);
-      const data: AnimeResponse = await response.json();
-      setAnimeList(data.results || []);
-    } catch (error) {
-      console.error('Error fetching popular anime:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Search anime
-  const searchAnime = async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      setSearchLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/anime/search?q=${encodeURIComponent(query)}&limit=20`);
-      const data: AnimeResponse = await response.json();
-      setSearchResults(data.results || []);
-    } catch (error) {
-      console.error('Error searching anime:', error);
-      setSearchResults([]);
-    } finally {
-      setSearchLoading(false);
-    }
-  };
-
-  // Fetch current season anime
-  const fetchSeasonalAnime = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/anime/current-season?limit=20`);
-      const data: AnimeResponse = await response.json();
-      setAnimeList(data.results || []);
-    } catch (error) {
-      console.error('Error fetching seasonal anime:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch anime recaps from YouTube
-  const fetchAnimeRecaps = async () => {
-    try {
-      setRecapLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/recaps?max_results=20`);
-      const data = await response.json();
-      setRecapVideos(data.videos || []);
-    } catch (error) {
-      console.error('Error fetching anime recaps:', error);
-      setRecapVideos([]);
-    } finally {
-      setRecapLoading(false);
-    }
-  };
-
-  // Search anime recaps
-  const searchAnimeRecaps = async (query: string) => {
-    if (!query.trim()) {
-      setRecapSearchResults([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/recaps/search?q=${encodeURIComponent(query)}&max_results=10`);
-      const data = await response.json();
-      setRecapSearchResults(data.videos || []);
-    } catch (error) {
-      console.error('Error searching anime recaps:', error);
-      setRecapSearchResults([]);
-    }
-  };
-
-  // Handle tab change
-  const handleTabChange = (tab: 'popular' | 'search' | 'seasonal' | 'filter' | 'recaps') => {
-    setActiveTab(tab);
-    if (tab === 'popular') {
-      fetchPopularAnime();
-    } else if (tab === 'seasonal') {
-      fetchSeasonalAnime();
-    } else if (tab === 'filter' && genres.length === 0) {
-      fetchGenres();
-    } else if (tab === 'recaps') {
-      fetchAnimeRecaps();
-    }
-  };
-
-  // Handle search input for recaps
-  useEffect(() => {
-    const debounceTimeout = setTimeout(() => {
-      if (activeTab === 'recaps') {
-        searchAnimeRecaps(recapSearchQuery);
-      }
-    }, 500);
-
-    return () => clearTimeout(debounceTimeout);
-  }, [recapSearchQuery, activeTab]);
-
   // Handle search input
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      if (activeTab === 'search') {
+      if (showSearch) {
         searchAnime(searchQuery);
       }
     }, 500);
 
     return () => clearTimeout(debounceTimeout);
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, showSearch]);
 
   // Initial load
   useEffect(() => {
-    fetchPopularAnime();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchPopularAnime(),
+        fetchSeasonalAnime()
+      ]);
+      setLoading(false);
+    };
+
+    loadData();
   }, []);
 
   // Refresh handler
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    if (activeTab === 'popular') {
-      fetchPopularAnime();
-    } else if (activeTab === 'seasonal') {
-      fetchSeasonalAnime();
-    }
+    await Promise.all([
+      fetchPopularAnime(),
+      fetchSeasonalAnime()
+    ]);
     setRefreshing(false);
   };
 
-  // Render recap video card
-  const renderRecapCard = ({ item }: { item: any }) => (
+  // Render anime card for grid
+  const renderAnimeCard = ({ item, index }: { item: Anime; index: number }) => (
     <TouchableOpacity
-      style={styles.recapCard}
+      style={[
+        styles.animeCard,
+        index % 2 === 0 ? styles.leftCard : styles.rightCard
+      ]}
       onPress={() => {
-        setSelectedVideo(item);
-        setShowVideoPlayer(true);
+        setSelectedAnime(item);
+        setShowDetails(true);
       }}
       activeOpacity={0.8}
     >
       <Image
-        source={{ uri: item.thumbnail }}
-        style={styles.recapThumbnail}
+        source={{ 
+          uri: item.poster_path 
+            ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
+            : 'https://via.placeholder.com/200x300/333/fff?text=No+Image'
+        }}
+        style={styles.animeImage}
         resizeMode="cover"
       />
-      <View style={styles.recapOverlay}>
-        <View style={styles.playButton}>
-          <Ionicons name="play" size={30} color="#fff" />
-        </View>
-      </View>
       
-      {/* Video Duration */}
-      {item.duration && (
-        <View style={styles.durationBadge}>
-          <Text style={styles.durationText}>{item.duration}</Text>
+      {/* Rating Badge */}
+      {item.vote_average && (
+        <View style={styles.ratingBadge}>
+          <Ionicons name="star" size={12} color="#FFD700" />
+          <Text style={styles.ratingText}>{item.vote_average.toFixed(1)}</Text>
         </View>
       )}
       
-      <View style={styles.recapInfo}>
-        <Text style={styles.recapTitle} numberOfLines={2}>
-          {item.title}
+      <View style={styles.animeCardInfo}>
+        <Text style={styles.animeCardTitle} numberOfLines={2}>
+          {item.title_arabic || item.title || item.original_title}
         </Text>
         
-        <View style={styles.recapMeta}>
-          <View style={styles.channelInfo}>
-            <Ionicons name="person-circle" size={16} color="#ff6b6b" />
-            <Text style={styles.recapChannel}>{item.channelTitle}</Text>
-          </View>
-          
-          <View style={styles.videoStats}>
-            <View style={styles.statItem}>
-              <Ionicons name="eye" size={14} color="#999" />
-              <Text style={styles.viewCount}>
-                {item.viewCount ? `${(parseInt(item.viewCount) / 1000).toFixed(0)}k` : '0'}
-              </Text>
-            </View>
-            <Text style={styles.recapDate}>
-              {new Date(item.publishedAt).toLocaleDateString('ar-SA')}
-            </Text>
-          </View>
+        <View style={styles.animeCardMeta}>
+          <Text style={styles.episodeCount}>
+            {item.episode_count ? `${item.episode_count} حلقة` : 
+             item.content_type === 'movie' ? 'فيلم' : 'مسلسل'}
+          </Text>
+          <Text style={styles.animeStatus}>{item.status || 'متاح'}</Text>
         </View>
-        
-        <Text style={styles.recapDescription} numberOfLines={2}>
-          {item.description}
-        </Text>
       </View>
     </TouchableOpacity>
   );
 
-  // Render YouTube video player modal
-  const renderVideoPlayer = () => {
-    if (!selectedVideo) return null;
-
-    const videoId = selectedVideo.id;
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&showinfo=0&controls=1`;
+  // Render featured anime hero section
+  const renderHeroSection = () => {
+    if (!featuredAnime) return null;
 
     return (
-      <Modal
-        visible={showVideoPlayer}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={() => setShowVideoPlayer(false)}
-      >
-        <SafeAreaView style={styles.videoPlayerContainer}>
-          <View style={styles.videoPlayerHeader}>
-            <TouchableOpacity
-              style={styles.closeVideoButton}
-              onPress={() => setShowVideoPlayer(false)}
-            >
-              <Ionicons name="close" size={28} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.videoPlayerTitle} numberOfLines={1}>
-              {selectedVideo.title}
+      <View style={styles.heroSection}>
+        <Image
+          source={{ 
+            uri: featuredAnime.backdrop_path 
+              ? `https://image.tmdb.org/t/p/w780${featuredAnime.backdrop_path}` 
+              : `https://image.tmdb.org/t/p/w500${featuredAnime.poster_path}`
+          }}
+          style={styles.heroImage}
+          resizeMode="cover"
+        />
+        
+        <View style={styles.heroOverlay}>
+          <View style={styles.heroContent}>
+            <Text style={styles.heroCategory}>أنيمي مميز</Text>
+            <Text style={styles.heroTitle} numberOfLines={2}>
+              {featuredAnime.title_arabic || featuredAnime.title || featuredAnime.original_title}
             </Text>
-            <TouchableOpacity
-              style={styles.openInYoutubeButton}
-              onPress={() => Linking.openURL(selectedVideo.url)}
-            >
-              <Ionicons name="open-outline" size={24} color="#ff6b6b" />
-            </TouchableOpacity>
-          </View>
-          
-          <WebView
-            source={{ uri: embedUrl }}
-            style={styles.webView}
-            allowsFullscreenVideo={true}
-            mediaPlaybackRequiresUserAction={false}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            startInLoadingState={true}
-            renderLoading={() => (
-              <View style={styles.webViewLoading}>
-                <ActivityIndicator size="large" color="#ff6b6b" />
-                <Text style={styles.loadingText}>جاري تشغيل الفيديو...</Text>
+            
+            <View style={styles.heroMeta}>
+              <View style={styles.heroRating}>
+                <Ionicons name="star" size={16} color="#FFD700" />
+                <Text style={styles.heroRatingText}>
+                  {featuredAnime.vote_average?.toFixed(1) || 'N/A'}
+                </Text>
               </View>
-            )}
-          />
-          
-          <View style={styles.videoPlayerFooter}>
-            <Text style={styles.videoDescription} numberOfLines={3}>
-              {selectedVideo.description}
+              <Text style={styles.heroEpisodes}>
+                {featuredAnime.episode_count ? `${featuredAnime.episode_count} حلقة` : 
+                 featuredAnime.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
+              </Text>
+            </View>
+            
+            <Text style={styles.heroDescription} numberOfLines={3}>
+              {featuredAnime.overview_arabic || featuredAnime.overview || 'لا يوجد وصف متاح'}
             </Text>
+            
+            <TouchableOpacity
+              style={styles.watchButton}
+              onPress={handleWatchAnime}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="play" size={20} color="#fff" />
+              <Text style={styles.watchButtonText}>شاهد الآن</Text>
+            </TouchableOpacity>
           </View>
-        </SafeAreaView>
-      </Modal>
+        </View>
+      </View>
     );
   };
 
-  // Render anime card
-  const renderAnimeCard = ({ item }: { item: Anime }) => (
-    <View style={styles.animeCard}>
-      <TouchableOpacity
-        onPress={() => {
-          setSelectedAnime(item);
-          setActiveDetailTab('info');
-          setShowDetails(true);
-          fetchAnimeDetails(item);
-        }}
-      >
-        <Image
-          source={{ 
-            uri: item.poster_path 
-              ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
-              : 'https://via.placeholder.com/500x750/333/fff?text=No+Image'
-          }}
-          style={styles.animeImage}
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
-      
-      <View style={styles.animeInfo}>
-        <Text style={styles.animeTitle} numberOfLines={2}>
-          {item.title_arabic || item.title || item.original_title}
-        </Text>
-        <View style={styles.animeMetadata}>
-          <View style={styles.scoreContainer}>
-            <Ionicons name="star" size={14} color="#FFD700" />
-            <Text style={styles.scoreText}>
-              {item.vote_average ? item.vote_average.toFixed(1) : 'غير متاح'}
-            </Text>
-          </View>
-          <Text style={styles.episodeText}>
-            {item.episode_count ? `${item.episode_count} حلقة` : 
-             item.content_type === 'movie' ? 'فيلم' : 'مسلسل'}
-          </Text>
-        </View>
-        <Text style={styles.statusText}>{item.status || 'غير محدد'}</Text>
-        
-        {/* Watch Button Inside Card */}
-        <TouchableOpacity
-          style={styles.watchButton}
-          onPress={handleWatchAnime}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="play-circle" size={16} color="#fff" />
-          <Text style={styles.watchButtonText}>شاهد الآن</Text>
+  // Render section header
+  const renderSectionHeader = (title: string, onViewAll?: () => void) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {onViewAll && (
+        <TouchableOpacity onPress={onViewAll} style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>عرض الكل</Text>
+          <Ionicons name="chevron-back" size={16} color="#FFD700" />
         </TouchableOpacity>
-      </View>
+      )}
     </View>
   );
 
-  // Render enhanced anime details modal with tabs
+  // Render anime details modal
   const renderAnimeDetails = () => {
     if (!selectedAnime) return null;
 
@@ -563,180 +316,45 @@ export default function Index() {
               <Text style={styles.detailsTitle}>
                 {selectedAnime.title_arabic || selectedAnime.title || selectedAnime.original_title}
               </Text>
-
-              {/* Detail Tabs */}
-              <View style={styles.detailTabContainer}>
-                <TouchableOpacity
-                  style={[styles.detailTab, activeDetailTab === 'info' && styles.activeDetailTab]}
-                  onPress={() => setActiveDetailTab('info')}
-                >
-                  <Text style={[styles.detailTabText, activeDetailTab === 'info' && styles.activeDetailTabText]}>
-                    📋 المعلومات
+              
+              <View style={styles.detailsMetadata}>
+                <View style={styles.detailsScoreContainer}>
+                  <Ionicons name="star" size={18} color="#FFD700" />
+                  <Text style={styles.detailsScoreText}>
+                    {selectedAnime.vote_average ? selectedAnime.vote_average.toFixed(1) : 'غير متاح'}
                   </Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={[styles.detailTab, activeDetailTab === 'media' && styles.activeDetailTab]}
-                  onPress={() => setActiveDetailTab('media')}
-                >
-                  <Text style={[styles.detailTabText, activeDetailTab === 'media' && styles.activeDetailTabText]}>
-                    🎬 الوسائط
-                  </Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={[styles.detailTab, activeDetailTab === 'recommendations' && styles.activeDetailTab]}
-                  onPress={() => setActiveDetailTab('recommendations')}
-                >
-                  <Text style={[styles.detailTabText, activeDetailTab === 'recommendations' && styles.activeDetailTabText]}>
-                    💡 اقتراحات
-                  </Text>
-                </TouchableOpacity>
+                </View>
+                <Text style={styles.detailsEpisodeText}>
+                  {selectedAnime.episode_count ? `${selectedAnime.episode_count} حلقة` : 
+                   selectedAnime.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
+                </Text>
               </View>
-
-              {/* Tab Content */}
-              {activeDetailTab === 'info' && (
-                <View>
-                  <View style={styles.detailsMetadata}>
-                    <View style={styles.detailsScoreContainer}>
-                      <Ionicons name="star" size={18} color="#FFD700" />
-                      <Text style={styles.detailsScoreText}>
-                        {selectedAnime.vote_average ? selectedAnime.vote_average.toFixed(1) : 'غير متاح'}
-                      </Text>
-                    </View>
-                    <Text style={styles.detailsEpisodeText}>
-                      {selectedAnime.episode_count ? `${selectedAnime.episode_count} حلقة` : 
-                       selectedAnime.content_type === 'movie' ? 'فيلم أنمي' : 'مسلسل أنمي'}
-                    </Text>
-                  </View>
-                  
-                  <Text style={styles.detailsStatus}>{selectedAnime.status || 'غير محدد'}</Text>
-                  
-                  {(selectedAnime.release_date || selectedAnime.first_air_date) && (
-                    <Text style={styles.detailsAired}>
-                      تاريخ العرض: {selectedAnime.release_date || selectedAnime.first_air_date}
-                    </Text>
-                  )}
-                  
-                  {selectedAnime.origin_country && selectedAnime.origin_country.length > 0 && (
-                    <Text style={styles.detailsAired}>
-                      البلد: {selectedAnime.origin_country.join(', ')}
-                    </Text>
-                  )}
-                  
-                  {selectedAnime.genres && selectedAnime.genres.length > 0 && (
-                    <View style={styles.genresContainer}>
-                      {selectedAnime.genres.map((genre, index) => (
-                        <View key={index} style={styles.genreTag}>
-                          <Text style={styles.genreText}>{genre.name}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                  
-                  {selectedAnime.overview && (
-                    <View style={styles.synopsisContainer}>
-                      <Text style={styles.synopsisTitle}>القصة</Text>
-                      <Text style={styles.synopsisText}>
-                        {selectedAnime.overview_arabic || selectedAnime.overview}
-                      </Text>
-                    </View>
-                  )}
+              
+              <Text style={styles.detailsStatus}>{selectedAnime.status || 'غير محدد'}</Text>
+              
+              {(selectedAnime.release_date || selectedAnime.first_air_date) && (
+                <Text style={styles.detailsAired}>
+                  تاريخ العرض: {selectedAnime.release_date || selectedAnime.first_air_date}
+                </Text>
+              )}
+              
+              {selectedAnime.overview && (
+                <View style={styles.synopsisContainer}>
+                  <Text style={styles.synopsisTitle}>القصة</Text>
+                  <Text style={styles.synopsisText}>
+                    {selectedAnime.overview_arabic || selectedAnime.overview}
+                  </Text>
                 </View>
               )}
-
-              {activeDetailTab === 'media' && (
-                <View style={styles.mediaContainer}>
-                  {detailsLoading ? (
-                    <ActivityIndicator size="large" color="#ff6b6b" />
-                  ) : (
-                    <>
-                      {animeVideos.length > 0 && (
-                        <View style={styles.mediaSection}>
-                          <Text style={styles.mediaSectionTitle}>🎥 الفيديوهات</Text>
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            {animeVideos.map((video, index) => (
-                              <TouchableOpacity
-                                key={index}
-                                style={styles.videoCard}
-                                onPress={() => {
-                                  if (video.site === 'YouTube') {
-                                    Linking.openURL(`https://www.youtube.com/watch?v=${video.key}`);
-                                  }
-                                }}
-                              >
-                                <View style={styles.videoThumbnail}>
-                                  <Ionicons name="play-circle" size={40} color="#ff6b6b" />
-                                </View>
-                                <Text style={styles.videoTitle} numberOfLines={2}>
-                                  {video.name}
-                                </Text>
-                                <Text style={styles.videoType}>{video.type}</Text>
-                              </TouchableOpacity>
-                            ))}
-                          </ScrollView>
-                        </View>
-                      )}
-                      
-                      {animeImages.backdrops && animeImages.backdrops.length > 0 && (
-                        <View style={styles.mediaSection}>
-                          <Text style={styles.mediaSectionTitle}>🖼️ الصور</Text>
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            {animeImages.backdrops.map((image: any, index: number) => (
-                              <Image
-                                key={index}
-                                source={{ uri: `https://image.tmdb.org/t/p/w500${image.file_path}` }}
-                                style={styles.mediaImage}
-                                resizeMode="cover"
-                              />
-                            ))}
-                          </ScrollView>
-                        </View>
-                      )}
-                    </>
-                  )}
-                </View>
-              )}
-
-              {activeDetailTab === 'recommendations' && (
-                <View style={styles.recommendationsContainer}>
-                  {detailsLoading ? (
-                    <ActivityIndicator size="large" color="#ff6b6b" />
-                  ) : animeRecommendations.length > 0 ? (
-                    <FlatList
-                      data={animeRecommendations}
-                      renderItem={({ item }) => (
-                        <TouchableOpacity
-                          style={styles.recommendationCard}
-                          onPress={() => {
-                            setSelectedAnime(item);
-                            setActiveDetailTab('info');
-                            fetchAnimeDetails(item);
-                          }}
-                        >
-                          <Image
-                            source={{ 
-                              uri: item.poster_path 
-                                ? `https://image.tmdb.org/t/p/w200${item.poster_path}` 
-                                : 'https://via.placeholder.com/200x300/333/fff?text=No+Image'
-                            }}
-                            style={styles.recommendationImage}
-                            resizeMode="cover"
-                          />
-                          <Text style={styles.recommendationTitle} numberOfLines={2}>
-                            {item.title_arabic || item.title || item.original_title}
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                      keyExtractor={(item) => item.id.toString()}
-                      numColumns={3}
-                      scrollEnabled={false}
-                    />
-                  ) : (
-                    <Text style={styles.noRecommendationsText}>لا توجد اقتراحات متاحة</Text>
-                  )}
-                </View>
-              )}
+              
+              <TouchableOpacity
+                style={styles.detailsWatchButton}
+                onPress={handleWatchAnime}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="play" size={24} color="#fff" />
+                <Text style={styles.detailsWatchButtonText}>شاهد الآن</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
@@ -744,359 +362,152 @@ export default function Index() {
     );
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#000" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFD700" />
+          <Text style={styles.loadingText}>جاري تحميل الأنيمي...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       
-      {/* Show Filter Results Page */}
-      {showFilterResults ? (
-        <View style={styles.filterResultsContainer}>
-          {/* Filter Results Header */}
-          <View style={styles.filterResultsHeader}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => setShowFilterResults(false)}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-              <Text style={styles.backButtonText}>رجوع للفلاتر</Text>
-            </TouchableOpacity>
-            <Text style={styles.filterResultsTitle}>
-              نتائج البحث ({filteredResults.length})
-            </Text>
-          </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={() => setShowSearch(!showSearch)}
+        >
+          <Ionicons name="search" size={24} color="#fff" />
+        </TouchableOpacity>
+        
+        <Text style={styles.headerTitle}>cimaroom</Text>
+        
+        <TouchableOpacity style={styles.menuButton}>
+          <Ionicons name="menu" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
-          {/* Filter Results Content */}
-          <View style={styles.content}>
-            {filterLoading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#ff6b6b" />
-                <Text style={styles.loadingText}>جاري البحث...</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={filteredResults}
-                renderItem={renderAnimeCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <Ionicons name="search-outline" size={64} color="#666" />
-                    <Text style={styles.emptyText}>لا توجد نتائج للفلاتر المحددة</Text>
-                    <TouchableOpacity
-                      style={styles.modifyFiltersButton}
-                      onPress={() => setShowFilterResults(false)}
-                    >
-                      <Text style={styles.modifyFiltersButtonText}>تعديل الفلاتر</Text>
-                    </TouchableOpacity>
-                  </View>
-                }
-              />
-            )}
+      {/* Search Section */}
+      {showSearch && (
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="ابحث عن الأنيمي..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setShowSearch(false);
+                setSearchQuery('');
+                setSearchResults([]);
+              }}
+            >
+              <Ionicons name="close" size={20} color="#666" />
+            </TouchableOpacity>
           </View>
         </View>
-      ) : (
-        /* Main App Interface */
-        <>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerSpacer} />
-            <Text style={styles.headerTitle}>cimaroom</Text>
-            <Ionicons name="heart" size={24} color="#ff6b6b" />
-          </View>
-
-          {/* Tab Navigation with Emojis */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'popular' && styles.activeTab]}
-              onPress={() => handleTabChange('popular')}
-            >
-              <Text style={styles.tabEmoji}>🔥</Text>
-              {activeTab === 'popular' && (
-                <Text style={[styles.tabText, styles.activeTabText]}>الأكثر شعبية</Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'search' && styles.activeTab]}
-              onPress={() => handleTabChange('search')}
-            >
-              <Text style={styles.tabEmoji}>🔍</Text>
-              {activeTab === 'search' && (
-                <Text style={[styles.tabText, styles.activeTabText]}>البحث</Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'recaps' && styles.activeTab]}
-              onPress={() => handleTabChange('recaps')}
-            >
-              <Text style={styles.tabEmoji}>📝</Text>
-              {activeTab === 'recaps' && (
-                <Text style={[styles.tabText, styles.activeTabText]}>الملخصات</Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
-              onPress={() => handleTabChange('filter')}
-            >
-              <Text style={styles.tabEmoji}>⚙️</Text>
-              {activeTab === 'filter' && (
-                <Text style={[styles.tabText, styles.activeTabText]}>الفلاتر</Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'seasonal' && styles.activeTab]}
-              onPress={() => handleTabChange('seasonal')}
-            >
-              <Text style={styles.tabEmoji}>📅</Text>
-              {activeTab === 'seasonal' && (
-                <Text style={[styles.tabText, styles.activeTabText]}>الموسمية</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Recaps Section */}
-          {activeTab === 'recaps' && (
-            <View style={styles.recapsContainer}>
-              {/* Search for specific recap */}
-              <View style={styles.searchContainer}>
-                <View style={styles.searchInputContainer}>
-                  <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="ابحث عن ملخص أنيمي..."
-                    placeholderTextColor="#666"
-                    value={recapSearchQuery}
-                    onChangeText={setRecapSearchQuery}
-                  />
-                </View>
-              </View>
-              
-              {/* Recap results */}
-              <View style={styles.recapResults}>
-                {recapLoading ? (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#ff6b6b" />
-                    <Text style={styles.loadingText}>جاري تحميل الملخصات...</Text>
-                  </View>
-                ) : (
-                  <FlatList
-                    data={recapSearchQuery ? recapSearchResults : recapVideos}
-                    renderItem={renderRecapCard}
-                    keyExtractor={(item) => item.id}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.recapListContainer}
-                    ListEmptyComponent={
-                      <View style={styles.emptyContainer}>
-                        <Ionicons name="film-outline" size={64} color="#666" />
-                        <Text style={styles.emptyText}>
-                          {recapSearchQuery 
-                            ? 'لم يتم العثور على ملخصات لهذا الأنيمي' 
-                            : 'لا توجد ملخصات متاحة حالياً'}
-                        </Text>
-                      </View>
-                    }
-                  />
-                )}
-              </View>
-            </View>
-          )}
-
-          {/* Filter Section */}
-          {activeTab === 'filter' && (
-            <ScrollView style={styles.filterContainer} showsVerticalScrollIndicator={false}>
-              {/* Year Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterTitle}>السنة</Text>
-                <TextInput
-                  style={styles.filterInput}
-                  placeholder="مثال: 2024"
-                  placeholderTextColor="#666"
-                  value={filters.year}
-                  onChangeText={(text) => setFilters({...filters, year: text})}
-                  keyboardType="numeric"
-                />
-              </View>
-
-              {/* Status Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterTitle}>حالة الأنيمي</Text>
-                <View style={styles.filterOptions}>
-                  {[
-                    { key: '', label: 'الكل' },
-                    { key: 'airing', label: 'يعرض حالياً' },
-                    { key: 'complete', label: 'مكتمل' },
-                    { key: 'upcoming', label: 'قادم' }
-                  ].map((option) => (
-                    <TouchableOpacity
-                      key={option.key}
-                      style={[
-                        styles.filterOption,
-                        filters.status === option.key && styles.activeFilterOption
-                      ]}
-                      onPress={() => setFilters({...filters, status: option.key})}
-                    >
-                      <Text style={[
-                        styles.filterOptionText,
-                        filters.status === option.key && styles.activeFilterOptionText
-                      ]}>
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Type Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterTitle}>نوع الأنيمي</Text>
-                <View style={styles.filterOptions}>
-                  {[
-                    { key: '', label: 'الكل' },
-                    { key: 'tv', label: 'مسلسل' },
-                    { key: 'movie', label: 'فيلم' },
-                    { key: 'ova', label: 'OVA' },
-                    { key: 'ona', label: 'ONA' }
-                  ].map((option) => (
-                    <TouchableOpacity
-                      key={option.key}
-                      style={[
-                        styles.filterOption,
-                        filters.type === option.key && styles.activeFilterOption
-                      ]}
-                      onPress={() => setFilters({...filters, type: option.key})}
-                    >
-                      <Text style={[
-                        styles.filterOptionText,
-                        filters.type === option.key && styles.activeFilterOptionText
-                      ]}>
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Sort Options */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterTitle}>ترتيب النتائج</Text>
-                <View style={styles.filterOptions}>
-                  {[
-                    { key: 'score', label: 'التقييم' },
-                    { key: 'popularity', label: 'الشعبية' },
-                    { key: 'start_date', label: 'تاريخ البدء' }
-                  ].map((option) => (
-                    <TouchableOpacity
-                      key={option.key}
-                      style={[
-                        styles.filterOption,
-                        filters.order_by === option.key && styles.activeFilterOption
-                      ]}
-                      onPress={() => setFilters({...filters, order_by: option.key})}
-                    >
-                      <Text style={[
-                        styles.filterOptionText,
-                        filters.order_by === option.key && styles.activeFilterOptionText
-                      ]}>
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Filter Buttons */}
-              <View style={styles.filterButtons}>
-                <TouchableOpacity
-                  style={styles.resetButton}
-                  onPress={resetFilters}
-                >
-                  <Ionicons name="refresh" size={20} color="#666" />
-                  <Text style={styles.resetButtonText}>إعادة تعيين</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={styles.applyButton}
-                  onPress={applyFilters}
-                  disabled={filterLoading}
-                >
-                  {filterLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Ionicons name="search" size={20} color="#fff" />
-                  )}
-                  <Text style={styles.applyButtonText}>
-                    {filterLoading ? 'جاري البحث...' : 'تطبيق الفلاتر'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          )}
-
-          {/* Search Input */}
-          {activeTab === 'search' && (
-            <View style={styles.searchContainer}>
-              <View style={styles.searchInputContainer}>
-                <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="ابحث عن الأنيمي..."
-                  placeholderTextColor="#666"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-              </View>
-            </View>
-          )}
-
-          {/* Content */}
-          <View style={styles.content}>
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#ff6b6b" />
-                <Text style={styles.loadingText}>جارٍ تحميل الأنيمي...</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={activeTab === 'search' ? searchResults : animeList}
-                renderItem={renderAnimeCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    colors={['#ff6b6b']}
-                    tintColor="#ff6b6b"
-                  />
-                }
-                ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <Ionicons name="film-outline" size={64} color="#666" />
-                    <Text style={styles.emptyText}>
-                      {activeTab === 'search' && searchQuery
-                        ? 'لم يتم العثور على أنيمي'
-                        : 'لا توجد أنيمي متاحة'}
-                    </Text>
-                  </View>
-                }
-              />
-            )}
-          </View>
-        </>
       )}
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#FFD700']}
+            tintColor="#FFD700"
+          />
+        }
+      >
+        {/* Search Results */}
+        {showSearch && searchResults.length > 0 && (
+          <View style={styles.section}>
+            {renderSectionHeader('نتائج البحث')}
+            <FlatList
+              data={searchResults}
+              renderItem={renderAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              scrollEnabled={false}
+              contentContainerStyle={styles.gridContainer}
+            />
+          </View>
+        )}
+
+        {/* Hero Section */}
+        {!showSearch && renderHeroSection()}
+
+        {/* Popular Anime Section */}
+        {!showSearch && popularAnime.length > 0 && (
+          <View style={styles.section}>
+            {renderSectionHeader('الأكثر شعبية')}
+            <FlatList
+              data={popularAnime.slice(1, 7)} // Skip first one (featured)
+              renderItem={renderAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              scrollEnabled={false}
+              contentContainerStyle={styles.gridContainer}
+            />
+          </View>
+        )}
+
+        {/* Seasonal Anime Section */}
+        {!showSearch && seasonalAnime.length > 0 && (
+          <View style={styles.section}>
+            {renderSectionHeader('الأنيمي الموسمي')}
+            <FlatList
+              data={seasonalAnime}
+              renderItem={renderAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              scrollEnabled={false}
+              contentContainerStyle={styles.gridContainer}
+            />
+          </View>
+        )}
+
+        {/* Empty State */}
+        {!showSearch && popularAnime.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="film-outline" size={64} color="#666" />
+            <Text style={styles.emptyText}>لا توجد أنيمي متاحة</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="home" size={24} color="#FFD700" />
+          <Text style={styles.navText}>الرئيسية</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="bookmark-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="person-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>الملف الشخصي</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Details Modal */}
       {showDetails && renderAnimeDetails()}
-
-      {/* Video Player Modal */}
-      {showVideoPlayer && renderVideoPlayer()}
     </SafeAreaView>
   );
 }
@@ -1104,78 +515,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#111',
-  },
-  headerSpacer: {
-    width: 24,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#111',
-    marginHorizontal: 20,
-    borderRadius: 25,
-    padding: 4,
-    marginBottom: 10,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  activeTab: {
-    backgroundColor: '#ff6b6b',
-  },
-  tabEmoji: {
-    fontSize: 18,
-  },
-  tabText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#fff',
-  },
-  searchContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#111',
-    borderRadius: 15,
-    paddingHorizontal: 15,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 15,
-    fontSize: 16,
-    color: '#fff',
-  },
-  content: {
-    flex: 1,
+    backgroundColor: '#0F0F0F',
   },
   loadingContainer: {
     flex: 1,
@@ -1187,69 +527,236 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  listContainer: {
-    padding: 20,
-  },
-  animeCard: {
-    flex: 1,
-    backgroundColor: '#111',
-    borderRadius: 15,
-    margin: 5,
-    overflow: 'hidden',
-  },
-  animeImage: {
-    width: '100%',
-    height: 180,
-  },
-  animeInfo: {
-    padding: 12,
-  },
-  animeTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  animeMetadata: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#1A1A1A',
   },
-  scoreContainer: {
+  searchButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    textAlign: 'center',
+  },
+  menuButton: {
+    padding: 8,
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: '#1A1A1A',
+  },
+  searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#2A2A2A',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
-  scoreText: {
-    marginLeft: 4,
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  heroSection: {
+    height: 280,
+    position: 'relative',
+  },
+  heroImage: {
+    width: screenWidth,
+    height: 280,
+  },
+  heroOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
+  heroContent: {
+    flex: 1,
+  },
+  heroCategory: {
     fontSize: 12,
     color: '#FFD700',
     fontWeight: '600',
+    marginBottom: 5,
+    textTransform: 'uppercase',
   },
-  episodeText: {
-    fontSize: 12,
-    color: '#999',
+  heroTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+    lineHeight: 28,
   },
-  statusText: {
-    fontSize: 11,
-    color: '#ff6b6b',
-    fontWeight: '500',
+  heroMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  heroRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  heroRatingText: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  heroEpisodes: {
+    color: '#ccc',
+    fontSize: 14,
+  },
+  heroDescription: {
+    color: '#ccc',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 15,
   },
   watchButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#FFD700',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    marginTop: 8,
-    borderRadius: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignSelf: 'flex-start',
   },
   watchButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  section: {
+    marginBottom: 30,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
     color: '#fff',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 5,
+  },
+  gridContainer: {
+    paddingHorizontal: 15,
+  },
+  animeCard: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  leftCard: {
+    marginRight: 7.5,
+    flex: 1,
+  },
+  rightCard: {
+    marginLeft: 7.5,
+    flex: 1,
+  },
+  animeImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#333',
+  },
+  ratingBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  ratingText: {
+    color: '#FFD700',
     fontSize: 12,
     fontWeight: '600',
     marginLeft: 4,
+  },
+  animeCardInfo: {
+    padding: 12,
+  },
+  animeCardTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 6,
+    lineHeight: 18,
+  },
+  animeCardMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  episodeCount: {
+    fontSize: 12,
+    color: '#999',
+  },
+  animeStatus: {
+    fontSize: 12,
+    color: '#FFD700',
+    fontWeight: '500',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    backgroundColor: '#1A1A1A',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+  navText: {
+    fontSize: 10,
+    color: '#FFD700',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  inactiveNavText: {
+    color: '#666',
   },
   emptyContainer: {
     flex: 1,
@@ -1274,8 +781,8 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     width: screenWidth * 0.95,
-    maxHeight: '95%',
-    backgroundColor: '#111',
+    maxHeight: '90%',
+    backgroundColor: '#1A1A1A',
     borderRadius: 20,
     overflow: 'hidden',
   },
@@ -1290,40 +797,17 @@ const styles = StyleSheet.create({
   },
   detailsImage: {
     width: '100%',
-    height: 200,
+    height: 250,
   },
   detailsContent: {
     padding: 20,
   },
   detailsTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 15,
-  },
-  detailTabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#222',
-    borderRadius: 15,
-    padding: 4,
-    marginBottom: 20,
-  },
-  detailTab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: 12,
-  },
-  activeDetailTab: {
-    backgroundColor: '#ff6b6b',
-  },
-  detailTabText: {
-    fontSize: 12,
-    color: '#999',
-    fontWeight: '600',
-  },
-  activeDetailTabText: {
-    color: '#fff',
+    lineHeight: 28,
   },
   detailsMetadata: {
     flexDirection: 'row',
@@ -1347,7 +831,7 @@ const styles = StyleSheet.create({
   },
   detailsStatus: {
     fontSize: 14,
-    color: '#ff6b6b',
+    color: '#FFD700',
     fontWeight: '500',
     marginBottom: 8,
   },
@@ -1356,397 +840,32 @@ const styles = StyleSheet.create({
     color: '#999',
     marginBottom: 15,
   },
-  genresContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15,
-  },
-  genreTag: {
-    backgroundColor: '#333',
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    margin: 3,
-  },
-  genreText: {
-    fontSize: 12,
-    color: '#fff',
-  },
   synopsisContainer: {
-    marginTop: 10,
+    marginBottom: 20,
   },
   synopsisTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   synopsisText: {
     fontSize: 14,
     color: '#ccc',
-    lineHeight: 20,
-  },
-  mediaContainer: {
-    minHeight: 200,
-  },
-  mediaSection: {
-    marginBottom: 20,
-  },
-  mediaSectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 10,
-  },
-  videoCard: {
-    width: 150,
-    marginRight: 15,
-    backgroundColor: '#222',
-    borderRadius: 10,
-    padding: 10,
-  },
-  videoThumbnail: {
-    height: 85,
-    backgroundColor: '#333',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  videoTitle: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  videoType: {
-    fontSize: 10,
-    color: '#999',
-  },
-  mediaImage: {
-    width: 120,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-  recommendationsContainer: {
-    minHeight: 200,
-  },
-  recommendationCard: {
-    flex: 1,
-    margin: 5,
-    alignItems: 'center',
-  },
-  recommendationImage: {
-    width: 80,
-    height: 120,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  recommendationTitle: {
-    fontSize: 11,
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  noRecommendationsText: {
-    textAlign: 'center',
-    color: '#666',
-    fontSize: 16,
-    marginTop: 50,
-  },
-  filterContainer: {
-    backgroundColor: '#0a0a0a',
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  filterSection: {
-    marginBottom: 20,
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 10,
-  },
-  filterInput: {
-    backgroundColor: '#111',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#fff',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  filterOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  filterOption: {
-    backgroundColor: '#111',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  activeFilterOption: {
-    backgroundColor: '#ff6b6b',
-    borderColor: '#ff6b6b',
-  },
-  filterOptionText: {
-    color: '#999',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  activeFilterOptionText: {
-    color: '#fff',
-  },
-  filterButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    gap: 10,
-  },
-  resetButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#111',
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  resetButtonText: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  applyButton: {
-    flex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ff6b6b',
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  filterResultsContainer: {
-    flex: 1,
-    backgroundColor: '#0a0a0a',
-  },
-  filterResultsHeader: {
-    backgroundColor: '#111',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  filterResultsTitle: {
-    color: '#ff6b6b',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modifyFiltersButton: {
-    backgroundColor: '#ff6b6b',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginTop: 15,
-  },
-  modifyFiltersButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  recapsContainer: {
-    flex: 1,
-    backgroundColor: '#0a0a0a',
-  },
-  recapResults: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  recapListContainer: {
-    paddingBottom: 20,
-  },
-  recapCard: {
-    backgroundColor: '#111',
-    borderRadius: 15,
-    marginBottom: 15,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  recapThumbnail: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#333',
-  },
-  recapOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  recapInfo: {
-    padding: 15,
-  },
-  recapTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
     lineHeight: 22,
   },
-  recapChannel: {
-    fontSize: 14,
-    color: '#ff6b6b',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  recapDate: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 8,
-  },
-  recapDescription: {
-    fontSize: 14,
-    color: '#ccc',
-    lineHeight: 18,
-  },
-  recapOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 200,
+  detailsWatchButton: {
+    backgroundColor: '#FFD700',
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingVertical: 15,
+    borderRadius: 25,
   },
-  playButton: {
-    backgroundColor: '#ff6b6b',
-    borderRadius: 35,
-    width: 70,
-    height: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  durationBadge: {
-    position: 'absolute',
-    bottom: 205,
-    right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  durationText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  recapMeta: {
-    marginBottom: 8,
-  },
-  channelInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  videoStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  viewCount: {
-    fontSize: 12,
-    color: '#999',
-    marginLeft: 4,
-  },
-  videoPlayerContainer: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  videoPlayerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#111',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  closeVideoButton: {
-    marginRight: 15,
-  },
-  videoPlayerTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  openInYoutubeButton: {
-    marginLeft: 15,
-  },
-  webView: {
-    flex: 1,
-  },
-  webViewLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
-  },
-  videoPlayerFooter: {
-    backgroundColor: '#111',
-    padding: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-  },
-  videoDescription: {
-    fontSize: 14,
-    color: '#ccc',
-    lineHeight: 20,
+  detailsWatchButtonText: {
+    color: '#000',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
 });
