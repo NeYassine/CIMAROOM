@@ -92,6 +92,7 @@ export default function Index() {
   const [showFilters, setShowFilters] = useState(false);
   const [filteredResults, setFilteredResults] = useState<Anime[]>([]);
   const [filterLoading, setFilterLoading] = useState(false);
+  const [showFilterResults, setShowFilterResults] = useState(false);
   
   const [filters, setFilters] = useState<FilterState>({
     genres: [],
