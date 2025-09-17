@@ -553,7 +553,7 @@ export default function Index() {
         {/* Seasonal Anime Section */}
         {!showSearch && seasonalAnime.length > 0 && (
           <View style={styles.section}>
-            {renderSectionHeader('الأنيمي الموسمي')}
+            {renderSectionHeader('أنميات الموسم', handleLoadMoreSeasonal)}
             <FlatList
               data={seasonalAnime}
               renderItem={renderAnimeCard}
