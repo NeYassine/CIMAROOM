@@ -1094,6 +1094,9 @@ export default function Index() {
 
       {/* Details Modal */}
       {showDetails && renderAnimeDetails()}
+
+      {/* Video Player Modal */}
+      {showVideoPlayer && renderVideoPlayer()}
     </SafeAreaView>
   );
 }
