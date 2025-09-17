@@ -263,7 +263,7 @@ export default function Index() {
               <Text style={styles.detailsStatus}>{selectedAnime.status}</Text>
               
               {selectedAnime.aired?.string && (
-                <Text style={styles.detailsAired}>Aired: {selectedAnime.aired.string}</Text>
+                <Text style={styles.detailsAired}>تاريخ العرض: {selectedAnime.aired.string}</Text>
               )}
               
               {selectedAnime.genres && selectedAnime.genres.length > 0 && (
@@ -278,7 +278,7 @@ export default function Index() {
               
               {selectedAnime.synopsis && (
                 <View style={styles.synopsisContainer}>
-                  <Text style={styles.synopsisTitle}>Synopsis</Text>
+                  <Text style={styles.synopsisTitle}>القصة</Text>
                   <Text style={styles.synopsisText}>{selectedAnime.synopsis}</Text>
                 </View>
               )}
