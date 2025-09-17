@@ -1,12 +1,13 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+import httpx
 import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
 
@@ -25,6 +26,8 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Jikan API base URL
+JIKAN_BASE_URL = "https://api.jikan.moe/v4"
 
 # Define Models
 class StatusCheck(BaseModel):
@@ -35,10 +38,104 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
-# Add your routes to the router instead of directly to app
+class AnimeBasic(BaseModel):
+    mal_id: int
+    title: str
+    title_english: Optional[str] = None
+    images: Dict[str, Any]
+    score: Optional[float] = None
+    episodes: Optional[int] = None
+    status: Optional[str] = None
+    aired: Optional[Dict[str, Any]] = None
+    genres: Optional[List[Dict[str, Any]]] = []
+    synopsis: Optional[str] = None
+
+class AnimeSearchResponse(BaseModel):
+    data: List[AnimeBasic]
+    pagination: Dict[str, Any]
+
+class AnimeDetailResponse(BaseModel):
+    data: AnimeBasic
+
+# Helper function to make Jikan API calls
+async def make_jikan_request(endpoint: str) -> Dict[str, Any]:
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.get(f"{JIKAN_BASE_URL}{endpoint}")
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Rate limited by Jikan API")
+            else:
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch data from Jikan API")
+        except httpx.TimeoutException:
+            raise HTTPException(status_code=408, detail="Request timeout")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
+
+# Anime API routes
+@api_router.get("/anime/top", response_model=AnimeSearchResponse)
+async def get_top_anime(page: int = 1, limit: int = 25):
+    """Get top anime from Jikan API"""
+    try:
+        data = await make_jikan_request(f"/top/anime?page={page}&limit={limit}")
+        return AnimeSearchResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/search", response_model=AnimeSearchResponse)
+async def search_anime(q: str, page: int = 1, limit: int = 25):
+    """Search anime by query"""
+    try:
+        data = await make_jikan_request(f"/anime?q={q}&page={page}&limit={limit}")
+        return AnimeSearchResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
+async def get_anime_details(anime_id: int):
+    """Get detailed information about a specific anime"""
+    try:
+        data = await make_jikan_request(f"/anime/{anime_id}")
+        return AnimeDetailResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/seasonal/{year}/{season}", response_model=AnimeSearchResponse)
+async def get_seasonal_anime(year: int, season: str, page: int = 1):
+    """Get seasonal anime (winter, spring, summer, fall)"""
+    valid_seasons = ["winter", "spring", "summer", "fall"]
+    if season.lower() not in valid_seasons:
+        raise HTTPException(status_code=400, detail="Invalid season. Must be one of: winter, spring, summer, fall")
+    
+    try:
+        data = await make_jikan_request(f"/seasons/{year}/{season.lower()}?page={page}")
+        return AnimeSearchResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/current-season", response_model=AnimeSearchResponse)
+async def get_current_season_anime(page: int = 1):
+    """Get currently airing anime"""
+    try:
+        data = await make_jikan_request(f"/seasons/now?page={page}")
+        return AnimeSearchResponse(**data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/genres")
+async def get_anime_genres():
+    """Get all available anime genres"""
+    try:
+        data = await make_jikan_request("/genres/anime")
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Original routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Anime App API - Powered by Jikan"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
