@@ -445,7 +445,7 @@ async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
         raise HTTPException(status_code=500, detail=str(e))
 
 # YouTube API routes for Arabic anime recaps
-@api_router.get("/anime/recaps")
+@api_router.get("/recaps")
 async def get_anime_recaps(page_token: str = None, max_results: int = 20):
     """Get anime recaps from Bta3AnimeOfficial YouTube channel"""
     try:
