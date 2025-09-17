@@ -350,32 +350,47 @@ export default function Index() {
             </TouchableOpacity>
             
             <Image
-              source={{ uri: selectedAnime.images.jpg.large_image_url }}
+              source={{ 
+                uri: selectedAnime.backdrop_path 
+                  ? `https://image.tmdb.org/t/p/w780${selectedAnime.backdrop_path}` 
+                  : selectedAnime.poster_path 
+                    ? `https://image.tmdb.org/t/p/w500${selectedAnime.poster_path}`
+                    : 'https://via.placeholder.com/780x440/333/fff?text=No+Image'
+              }}
               style={styles.detailsImage}
               resizeMode="cover"
             />
             
             <View style={styles.detailsContent}>
               <Text style={styles.detailsTitle}>
-                {selectedAnime.title_english || selectedAnime.title}
+                {selectedAnime.title_arabic || selectedAnime.title || selectedAnime.original_title}
               </Text>
               
               <View style={styles.detailsMetadata}>
                 <View style={styles.detailsScoreContainer}>
                   <Ionicons name="star" size={18} color="#FFD700" />
                   <Text style={styles.detailsScoreText}>
-                    {selectedAnime.score?.toFixed(1) || 'N/A'}
+                    {selectedAnime.vote_average ? selectedAnime.vote_average.toFixed(1) : 'غير متاح'}
                   </Text>
                 </View>
                 <Text style={styles.detailsEpisodeText}>
-                  {selectedAnime.episodes ? `${selectedAnime.episodes} حلقة` : 'حلقات غير معروفة'}
+                  {selectedAnime.episode_count ? `${selectedAnime.episode_count} حلقة` : 
+                   selectedAnime.content_type === 'movie' ? 'فيلم أنمي' : 'مسلسل أنمي'}
                 </Text>
               </View>
               
-              <Text style={styles.detailsStatus}>{selectedAnime.status}</Text>
+              <Text style={styles.detailsStatus}>{selectedAnime.status || 'غير محدد'}</Text>
               
-              {selectedAnime.aired?.string && (
-                <Text style={styles.detailsAired}>تاريخ العرض: {selectedAnime.aired.string}</Text>
+              {(selectedAnime.release_date || selectedAnime.first_air_date) && (
+                <Text style={styles.detailsAired}>
+                  تاريخ العرض: {selectedAnime.release_date || selectedAnime.first_air_date}
+                </Text>
+              )}
+              
+              {selectedAnime.origin_country && selectedAnime.origin_country.length > 0 && (
+                <Text style={styles.detailsAired}>
+                  البلد: {selectedAnime.origin_country.join(', ')}
+                </Text>
               )}
               
               {selectedAnime.genres && selectedAnime.genres.length > 0 && (
@@ -388,10 +403,12 @@ export default function Index() {
                 </View>
               )}
               
-              {selectedAnime.synopsis && (
+              {selectedAnime.overview && (
                 <View style={styles.synopsisContainer}>
                   <Text style={styles.synopsisTitle}>القصة</Text>
-                  <Text style={styles.synopsisText}>{selectedAnime.synopsis}</Text>
+                  <Text style={styles.synopsisText}>
+                    {selectedAnime.overview_arabic || selectedAnime.overview}
+                  </Text>
                 </View>
               )}
             </View>
