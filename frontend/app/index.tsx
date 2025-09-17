@@ -308,7 +308,7 @@ export default function Index() {
         >
           <Ionicons name="flame" size={20} color={activeTab === 'popular' ? '#fff' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'popular' && styles.activeTabText]}>
-            Popular
+            الأكثر شعبية
           </Text>
         </TouchableOpacity>
         
@@ -318,7 +318,7 @@ export default function Index() {
         >
           <Ionicons name="search" size={20} color={activeTab === 'search' ? '#fff' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'search' && styles.activeTabText]}>
-            Search
+            البحث
           </Text>
         </TouchableOpacity>
         
@@ -328,7 +328,7 @@ export default function Index() {
         >
           <Ionicons name="calendar" size={20} color={activeTab === 'seasonal' ? '#fff' : '#666'} />
           <Text style={[styles.tabText, activeTab === 'seasonal' && styles.activeTabText]}>
-            Seasonal
+            الموسمية
           </Text>
         </TouchableOpacity>
       </View>
