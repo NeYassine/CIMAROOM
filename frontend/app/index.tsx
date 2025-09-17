@@ -65,6 +65,11 @@ export default function Index() {
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showMorePopular, setShowMorePopular] = useState(false);
+  const [morePopularAnime, setMorePopularAnime] = useState<Anime[]>([]);
+  const [morePopularLoading, setMorePopularLoading] = useState(false);
+  const [morePopularPage, setMorePopularPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(true);
 
   // Enable RTL for Arabic
   useEffect(() => {
