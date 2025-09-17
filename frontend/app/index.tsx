@@ -15,10 +15,12 @@ import {
   Platform,
   Linking,
   Alert,
-  I18nManager
+  I18nManager,
+  Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { WebView } from 'react-native-webview';
 
 const { width: screenWidth } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
