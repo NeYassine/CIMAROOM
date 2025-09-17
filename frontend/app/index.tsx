@@ -522,40 +522,40 @@ export default function Index() {
               style={[styles.tab, activeTab === 'popular' && styles.activeTab]}
               onPress={() => handleTabChange('popular')}
             >
-              <Ionicons name="flame" size={20} color={activeTab === 'popular' ? '#fff' : '#666'} />
-              <Text style={[styles.tabText, activeTab === 'popular' && styles.activeTabText]}>
-                الأكثر شعبية
-              </Text>
+              <Text style={styles.tabEmoji}>🔥</Text>
+              {activeTab === 'popular' && (
+                <Text style={[styles.tabText, styles.activeTabText]}>الأكثر شعبية</Text>
+              )}
             </TouchableOpacity>
             
             <TouchableOpacity
               style={[styles.tab, activeTab === 'search' && styles.activeTab]}
               onPress={() => handleTabChange('search')}
             >
-              <Ionicons name="search" size={20} color={activeTab === 'search' ? '#fff' : '#666'} />
-              <Text style={[styles.tabText, activeTab === 'search' && styles.activeTabText]}>
-                البحث
-              </Text>
+              <Text style={styles.tabEmoji}>🔍</Text>
+              {activeTab === 'search' && (
+                <Text style={[styles.tabText, styles.activeTabText]}>البحث</Text>
+              )}
             </TouchableOpacity>
             
             <TouchableOpacity
               style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
               onPress={() => handleTabChange('filter')}
             >
-              <Ionicons name="options" size={20} color={activeTab === 'filter' ? '#fff' : '#666'} />
-              <Text style={[styles.tabText, activeTab === 'filter' && styles.activeTabText]}>
-                الفلاتر
-              </Text>
+              <Text style={styles.tabEmoji}>⚙️</Text>
+              {activeTab === 'filter' && (
+                <Text style={[styles.tabText, styles.activeTabText]}>الفلاتر</Text>
+              )}
             </TouchableOpacity>
             
             <TouchableOpacity
               style={[styles.tab, activeTab === 'seasonal' && styles.activeTab]}
               onPress={() => handleTabChange('seasonal')}
             >
-              <Ionicons name="calendar" size={20} color={activeTab === 'seasonal' ? '#fff' : '#666'} />
-              <Text style={[styles.tabText, activeTab === 'seasonal' && styles.activeTabText]}>
-                الموسمية
-              </Text>
+              <Text style={styles.tabEmoji}>📅</Text>
+              {activeTab === 'seasonal' && (
+                <Text style={[styles.tabText, styles.activeTabText]}>الموسمية</Text>
+              )}
             </TouchableOpacity>
           </View>
 
