@@ -357,6 +357,37 @@ export default function Index() {
     setRefreshing(false);
   };
 
+  // Render recap video card
+  const renderRecapCard = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={styles.recapCard}
+      onPress={() => Linking.openURL(item.url)}
+      activeOpacity={0.8}
+    >
+      <Image
+        source={{ uri: item.thumbnail }}
+        style={styles.recapThumbnail}
+        resizeMode="cover"
+      />
+      <View style={styles.recapOverlay}>
+        <Ionicons name="play-circle" size={40} color="#ff6b6b" />
+      </View>
+      
+      <View style={styles.recapInfo}>
+        <Text style={styles.recapTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <Text style={styles.recapChannel}>{item.channelTitle}</Text>
+        <Text style={styles.recapDate}>
+          {new Date(item.publishedAt).toLocaleDateString('ar-SA')}
+        </Text>
+        <Text style={styles.recapDescription} numberOfLines={3}>
+          {item.description}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   // Render anime card
   const renderAnimeCard = ({ item }: { item: Anime }) => (
     <View style={styles.animeCard}>
