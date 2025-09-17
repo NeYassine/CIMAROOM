@@ -543,9 +543,10 @@ export default function Index() {
               data={popularAnime.slice(1, 7)} // Skip first one (featured)
               renderItem={renderAnimeCard}
               keyExtractor={(item) => item.id.toString()}
-              numColumns={2}
-              scrollEnabled={false}
-              contentContainerStyle={styles.gridContainer}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollContainer}
+              ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
             />
           </View>
         )}
