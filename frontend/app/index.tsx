@@ -160,10 +160,10 @@ export default function Index() {
       if (canOpen) {
         await Linking.openURL('https://witanime.red/');
       } else {
-        Alert.alert('Error', 'Unable to open the website');
+        Alert.alert('خطأ', 'غير قادر على فتح الموقع');
       }
     } catch (error) {
-      Alert.alert('Error', 'Unable to open the website');
+      Alert.alert('خطأ', 'غير قادر على فتح الموقع');
     }
   };
 
