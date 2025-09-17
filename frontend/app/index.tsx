@@ -74,6 +74,11 @@ export default function Index() {
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Enable RTL for Arabic
+  useEffect(() => {
+    I18nManager.forceRTL(true);
+  }, []);
+
   // Fetch popular anime
   const fetchPopularAnime = async () => {
     try {
