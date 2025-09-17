@@ -1488,4 +1488,63 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  recapsContainer: {
+    flex: 1,
+    backgroundColor: '#0a0a0a',
+  },
+  recapResults: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  recapListContainer: {
+    paddingBottom: 20,
+  },
+  recapCard: {
+    backgroundColor: '#111',
+    borderRadius: 15,
+    marginBottom: 15,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  recapThumbnail: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#333',
+  },
+  recapOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  recapInfo: {
+    padding: 15,
+  },
+  recapTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  recapChannel: {
+    fontSize: 14,
+    color: '#ff6b6b',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  recapDate: {
+    fontSize: 12,
+    color: '#999',
+    marginBottom: 8,
+  },
+  recapDescription: {
+    fontSize: 14,
+    color: '#ccc',
+    lineHeight: 20,
+  },
 });
