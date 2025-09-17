@@ -491,7 +491,7 @@ async def get_anime_recaps(page_token: str = None, max_results: int = 20):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/recaps/search")
+@api_router.get("/recaps/search")
 async def search_anime_recaps(q: str, max_results: int = 10):
     """Search for specific anime recaps"""
     try:
