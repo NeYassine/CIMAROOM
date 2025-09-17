@@ -68,7 +68,7 @@ interface FilterState {
 }
 
 export default function Index() {
-  const [activeTab, setActiveTab] = useState<'popular' | 'search' | 'seasonal' | 'filter'>('popular');
+  const [activeTab, setActiveTab] = useState<'popular' | 'search' | 'seasonal' | 'filter' | 'recaps'>('popular');
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +87,12 @@ export default function Index() {
   const [animeRecommendations, setAnimeRecommendations] = useState<Anime[]>([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState<'info' | 'media' | 'recommendations'>('info');
+  
+  // Recap-related states
+  const [recapVideos, setRecapVideos] = useState<any[]>([]);
+  const [recapLoading, setRecapLoading] = useState(false);
+  const [recapSearchQuery, setRecapSearchQuery] = useState('');
+  const [recapSearchResults, setRecapSearchResults] = useState<any[]>([]);
   
   const [filters, setFilters] = useState<FilterState>({
     genres: [],
