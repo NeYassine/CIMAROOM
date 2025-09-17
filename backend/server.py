@@ -135,6 +135,9 @@ async def get_anime_details(anime_id: int):
     try:
         data = await make_jikan_request(f"/anime/{anime_id}")
         return AnimeDetailResponse(**data)
+    except HTTPException:
+        # Re-raise HTTPExceptions (including 404s) as-is
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
