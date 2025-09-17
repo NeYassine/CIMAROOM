@@ -14,7 +14,8 @@ import {
   RefreshControl,
   Platform,
   Linking,
-  Alert
+  Alert,
+  I18nManager
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
