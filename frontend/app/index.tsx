@@ -259,13 +259,10 @@ export default function Index() {
     setRefreshing(false);
   };
 
-  // Render anime card for grid
+  // Render anime card for horizontal scroll
   const renderAnimeCard = ({ item, index }: { item: Anime; index: number }) => (
     <TouchableOpacity
-      style={[
-        styles.animeCard,
-        index % 2 === 0 ? styles.leftCard : styles.rightCard
-      ]}
+      style={styles.animeCard}
       onPress={() => {
         setSelectedAnime(item);
         setShowDetails(true);
