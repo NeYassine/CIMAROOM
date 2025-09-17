@@ -962,4 +962,52 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8,
   },
+  morePopularContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0F0F0F',
+    zIndex: 1000,
+  },
+  morePopularSafeArea: {
+    flex: 1,
+  },
+  morePopularHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#1A1A1A',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  morePopularTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  morePopularList: {
+    padding: 15,
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  endOfListFooter: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  endOfListText: {
+    color: '#999',
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
 });
