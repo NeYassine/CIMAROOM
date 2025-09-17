@@ -441,6 +441,198 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
+      {/* Filter Section */}
+      {activeTab === 'filter' && (
+        <ScrollView style={styles.filterContainer} showsVerticalScrollIndicator={false}>
+          {/* Year Filter */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>السنة</Text>
+            <TextInput
+              style={styles.filterInput}
+              placeholder="مثال: 2024"
+              placeholderTextColor="#666"
+              value={filters.year}
+              onChangeText={(text) => setFilters({...filters, year: text})}
+              keyboardType="numeric"
+            />
+          </View>
+
+          {/* Status Filter */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>حالة الأنيمي</Text>
+            <View style={styles.filterOptions}>
+              {[
+                { key: '', label: 'الكل' },
+                { key: 'airing', label: 'يعرض حالياً' },
+                { key: 'complete', label: 'مكتمل' },
+                { key: 'upcoming', label: 'قادم' }
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.filterOption,
+                    filters.status === option.key && styles.activeFilterOption
+                  ]}
+                  onPress={() => setFilters({...filters, status: option.key})}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filters.status === option.key && styles.activeFilterOptionText
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Type Filter */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>نوع الأنيمي</Text>
+            <View style={styles.filterOptions}>
+              {[
+                { key: '', label: 'الكل' },
+                { key: 'tv', label: 'مسلسل' },
+                { key: 'movie', label: 'فيلم' },
+                { key: 'ova', label: 'OVA' },
+                { key: 'ona', label: 'ONA' }
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.filterOption,
+                    filters.type === option.key && styles.activeFilterOption
+                  ]}
+                  onPress={() => setFilters({...filters, type: option.key})}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filters.type === option.key && styles.activeFilterOptionText
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Rating Filter */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>التصنيف العمري</Text>
+            <View style={styles.filterOptions}>
+              {[
+                { key: '', label: 'الكل' },
+                { key: 'g', label: 'عام' },
+                { key: 'pg', label: 'إرشاد أبوي' },
+                { key: 'pg13', label: '+13' },
+                { key: 'r17', label: '+17' },
+                { key: 'r', label: '+18' }
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.filterOption,
+                    filters.rating === option.key && styles.activeFilterOption
+                  ]}
+                  onPress={() => setFilters({...filters, rating: option.key})}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filters.rating === option.key && styles.activeFilterOptionText
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Genres Filter */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>الأنواع</Text>
+            <View style={styles.genresContainer}>
+              {genres.map((genre) => (
+                <TouchableOpacity
+                  key={genre.mal_id}
+                  style={[
+                    styles.genreChip,
+                    filters.genres.includes(genre.mal_id) && styles.activeGenreChip
+                  ]}
+                  onPress={() => {
+                    const newGenres = filters.genres.includes(genre.mal_id)
+                      ? filters.genres.filter(id => id !== genre.mal_id)
+                      : [...filters.genres, genre.mal_id];
+                    setFilters({...filters, genres: newGenres});
+                  }}
+                >
+                  <Text style={[
+                    styles.genreChipText,
+                    filters.genres.includes(genre.mal_id) && styles.activeGenreChipText
+                  ]}>
+                    {genre.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Sort Options */}
+          <View style={styles.filterSection}>
+            <Text style={styles.filterTitle}>ترتيب النتائج</Text>
+            <View style={styles.filterOptions}>
+              {[
+                { key: 'score', label: 'التقييم' },
+                { key: 'popularity', label: 'الشعبية' },
+                { key: 'start_date', label: 'تاريخ البدء' },
+                { key: 'episodes', label: 'عدد الحلقات' }
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.filterOption,
+                    filters.order_by === option.key && styles.activeFilterOption
+                  ]}
+                  onPress={() => setFilters({...filters, order_by: option.key})}
+                >
+                  <Text style={[
+                    styles.filterOptionText,
+                    filters.order_by === option.key && styles.activeFilterOptionText
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Filter Buttons */}
+          <View style={styles.filterButtons}>
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={resetFilters}
+            >
+              <Ionicons name="refresh" size={20} color="#666" />
+              <Text style={styles.resetButtonText}>إعادة تعيين</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={applyFilters}
+              disabled={filterLoading}
+            >
+              {filterLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="search" size={20} color="#fff" />
+              )}
+              <Text style={styles.applyButtonText}>
+                {filterLoading ? 'جاري البحث...' : 'تطبيق الفلاتر'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
+
       {/* Search Input */}
       {activeTab === 'search' && (
         <View style={styles.searchContainer}>
