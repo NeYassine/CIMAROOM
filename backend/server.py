@@ -380,8 +380,64 @@ async def get_current_season_anime(page: int = 1):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/genres")
-async def get_anime_genres():
+@api_router.get("/anime/{anime_id}/videos")
+async def get_anime_videos(anime_id: int, content_type: str = "tv"):
+    """Get videos (trailers, teasers) for specific anime"""
+    try:
+        endpoint = f"/{content_type}/{anime_id}/videos"
+        data = await make_tmdb_request(endpoint)
+        
+        # Filter for trailers and teasers
+        videos = []
+        for video in data.get('results', []):
+            if video.get('type') in ['Trailer', 'Teaser', 'Opening', 'Clip']:
+                videos.append({
+                    'id': video.get('id'),
+                    'key': video.get('key'),
+                    'name': video.get('name'),
+                    'site': video.get('site'),
+                    'type': video.get('type'),
+                    'official': video.get('official', False)
+                })
+        
+        return {"videos": videos}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/{anime_id}/images")
+async def get_anime_images(anime_id: int, content_type: str = "tv"):
+    """Get images for specific anime"""
+    try:
+        endpoint = f"/{content_type}/{anime_id}/images"
+        data = await make_tmdb_request(endpoint)
+        
+        return {
+            "backdrops": data.get('backdrops', [])[:10],  # Limit to 10 images
+            "posters": data.get('posters', [])[:10]
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/{anime_id}/recommendations")
+async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
+    """Get anime recommendations"""
+    try:
+        endpoint = f"/{content_type}/{anime_id}/recommendations"
+        data = await make_tmdb_request(endpoint)
+        
+        # Filter for anime content only
+        anime_recommendations = []
+        for item in data.get('results', []):
+            if is_anime_content(item):
+                anime_item = format_anime_content(item, content_type)
+                anime_recommendations.append(anime_item)
+        
+        return {"recommendations": anime_recommendations[:10]}  # Limit to 10
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     """Get all available anime genres in Arabic"""
     try:
         # Get TV genres
