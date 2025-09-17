@@ -202,9 +202,13 @@ export default function Index() {
       const response = await fetch(`${BACKEND_URL}/api/anime/search?${params.toString()}`);
       const data: AnimeResponse = await response.json();
       setFilteredResults(data.data || []);
+      
+      // Show results page
+      setShowFilterResults(true);
     } catch (error) {
       console.error('Error applying filters:', error);
       setFilteredResults([]);
+      Alert.alert('خطأ', 'حدث خطأ أثناء تطبيق الفلاتر');
     } finally {
       setFilterLoading(false);
     }
