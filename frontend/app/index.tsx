@@ -127,6 +127,43 @@ export default function Index() {
     }
   };
 
+  // Fetch more popular anime for infinite scroll
+  const fetchMorePopularAnime = async (page: number = 1) => {
+    try {
+      setMorePopularLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/top?page=${page}&limit=20`);
+      const data: AnimeResponse = await response.json();
+      
+      if (page === 1) {
+        setMorePopularAnime(data.results || []);
+      } else {
+        setMorePopularAnime(prev => [...prev, ...(data.results || [])]);
+      }
+      
+      setHasMorePages(data.page < data.total_pages);
+    } catch (error) {
+      console.error('Error fetching more popular anime:', error);
+    } finally {
+      setMorePopularLoading(false);
+    }
+  };
+
+  // Handle load more popular anime
+  const handleLoadMorePopular = () => {
+    setShowMorePopular(true);
+    setMorePopularPage(1);
+    fetchMorePopularAnime(1);
+  };
+
+  // Handle infinite scroll in more popular page
+  const handleLoadNextPage = () => {
+    if (!morePopularLoading && hasMorePages) {
+      const nextPage = morePopularPage + 1;
+      setMorePopularPage(nextPage);
+      fetchMorePopularAnime(nextPage);
+    }
+  };
+
   // Handle opening watch website
   const handleWatchAnime = async () => {
     try {
