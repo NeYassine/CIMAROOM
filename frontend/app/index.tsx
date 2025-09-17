@@ -70,6 +70,13 @@ export default function Index() {
   const [morePopularLoading, setMorePopularLoading] = useState(false);
   const [morePopularPage, setMorePopularPage] = useState(1);
   const [hasMorePages, setHasMorePages] = useState(true);
+  
+  // Seasonal anime states
+  const [showMoreSeasonal, setShowMoreSeasonal] = useState(false);
+  const [moreSeasonalAnime, setMoreSeasonalAnime] = useState<Anime[]>([]);
+  const [moreSeasonalLoading, setMoreSeasonalLoading] = useState(false);
+  const [moreSeasonalPage, setMoreSeasonalPage] = useState(1);
+  const [hasMoreSeasonalPages, setHasMoreSeasonalPages] = useState(true);
 
   // Enable RTL for Arabic
   useEffect(() => {
