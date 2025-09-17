@@ -663,7 +663,7 @@ export default function Index() {
             {/* Content */}
             <FlatList
               data={morePopularAnime}
-              renderItem={renderAnimeCard}
+              renderItem={renderMoreAnimeCard}
               keyExtractor={(item) => item.id.toString()}
               numColumns={2}
               contentContainerStyle={styles.morePopularList}
