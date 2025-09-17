@@ -398,10 +398,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     backgroundColor: '#111',
   },
+  headerSpacer: {
+    width: 24, // Same width as the heart icon to center the title
+  },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
+    textAlign: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
