@@ -421,6 +421,16 @@ export default function Index() {
         </TouchableOpacity>
         
         <TouchableOpacity
+          style={[styles.tab, activeTab === 'filter' && styles.activeTab]}
+          onPress={() => handleTabChange('filter')}
+        >
+          <Ionicons name="options" size={20} color={activeTab === 'filter' ? '#fff' : '#666'} />
+          <Text style={[styles.tabText, activeTab === 'filter' && styles.activeTabText]}>
+            الفلاتر
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'seasonal' && styles.activeTab]}
           onPress={() => handleTabChange('seasonal')}
         >
