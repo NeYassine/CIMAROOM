@@ -450,7 +450,7 @@ export default function Index() {
               <FlatList
                 data={filteredResults}
                 renderItem={renderAnimeCard}
-                keyExtractor={(item) => item.mal_id.toString()}
+                keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 contentContainerStyle={styles.listContainer}
                 showsVerticalScrollIndicator={false}
