@@ -273,8 +273,40 @@ export default function Index() {
     }
   };
 
+  // Fetch anime recaps from YouTube
+  const fetchAnimeRecaps = async () => {
+    try {
+      setRecapLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/recaps?max_results=20`);
+      const data = await response.json();
+      setRecapVideos(data.videos || []);
+    } catch (error) {
+      console.error('Error fetching anime recaps:', error);
+      setRecapVideos([]);
+    } finally {
+      setRecapLoading(false);
+    }
+  };
+
+  // Search anime recaps
+  const searchAnimeRecaps = async (query: string) => {
+    if (!query.trim()) {
+      setRecapSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/anime/recaps/search?q=${encodeURIComponent(query)}&max_results=10`);
+      const data = await response.json();
+      setRecapSearchResults(data.videos || []);
+    } catch (error) {
+      console.error('Error searching anime recaps:', error);
+      setRecapSearchResults([]);
+    }
+  };
+
   // Handle tab change
-  const handleTabChange = (tab: 'popular' | 'search' | 'seasonal' | 'filter') => {
+  const handleTabChange = (tab: 'popular' | 'search' | 'seasonal' | 'filter' | 'recaps') => {
     setActiveTab(tab);
     if (tab === 'popular') {
       fetchPopularAnime();
@@ -282,6 +314,8 @@ export default function Index() {
       fetchSeasonalAnime();
     } else if (tab === 'filter' && genres.length === 0) {
       fetchGenres();
+    } else if (tab === 'recaps') {
+      fetchAnimeRecaps();
     }
   };
 
