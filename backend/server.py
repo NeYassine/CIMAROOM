@@ -64,12 +64,17 @@ async def make_jikan_request(endpoint: str) -> Dict[str, Any]:
             response = await client.get(f"{JIKAN_BASE_URL}{endpoint}")
             if response.status_code == 200:
                 return response.json()
+            elif response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Resource not found")
             elif response.status_code == 429:
                 raise HTTPException(status_code=429, detail="Rate limited by Jikan API")
             else:
                 raise HTTPException(status_code=response.status_code, detail="Failed to fetch data from Jikan API")
         except httpx.TimeoutException:
             raise HTTPException(status_code=408, detail="Request timeout")
+        except HTTPException:
+            # Re-raise HTTPExceptions as-is
+            raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
 
