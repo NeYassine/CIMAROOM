@@ -742,7 +742,7 @@ export default function Index() {
           <FlatList
             data={activeTab === 'search' ? searchResults : animeList}
             renderItem={renderAnimeCard}
-            keyExtractor={(item) => item.mal_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             numColumns={2}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
