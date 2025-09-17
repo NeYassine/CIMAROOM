@@ -117,7 +117,7 @@ export default function Index() {
       setLoading(true);
       const response = await fetch(`${BACKEND_URL}/api/anime/top?limit=20`);
       const data: AnimeResponse = await response.json();
-      setAnimeList(data.data || []);
+      setAnimeList(data.results || []);
     } catch (error) {
       console.error('Error fetching popular anime:', error);
     } finally {
@@ -136,7 +136,7 @@ export default function Index() {
       setSearchLoading(true);
       const response = await fetch(`${BACKEND_URL}/api/anime/search?q=${encodeURIComponent(query)}&limit=20`);
       const data: AnimeResponse = await response.json();
-      setSearchResults(data.data || []);
+      setSearchResults(data.results || []);
     } catch (error) {
       console.error('Error searching anime:', error);
       setSearchResults([]);
@@ -151,7 +151,7 @@ export default function Index() {
       setLoading(true);
       const response = await fetch(`${BACKEND_URL}/api/anime/current-season?limit=20`);
       const data: AnimeResponse = await response.json();
-      setAnimeList(data.data || []);
+      setAnimeList(data.results || []);
     } catch (error) {
       console.error('Error fetching seasonal anime:', error);
     } finally {
