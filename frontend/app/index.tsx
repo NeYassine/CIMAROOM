@@ -340,7 +340,7 @@ export default function Index() {
             <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search anime..."
+              placeholder="ابحث عن الأنيمي..."
               placeholderTextColor="#666"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -354,7 +354,7 @@ export default function Index() {
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#ff6b6b" />
-            <Text style={styles.loadingText}>Loading anime...</Text>
+            <Text style={styles.loadingText}>جارٍ تحميل الأنيمي...</Text>
           </View>
         ) : (
           <FlatList
