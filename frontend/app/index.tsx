@@ -658,7 +658,8 @@ export default function Index() {
           </View>
         ) : (
           <FlatList
-            data={activeTab === 'search' ? searchResults : animeList}
+            data={activeTab === 'search' ? searchResults : 
+                  activeTab === 'filter' ? filteredResults : animeList}
             renderItem={renderAnimeCard}
             keyExtractor={(item) => item.mal_id.toString()}
             numColumns={2}
@@ -678,6 +679,8 @@ export default function Index() {
                 <Text style={styles.emptyText}>
                   {activeTab === 'search' && searchQuery
                     ? 'لم يتم العثور على أنيمي'
+                    : activeTab === 'filter' && filteredResults.length === 0 && !filterLoading
+                    ? 'لا توجد نتائج للفلاتر المحددة'
                     : 'لا توجد أنيمي متاحة'}
                 </Text>
               </View>
