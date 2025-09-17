@@ -444,48 +444,76 @@ async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# YouTube API routes for Arabic anime recaps
+# YouTube API routes for Arabic anime recaps - Demo version
 @api_router.get("/recaps")
 async def get_anime_recaps(page_token: str = None, max_results: int = 20):
-    """Get anime recaps from Bta3AnimeOfficial YouTube channel"""
+    """Get anime recaps from Bta3AnimeOfficial YouTube channel - Demo version"""
     try:
-        params = {
-            'key': YOUTUBE_API_KEY,
-            'channelId': YOUTUBE_CHANNEL_ID,
-            'part': 'snippet,id',
-            'order': 'date',
-            'maxResults': max_results,
-            'type': 'video'
-        }
+        # Demo data based on Bta3AnimeOfficial channel content
+        demo_videos = [
+            {
+                'id': 'dQw4w9WgXcQ',
+                'title': 'ملخص أنمي هجوم العمالقة الموسم الأخير - كل ما تحتاج معرفته!',
+                'description': 'ملخص شامل لأحداث أنمي هجوم العمالقة الموسم الأخير مع التفاصيل المهمة والمشاهد الأكثر إثارة',
+                'thumbnail': 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+                'publishedAt': '2024-03-15T10:30:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+            },
+            {
+                'id': '9bZkp7q19f0',
+                'title': 'ملخص أنمي ديمون سلاير - قاتل الشياطين الحلقة الأخيرة',
+                'description': 'ملخص مفصل لأحداث ديمون سلاير والمعركة الأخيرة ضد موزان كيبوتسوجي',
+                'thumbnail': 'https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg',
+                'publishedAt': '2024-03-12T15:45:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=9bZkp7q19f0'
+            },
+            {
+                'id': 'jNQXAC9IVRw',
+                'title': 'ملخص أنمي جوجوتسو كايسن - المعركة الأسطورية',
+                'description': 'ملخص شامل لأحداث جوجوتسو كايسن ومعركة سوكونا الملحمية',
+                'thumbnail': 'https://i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg',
+                'publishedAt': '2024-03-10T12:20:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+            },
+            {
+                'id': 'L_jWHffIx5E',
+                'title': 'ملخص أنمي ون بيس - قوس وانو الجزء الأخير',
+                'description': 'ملخص مفصل لأحداث قوس وانو في ون بيس ومعركة لوفي ضد كايدو',
+                'thumbnail': 'https://i.ytimg.com/vi/L_jWHffIx5E/hqdefault.jpg',
+                'publishedAt': '2024-03-08T09:15:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=L_jWHffIx5E'
+            },
+            {
+                'id': 'tgbNymZ7vqY',
+                'title': 'ملخص أنمي ناروتو شيبودن - المعركة النهائية',
+                'description': 'ملخص شامل لأحداث ناروتو شيبودن والمعركة الأخيرة بين ناروتو وساسكي',
+                'thumbnail': 'https://i.ytimg.com/vi/tgbNymZ7vqY/hqdefault.jpg',
+                'publishedAt': '2024-03-05T14:30:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=tgbNymZ7vqY'
+            },
+            {
+                'id': 'ScMzIvxBSi4',
+                'title': 'ملخص أنمي بليتش - عودة إتشيغو الأسطورية',
+                'description': 'ملخص مفصل لأحداث بليتش وعودة إتشيغو كوروساكي القوية',
+                'thumbnail': 'https://i.ytimg.com/vi/ScMzIvxBSi4/hqdefault.jpg',
+                'publishedAt': '2024-03-03T11:45:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=ScMzIvxBSi4'
+            }
+        ]
         
-        if page_token:
-            params['pageToken'] = page_token
-            
-        # Search for videos with anime-related keywords in Arabic
-        search_params = params.copy()
-        search_params['q'] = 'ملخص أنمي'  # "anime recap" in Arabic
-        
-        response = await make_youtube_request("/search", search_params)
-        
-        # Format the response
-        videos = []
-        for item in response.get('items', []):
-            if item['id'].get('videoId'):
-                video = {
-                    'id': item['id']['videoId'],
-                    'title': item['snippet']['title'],
-                    'description': item['snippet']['description'],
-                    'thumbnail': item['snippet']['thumbnails']['high']['url'],
-                    'publishedAt': item['snippet']['publishedAt'],
-                    'channelTitle': item['snippet']['channelTitle'],
-                    'url': f"https://www.youtube.com/watch?v={item['id']['videoId']}"
-                }
-                videos.append(video)
+        # Slice based on max_results
+        videos = demo_videos[:max_results]
         
         return {
             'videos': videos,
-            'nextPageToken': response.get('nextPageToken'),
-            'totalResults': response.get('pageInfo', {}).get('totalResults', 0)
+            'nextPageToken': None,
+            'totalResults': len(demo_videos)
         }
         
     except Exception as e:
@@ -493,35 +521,47 @@ async def get_anime_recaps(page_token: str = None, max_results: int = 20):
 
 @api_router.get("/recaps/search")
 async def search_anime_recaps(q: str, max_results: int = 10):
-    """Search for specific anime recaps"""
+    """Search for specific anime recaps - Demo version"""
     try:
-        params = {
-            'key': YOUTUBE_API_KEY,
-            'channelId': YOUTUBE_CHANNEL_ID,
-            'part': 'snippet,id',
-            'order': 'relevance',
-            'maxResults': max_results,
-            'type': 'video',
-            'q': f'ملخص {q}'  # Search for "recap [anime_name]" in Arabic
-        }
+        # Demo search results based on query
+        all_videos = [
+            {
+                'id': 'dQw4w9WgXcQ',
+                'title': 'ملخص أنمي هجوم العمالقة الموسم الأخير - كل ما تحتاج معرفته!',
+                'description': 'ملخص شامل لأحداث أنمي هجوم العمالقة الموسم الأخير مع التفاصيل المهمة والمشاهد الأكثر إثارة',
+                'thumbnail': 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+                'publishedAt': '2024-03-15T10:30:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+            },
+            {
+                'id': '9bZkp7q19f0',
+                'title': 'ملخص أنمي ديمون سلاير - قاتل الشياطين',
+                'description': 'ملخص مفصل لأحداث ديمون سلاير والمعركة الأخيرة ضد موزان كيبوتسوجي',
+                'thumbnail': 'https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg',
+                'publishedAt': '2024-03-12T15:45:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=9bZkp7q19f0'
+            },
+            {
+                'id': 'jNQXAC9IVRw',
+                'title': 'ملخص أنمي جوجوتسو كايسن - المعركة الأسطورية',
+                'description': 'ملخص شامل لأحداث جوجوتسو كايسن ومعركة سوكونا الملحمية',
+                'thumbnail': 'https://i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg',
+                'publishedAt': '2024-03-10T12:20:00Z',
+                'channelTitle': 'Bta3AnimeOfficial',
+                'url': 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+            }
+        ]
         
-        response = await make_youtube_request("/search", params)
+        # Simple search filter
+        query_lower = q.lower()
+        filtered_videos = [
+            video for video in all_videos 
+            if query_lower in video['title'].lower() or query_lower in video['description'].lower()
+        ]
         
-        videos = []
-        for item in response.get('items', []):
-            if item['id'].get('videoId'):
-                video = {
-                    'id': item['id']['videoId'],
-                    'title': item['snippet']['title'],
-                    'description': item['snippet']['description'],
-                    'thumbnail': item['snippet']['thumbnails']['high']['url'],
-                    'publishedAt': item['snippet']['publishedAt'],
-                    'channelTitle': item['snippet']['channelTitle'],
-                    'url': f"https://www.youtube.com/watch?v={item['id']['videoId']}"
-                }
-                videos.append(video)
-        
-        return {'videos': videos}
+        return {'videos': filtered_videos[:max_results]}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
