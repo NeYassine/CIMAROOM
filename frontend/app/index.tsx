@@ -90,6 +90,11 @@ export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [animeVideos, setAnimeVideos] = useState<any[]>([]);
+  const [animeImages, setAnimeImages] = useState<any>({});
+  const [animeRecommendations, setAnimeRecommendations] = useState<Anime[]>([]);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState<'info' | 'media' | 'recommendations'>('info');
   const [genres, setGenres] = useState<Genre[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredResults, setFilteredResults] = useState<Anime[]>([]);
