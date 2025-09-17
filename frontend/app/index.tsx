@@ -550,6 +550,49 @@ export default function Index() {
 
       {/* Details Modal */}
       {showDetails && renderAnimeDetails()}
+
+      {/* More Popular Modal */}
+      {showMorePopular && (
+        <View style={styles.morePopularContainer}>
+          <SafeAreaView style={styles.morePopularSafeArea}>
+            {/* Header */}
+            <View style={styles.morePopularHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowMorePopular(false)}
+              >
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.morePopularTitle}>الأنيمي الأكثر شعبية</Text>
+              <View style={styles.headerSpacer} />
+            </View>
+
+            {/* Content */}
+            <FlatList
+              data={morePopularAnime}
+              renderItem={renderAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              contentContainerStyle={styles.morePopularList}
+              showsVerticalScrollIndicator={false}
+              onEndReached={handleLoadNextPage}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                morePopularLoading ? (
+                  <View style={styles.loadingFooter}>
+                    <ActivityIndicator size="large" color="#FFD700" />
+                    <Text style={styles.loadingText}>جاري تحميل المزيد...</Text>
+                  </View>
+                ) : !hasMorePages ? (
+                  <View style={styles.endOfListFooter}>
+                    <Text style={styles.endOfListText}>لا يوجد المزيد من الأنيمي</Text>
+                  </View>
+                ) : null
+              }
+            />
+          </SafeAreaView>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
