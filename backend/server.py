@@ -35,7 +35,7 @@ TMDB_API_KEY = "65f569aae60ff787bee86e5ad78f07ff"  # Your valid TMDB API key
 TMDB_LANGUAGE = "ar"  # Arabic language support
 
 # YouTube API configuration
-YOUTUBE_API_KEY = "AIzaSyBgpnBwH52kB_2VZ9ZVXx3iZ4v8D8aG3n4"  # Free YouTube API key
+YOUTUBE_API_KEY = "AIzaSyChLL9VEvglreYOkG1X0AJqvOChnk5pPYo"  # Your valid YouTube API key
 YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3"
 YOUTUBE_CHANNEL_ID = "UCvKO4AYl-NbXTxIz5MpXfZA"  # Bta3AnimeOfficial channel ID
 
