@@ -107,27 +107,33 @@ user_problem_statement: "Build MyAnimeList-like mobile app using Jikan API from 
 backend:
   - task: "Jikan API Integration"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "Implemented Jikan API endpoints - top anime, search, seasonal, details. Added httpx dependency. Need to test all endpoints."
+        - working: true
+          agent: "testing"
+          comment: "TESTED: All Jikan API endpoints working correctly. Fixed FastAPI route ordering issue (specific routes before generic ones). Fixed error handling for 404s. All core endpoints (top anime, search, details, current season, seasonal, genres) are fully functional with proper data structures and pagination."
 
   - task: "API Endpoints Structure"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "Created endpoints: /api/anime/top, /api/anime/search, /api/anime/{anime_id}, /api/anime/seasonal/{year}/{season}, /api/anime/current-season, /api/anime/genres"
+        - working: true
+          agent: "testing"
+          comment: "TESTED: All API endpoints working perfectly. Fixed critical routing issue where specific routes (/anime/current-season, /anime/genres) were being intercepted by generic route (/anime/{anime_id}). All endpoints now respond correctly with proper data structures, error handling, and pagination support."
 
 frontend:
   - task: "MyAnimeList-like UI"
