@@ -494,7 +494,7 @@ export default function Index() {
         {/* Popular Anime Section */}
         {!showSearch && popularAnime.length > 0 && (
           <View style={styles.section}>
-            {renderSectionHeader('الأكثر شعبية')}
+            {renderSectionHeader('الأكثر شعبية', handleLoadMorePopular)}
             <FlatList
               data={popularAnime.slice(1, 7)} // Skip first one (featured)
               renderItem={renderAnimeCard}
