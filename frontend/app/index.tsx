@@ -303,6 +303,53 @@ export default function Index() {
     </TouchableOpacity>
   );
 
+  // Render anime card for grid (used in more popular/seasonal modals)
+  const renderMoreAnimeCard = ({ item, index }: { item: Anime; index: number }) => (
+    <TouchableOpacity
+      style={[
+        styles.moreAnimeCard,
+        index % 2 === 0 ? styles.leftCard : styles.rightCard
+      ]}
+      onPress={() => {
+        setSelectedAnime(item);
+        setShowDetails(true);
+      }}
+      activeOpacity={0.8}
+    >
+      <Image
+        source={{ 
+          uri: item.poster_path 
+            ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
+            : 'https://via.placeholder.com/200x300/333/fff?text=No+Image'
+        }}
+        style={styles.moreAnimeImage}
+        resizeMode="cover"
+      />
+      
+      {/* Rating Badge */}
+      {item.vote_average && (
+        <View style={styles.ratingBadge}>
+          <Ionicons name="star" size={12} color="#FFD700" />
+          <Text style={styles.ratingText}>{item.vote_average.toFixed(1)}</Text>
+        </View>
+      )}
+      
+      <View style={styles.animeCardInfo}>
+        <Text style={styles.animeCardTitle} numberOfLines={2}>
+          {item.title_arabic || item.title || item.original_title}
+        </Text>
+        
+        <View style={styles.animeCardMeta}>
+          <Text style={styles.episodeCount}>
+            {item.episode_count ? `${item.episode_count} حلقة` : 
+             item.content_type === 'movie' ? 'فيلم' : 'مسلسل'}
+          </Text>
+          <Text style={styles.animeStatus}>{item.status || 'متاح'}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   // Render featured anime hero section
   const renderHeroSection = () => {
     if (!featuredAnime) return null;
