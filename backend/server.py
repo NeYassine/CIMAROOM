@@ -10,6 +10,9 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
+import asyncio
+import hashlib
+import time
 
 
 ROOT_DIR = Path(__file__).parent
@@ -26,8 +29,14 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Jikan API base URL
-JIKAN_BASE_URL = "https://api.jikan.moe/v4"
+# TMDB API configuration
+TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_API_KEY = "8fe33ba75aebaa9bb9d95b08c1a8e1d8"  # Free API key for development
+TMDB_LANGUAGE = "ar"  # Arabic language support
+
+# Cache for frequently accessed data
+cache = {}
+CACHE_TTL = 3600  # 1 hour
 
 # Define Models
 class StatusCheck(BaseModel):
@@ -39,52 +48,195 @@ class StatusCheckCreate(BaseModel):
     client_name: str
 
 class AnimeBasic(BaseModel):
-    mal_id: int
+    id: int
     title: str
-    title_english: Optional[str] = None
-    images: Dict[str, Any]
-    score: Optional[float] = None
-    episodes: Optional[int] = None
+    title_arabic: Optional[str] = None
+    original_title: Optional[str] = None
+    poster_path: Optional[str] = None
+    backdrop_path: Optional[str] = None
+    overview: Optional[str] = None
+    overview_arabic: Optional[str] = None
+    vote_average: Optional[float] = None
+    vote_count: Optional[int] = None
+    popularity: Optional[float] = None
+    release_date: Optional[str] = None
+    first_air_date: Optional[str] = None
+    episode_count: Optional[int] = None
     status: Optional[str] = None
-    aired: Optional[Dict[str, Any]] = None
     genres: Optional[List[Dict[str, Any]]] = []
-    synopsis: Optional[str] = None
+    origin_country: Optional[List[str]] = []
+    content_type: str  # 'tv' or 'movie'
+    anime_confidence: Optional[float] = None
 
 class AnimeSearchResponse(BaseModel):
-    data: List[AnimeBasic]
-    pagination: Dict[str, Any]
+    results: List[AnimeBasic]
+    page: int
+    total_pages: int
+    total_results: int
 
 class AnimeDetailResponse(BaseModel):
     data: AnimeBasic
 
-# Helper function to make Jikan API calls
-async def make_jikan_request(endpoint: str) -> Dict[str, Any]:
+# Anime detection logic
+def calculate_anime_confidence(content: Dict[str, Any]) -> float:
+    """Calculate confidence score for anime content."""
+    confidence = 0.0
+    
+    # Origin country confidence
+    origin_countries = content.get('origin_country', [])
+    if 'JP' in origin_countries:
+        confidence += 0.4  # Japanese origin
+    elif any(country in ['KR', 'CN', 'TW'] for country in origin_countries):
+        confidence += 0.25  # Other Asian origins
+    
+    # Genre analysis (Animation genre ID: 16)
+    genre_ids = content.get('genre_ids', [])
+    if 16 in genre_ids:  # Animation genre
+        confidence += 0.3
+    
+    # Additional anime-related genres
+    anime_genres = {10765, 10759, 14, 878}  # Sci-Fi & Fantasy, Action & Adventure, Fantasy, Science Fiction
+    anime_genre_matches = [gid for gid in genre_ids if gid in anime_genres]
+    if anime_genre_matches:
+        confidence += 0.2
+    
+    # Keyword analysis
+    title = (content.get('title') or content.get('name', '')).lower()
+    overview = content.get('overview', '').lower()
+    text_content = f"{title} {overview}"
+    
+    anime_keywords = ['anime', 'manga', 'otaku', 'shounen', 'shoujo', 'seinen', 'josei', 
+                      'school', 'academy', 'ninja', 'samurai', 'tokyo', 'japan']
+    
+    for keyword in anime_keywords:
+        if keyword in text_content:
+            confidence += 0.05
+    
+    return min(confidence, 1.0)
+
+def is_anime_content(content: Dict[str, Any], min_confidence: float = 0.3) -> bool:
+    """Determine if content is anime based on confidence score."""
+    return calculate_anime_confidence(content) >= min_confidence
+
+async def make_tmdb_request(endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+    """Make request to TMDB API with error handling."""
+    if params is None:
+        params = {}
+    
+    # Add API key and default language
+    params.update({
+        'api_key': TMDB_API_KEY,
+        'language': TMDB_LANGUAGE
+    })
+    
+    # Check cache first
+    cache_key = f"{endpoint}_{hashlib.md5(str(sorted(params.items())).encode()).hexdigest()}"
+    if cache_key in cache:
+        cached_data, timestamp = cache[cache_key]
+        if time.time() - timestamp < CACHE_TTL:
+            return cached_data
+    
+    url = f"{TMDB_BASE_URL}{endpoint}"
+    
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
-            response = await client.get(f"{JIKAN_BASE_URL}{endpoint}")
+            response = await client.get(url, params=params)
             if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 404:
-                raise HTTPException(status_code=404, detail="Resource not found")
+                data = response.json()
+                # Cache the response
+                cache[cache_key] = (data, time.time())
+                return data
             elif response.status_code == 429:
-                raise HTTPException(status_code=429, detail="Rate limited by Jikan API")
+                raise HTTPException(status_code=429, detail="Rate limited by TMDB API")
             else:
-                raise HTTPException(status_code=response.status_code, detail="Failed to fetch data from Jikan API")
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch data from TMDB API")
         except httpx.TimeoutException:
             raise HTTPException(status_code=408, detail="Request timeout")
-        except HTTPException:
-            # Re-raise HTTPExceptions as-is
-            raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
+
+def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
+    """Format TMDB content into AnimeBasic model."""
+    
+    # Get alternative titles and overview in Arabic if available
+    title = content.get('title') if content_type == 'movie' else content.get('name')
+    original_title = content.get('original_title') if content_type == 'movie' else content.get('original_name')
+    
+    # Calculate anime confidence
+    confidence = calculate_anime_confidence(content)
+    
+    return AnimeBasic(
+        id=content.get('id'),
+        title=title or original_title or 'عنوان غير متاح',
+        title_arabic=title if TMDB_LANGUAGE == 'ar' else None,
+        original_title=original_title,
+        poster_path=content.get('poster_path'),
+        backdrop_path=content.get('backdrop_path'),
+        overview=content.get('overview') or 'لا يوجد وصف متاح',
+        overview_arabic=content.get('overview') if TMDB_LANGUAGE == 'ar' else None,
+        vote_average=content.get('vote_average'),
+        vote_count=content.get('vote_count'),
+        popularity=content.get('popularity'),
+        release_date=content.get('release_date'),
+        first_air_date=content.get('first_air_date'),
+        episode_count=content.get('number_of_episodes'),
+        status=content.get('status'),
+        genres=[],  # Will be populated separately if needed
+        origin_country=content.get('origin_country', []),
+        content_type=content_type,
+        anime_confidence=confidence
+    )
 
 # Anime API routes
 @api_router.get("/anime/top", response_model=AnimeSearchResponse)
 async def get_top_anime(page: int = 1, limit: int = 25):
-    """Get top anime from Jikan API"""
+    """Get top anime from TMDB API using discover endpoint."""
     try:
-        data = await make_jikan_request(f"/top/anime?page={page}&limit={limit}")
-        return AnimeSearchResponse(**data)
+        # Discover anime TV shows
+        tv_params = {
+            'page': page,
+            'with_genres': '16',  # Animation genre
+            'with_original_language': 'ja|ko|zh',  # Asian origins
+            'sort_by': 'popularity.desc'
+        }
+        
+        tv_data = await make_tmdb_request("/discover/tv", tv_params)
+        
+        # Filter for anime content
+        anime_results = []
+        for show in tv_data.get('results', []):
+            if is_anime_content(show):
+                anime_item = format_anime_content(show, 'tv')
+                anime_results.append(anime_item)
+        
+        # Get anime movies as well
+        movie_params = {
+            'page': page,
+            'with_genres': '16',  # Animation genre
+            'with_original_language': 'ja|ko|zh',  # Asian origins
+            'sort_by': 'popularity.desc'
+        }
+        
+        movie_data = await make_tmdb_request("/discover/movie", movie_params)
+        
+        for movie in movie_data.get('results', []):
+            if is_anime_content(movie):
+                anime_item = format_anime_content(movie, 'movie')
+                anime_results.append(anime_item)
+        
+        # Sort by anime confidence and popularity
+        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        
+        # Limit results
+        anime_results = anime_results[:limit]
+        
+        return AnimeSearchResponse(
+            results=anime_results,
+            page=page,
+            total_pages=tv_data.get('total_pages', 1),
+            total_results=len(anime_results)
+        )
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -104,84 +256,158 @@ async def search_anime(
 ):
     """Search anime by query with advanced filters"""
     try:
-        # Build query parameters
-        params = {"page": page, "limit": limit}
+        anime_results = []
         
         if q:
-            params["q"] = q
-        if genres:
-            params["genres"] = genres
-        if status:
-            params["status"] = status
-        if type:
-            params["type"] = type
-        if rating:
-            params["rating"] = rating
-        if order_by:
-            params["order_by"] = order_by
-        if sort:
-            params["sort"] = sort
-        if start_date:
-            params["start_date"] = start_date
-        if end_date:
-            params["end_date"] = end_date
+            # Search for TV shows
+            tv_params = {'query': q, 'page': page}
+            tv_data = await make_tmdb_request("/search/tv", tv_params)
             
-        # Build endpoint URL with parameters
-        endpoint = "/anime?" + "&".join([f"{k}={v}" for k, v in params.items()])
+            for show in tv_data.get('results', []):
+                if is_anime_content(show):
+                    anime_item = format_anime_content(show, 'tv')
+                    anime_results.append(anime_item)
+            
+            # Search for movies
+            movie_params = {'query': q, 'page': page}
+            movie_data = await make_tmdb_request("/search/movie", movie_params)
+            
+            for movie in movie_data.get('results', []):
+                if is_anime_content(movie):
+                    anime_item = format_anime_content(movie, 'movie')
+                    anime_results.append(anime_item)
+        else:
+            # Use discover endpoint with filters
+            discover_params = {
+                'page': page,
+                'with_genres': '16'  # Animation genre
+            }
+            
+            if genres:
+                discover_params['with_genres'] = f"16,{genres}"
+            
+            if start_date and end_date:
+                discover_params['primary_release_date.gte'] = start_date
+                discover_params['primary_release_date.lte'] = end_date
+            
+            if order_by:
+                sort_order = sort if sort else 'desc'
+                if order_by == 'score':
+                    discover_params['sort_by'] = f'vote_average.{sort_order}'
+                elif order_by == 'popularity':
+                    discover_params['sort_by'] = f'popularity.{sort_order}'
+                elif order_by == 'start_date':
+                    discover_params['sort_by'] = f'first_air_date.{sort_order}'
+            
+            # Search TV shows
+            tv_data = await make_tmdb_request("/discover/tv", discover_params)
+            for show in tv_data.get('results', []):
+                if is_anime_content(show):
+                    anime_item = format_anime_content(show, 'tv')
+                    anime_results.append(anime_item)
+            
+            # Search movies
+            movie_discover_params = discover_params.copy()
+            if 'first_air_date' in str(discover_params.get('sort_by', '')):
+                movie_discover_params['sort_by'] = discover_params['sort_by'].replace('first_air_date', 'release_date')
+            
+            movie_data = await make_tmdb_request("/discover/movie", movie_discover_params)
+            for movie in movie_data.get('results', []):
+                if is_anime_content(movie):
+                    anime_item = format_anime_content(movie, 'movie')
+                    anime_results.append(anime_item)
         
-        data = await make_jikan_request(endpoint)
-        return AnimeSearchResponse(**data)
+        # Sort results
+        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        anime_results = anime_results[:limit]
+        
+        return AnimeSearchResponse(
+            results=anime_results,
+            page=page,
+            total_pages=1,
+            total_results=len(anime_results)
+        )
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Define specific routes BEFORE generic routes to avoid path conflicts
+@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
+async def get_anime_details(anime_id: int, content_type: str = "tv"):
+    """Get detailed information about a specific anime"""
+    try:
+        endpoint = f"/{content_type}/{anime_id}"
+        data = await make_tmdb_request(endpoint)
+        
+        if is_anime_content(data):
+            anime_item = format_anime_content(data, content_type)
+            return AnimeDetailResponse(data=anime_item)
+        else:
+            raise HTTPException(status_code=404, detail="Anime not found or not anime content")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/anime/current-season", response_model=AnimeSearchResponse)
 async def get_current_season_anime(page: int = 1):
-    """Get currently airing anime"""
+    """Get currently popular anime (simulates seasonal anime)"""
     try:
-        data = await make_jikan_request(f"/seasons/now?page={page}")
-        return AnimeSearchResponse(**data)
+        # Get popular anime TV shows
+        tv_params = {
+            'page': page,
+            'with_genres': '16',  # Animation
+            'with_original_language': 'ja',  # Japanese
+            'sort_by': 'popularity.desc',
+            'first_air_date.gte': '2020-01-01'  # Recent anime
+        }
+        
+        tv_data = await make_tmdb_request("/discover/tv", tv_params)
+        
+        anime_results = []
+        for show in tv_data.get('results', []):
+            if is_anime_content(show):
+                anime_item = format_anime_content(show, 'tv')
+                anime_results.append(anime_item)
+        
+        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        
+        return AnimeSearchResponse(
+            results=anime_results[:20],
+            page=page,
+            total_pages=tv_data.get('total_pages', 1),
+            total_results=len(anime_results)
+        )
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/anime/genres")
 async def get_anime_genres():
-    """Get all available anime genres"""
+    """Get all available anime genres in Arabic"""
     try:
-        data = await make_jikan_request("/genres/anime")
-        return data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/anime/seasonal/{year}/{season}", response_model=AnimeSearchResponse)
-async def get_seasonal_anime(year: int, season: str, page: int = 1):
-    """Get seasonal anime (winter, spring, summer, fall)"""
-    valid_seasons = ["winter", "spring", "summer", "fall"]
-    if season.lower() not in valid_seasons:
-        raise HTTPException(status_code=400, detail="Invalid season. Must be one of: winter, spring, summer, fall")
-    
-    try:
-        data = await make_jikan_request(f"/seasons/{year}/{season.lower()}?page={page}")
-        return AnimeSearchResponse(**data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
-async def get_anime_details(anime_id: int):
-    """Get detailed information about a specific anime"""
-    try:
-        data = await make_jikan_request(f"/anime/{anime_id}")
-        return AnimeDetailResponse(**data)
-    except HTTPException:
-        # Re-raise HTTPExceptions (including 404s) as-is
-        raise
+        # Get TV genres
+        tv_genres = await make_tmdb_request("/genre/tv/list")
+        movie_genres = await make_tmdb_request("/genre/movie/list")
+        
+        # Combine and filter for anime-relevant genres
+        all_genres = tv_genres.get('genres', []) + movie_genres.get('genres', [])
+        
+        # Remove duplicates and filter for anime-relevant genres
+        anime_relevant_genres = {}
+        anime_genre_ids = {16, 10765, 10759, 14, 878, 35, 18, 10749, 10751}
+        
+        for genre in all_genres:
+            if genre['id'] in anime_genre_ids:
+                anime_relevant_genres[genre['id']] = genre
+        
+        return {"data": list(anime_relevant_genres.values())}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # Original routes
 @api_router.get("/")
 async def root():
-    return {"message": "Anime App API - Powered by Jikan"}
+    return {"message": "Anime App API - Powered by TMDB", "language": "Arabic (العربية)"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
