@@ -890,6 +890,17 @@ const styles = StyleSheet.create({
     height: 180, // Adjusted height for horizontal cards
     backgroundColor: '#333',
   },
+  moreAnimeCard: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  moreAnimeImage: {
+    width: '100%',
+    height: 200, // Original height for grid view
+    backgroundColor: '#333',
+  },
   ratingBadge: {
     position: 'absolute',
     top: 8,
