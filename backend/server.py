@@ -89,10 +89,47 @@ async def get_top_anime(page: int = 1, limit: int = 25):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/anime/search", response_model=AnimeSearchResponse)
-async def search_anime(q: str, page: int = 1, limit: int = 25):
-    """Search anime by query"""
+async def search_anime(
+    q: str = None, 
+    page: int = 1, 
+    limit: int = 25,
+    genres: str = None,
+    status: str = None,
+    type: str = None,
+    rating: str = None,
+    order_by: str = None,
+    sort: str = None,
+    start_date: str = None,
+    end_date: str = None
+):
+    """Search anime by query with advanced filters"""
     try:
-        data = await make_jikan_request(f"/anime?q={q}&page={page}&limit={limit}")
+        # Build query parameters
+        params = {"page": page, "limit": limit}
+        
+        if q:
+            params["q"] = q
+        if genres:
+            params["genres"] = genres
+        if status:
+            params["status"] = status
+        if type:
+            params["type"] = type
+        if rating:
+            params["rating"] = rating
+        if order_by:
+            params["order_by"] = order_by
+        if sort:
+            params["sort"] = sort
+        if start_date:
+            params["start_date"] = start_date
+        if end_date:
+            params["end_date"] = end_date
+            
+        # Build endpoint URL with parameters
+        endpoint = "/anime?" + "&".join([f"{k}={v}" for k, v in params.items()])
+        
+        data = await make_jikan_request(endpoint)
         return AnimeSearchResponse(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
