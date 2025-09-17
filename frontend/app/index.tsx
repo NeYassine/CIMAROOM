@@ -256,7 +256,7 @@ export default function Index() {
                   </Text>
                 </View>
                 <Text style={styles.detailsEpisodeText}>
-                  {selectedAnime.episodes ? `${selectedAnime.episodes} episodes` : 'Unknown episodes'}
+                  {selectedAnime.episodes ? `${selectedAnime.episodes} حلقة` : 'حلقات غير معروفة'}
                 </Text>
               </View>
               
