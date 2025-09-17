@@ -768,6 +768,53 @@ export default function Index() {
             </TouchableOpacity>
           </View>
 
+          {/* Recaps Section */}
+          {activeTab === 'recaps' && (
+            <View style={styles.recapsContainer}>
+              {/* Search for specific recap */}
+              <View style={styles.searchContainer}>
+                <View style={styles.searchInputContainer}>
+                  <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="ابحث عن ملخص أنيمي..."
+                    placeholderTextColor="#666"
+                    value={recapSearchQuery}
+                    onChangeText={setRecapSearchQuery}
+                  />
+                </View>
+              </View>
+              
+              {/* Recap results */}
+              <View style={styles.recapResults}>
+                {recapLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#ff6b6b" />
+                    <Text style={styles.loadingText}>جاري تحميل الملخصات...</Text>
+                  </View>
+                ) : (
+                  <FlatList
+                    data={recapSearchQuery ? recapSearchResults : recapVideos}
+                    renderItem={renderRecapCard}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.recapListContainer}
+                    ListEmptyComponent={
+                      <View style={styles.emptyContainer}>
+                        <Ionicons name="film-outline" size={64} color="#666" />
+                        <Text style={styles.emptyText}>
+                          {recapSearchQuery 
+                            ? 'لم يتم العثور على ملخصات لهذا الأنيمي' 
+                            : 'لا توجد ملخصات متاحة حالياً'}
+                        </Text>
+                      </View>
+                    }
+                  />
+                )}
+              </View>
+            </View>
+          )}
+
           {/* Filter Section */}
           {activeTab === 'filter' && (
             <ScrollView style={styles.filterContainer} showsVerticalScrollIndicator={false}>
