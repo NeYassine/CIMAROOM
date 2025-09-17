@@ -365,7 +365,10 @@ export default function Index() {
   const renderRecapCard = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.recapCard}
-      onPress={() => Linking.openURL(item.url)}
+      onPress={() => {
+        setSelectedVideo(item);
+        setShowVideoPlayer(true);
+      }}
       activeOpacity={0.8}
     >
       <Image
@@ -374,23 +377,107 @@ export default function Index() {
         resizeMode="cover"
       />
       <View style={styles.recapOverlay}>
-        <Ionicons name="play-circle" size={40} color="#ff6b6b" />
+        <View style={styles.playButton}>
+          <Ionicons name="play" size={30} color="#fff" />
+        </View>
       </View>
+      
+      {/* Video Duration */}
+      {item.duration && (
+        <View style={styles.durationBadge}>
+          <Text style={styles.durationText}>{item.duration}</Text>
+        </View>
+      )}
       
       <View style={styles.recapInfo}>
         <Text style={styles.recapTitle} numberOfLines={2}>
           {item.title}
         </Text>
-        <Text style={styles.recapChannel}>{item.channelTitle}</Text>
-        <Text style={styles.recapDate}>
-          {new Date(item.publishedAt).toLocaleDateString('ar-SA')}
-        </Text>
-        <Text style={styles.recapDescription} numberOfLines={3}>
+        
+        <View style={styles.recapMeta}>
+          <View style={styles.channelInfo}>
+            <Ionicons name="person-circle" size={16} color="#ff6b6b" />
+            <Text style={styles.recapChannel}>{item.channelTitle}</Text>
+          </View>
+          
+          <View style={styles.videoStats}>
+            <View style={styles.statItem}>
+              <Ionicons name="eye" size={14} color="#999" />
+              <Text style={styles.viewCount}>
+                {item.viewCount ? `${(parseInt(item.viewCount) / 1000).toFixed(0)}k` : '0'}
+              </Text>
+            </View>
+            <Text style={styles.recapDate}>
+              {new Date(item.publishedAt).toLocaleDateString('ar-SA')}
+            </Text>
+          </View>
+        </View>
+        
+        <Text style={styles.recapDescription} numberOfLines={2}>
           {item.description}
         </Text>
       </View>
     </TouchableOpacity>
   );
+
+  // Render YouTube video player modal
+  const renderVideoPlayer = () => {
+    if (!selectedVideo) return null;
+
+    const videoId = selectedVideo.id;
+    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&showinfo=0&controls=1`;
+
+    return (
+      <Modal
+        visible={showVideoPlayer}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setShowVideoPlayer(false)}
+      >
+        <SafeAreaView style={styles.videoPlayerContainer}>
+          <View style={styles.videoPlayerHeader}>
+            <TouchableOpacity
+              style={styles.closeVideoButton}
+              onPress={() => setShowVideoPlayer(false)}
+            >
+              <Ionicons name="close" size={28} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.videoPlayerTitle} numberOfLines={1}>
+              {selectedVideo.title}
+            </Text>
+            <TouchableOpacity
+              style={styles.openInYoutubeButton}
+              onPress={() => Linking.openURL(selectedVideo.url)}
+            >
+              <Ionicons name="open-outline" size={24} color="#ff6b6b" />
+            </TouchableOpacity>
+          </View>
+          
+          <WebView
+            source={{ uri: embedUrl }}
+            style={styles.webView}
+            allowsFullscreenVideo={true}
+            mediaPlaybackRequiresUserAction={false}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View style={styles.webViewLoading}>
+                <ActivityIndicator size="large" color="#ff6b6b" />
+                <Text style={styles.loadingText}>جاري تشغيل الفيديو...</Text>
+              </View>
+            )}
+          />
+          
+          <View style={styles.videoPlayerFooter}>
+            <Text style={styles.videoDescription} numberOfLines={3}>
+              {selectedVideo.description}
+            </Text>
+          </View>
+        </SafeAreaView>
+      </Modal>
+    );
+  };
 
   // Render anime card
   const renderAnimeCard = ({ item }: { item: Anime }) => (
