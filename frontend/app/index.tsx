@@ -757,6 +757,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 5,
   },
+  loadMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 5,
+  },
   gridContainer: {
     paddingHorizontal: 15,
   },
