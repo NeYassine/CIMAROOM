@@ -319,6 +319,17 @@ export default function Index() {
     }
   };
 
+  // Handle search input for recaps
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      if (activeTab === 'recaps') {
+        searchAnimeRecaps(recapSearchQuery);
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceTimeout);
+  }, [recapSearchQuery, activeTab]);
+
   // Handle search input
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
