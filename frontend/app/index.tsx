@@ -95,6 +95,8 @@ export default function Index() {
   const [recapLoading, setRecapLoading] = useState(false);
   const [recapSearchQuery, setRecapSearchQuery] = useState('');
   const [recapSearchResults, setRecapSearchResults] = useState<any[]>([]);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
   
   const [filters, setFilters] = useState<FilterState>({
     genres: [],
