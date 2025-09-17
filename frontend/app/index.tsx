@@ -293,7 +293,11 @@ export default function Index() {
         }}
       >
         <Image
-          source={{ uri: item.images.jpg.large_image_url }}
+          source={{ 
+            uri: item.poster_path 
+              ? `https://image.tmdb.org/t/p/w500${item.poster_path}` 
+              : 'https://via.placeholder.com/500x750/333/fff?text=No+Image'
+          }}
           style={styles.animeImage}
           resizeMode="cover"
         />
@@ -301,18 +305,21 @@ export default function Index() {
       
       <View style={styles.animeInfo}>
         <Text style={styles.animeTitle} numberOfLines={2}>
-          {item.title_english || item.title}
+          {item.title_arabic || item.title || item.original_title}
         </Text>
         <View style={styles.animeMetadata}>
           <View style={styles.scoreContainer}>
             <Ionicons name="star" size={14} color="#FFD700" />
-            <Text style={styles.scoreText}>{item.score?.toFixed(1) || 'غير متاح'}</Text>
+            <Text style={styles.scoreText}>
+              {item.vote_average ? item.vote_average.toFixed(1) : 'غير متاح'}
+            </Text>
           </View>
           <Text style={styles.episodeText}>
-            {item.episodes ? `${item.episodes} حلقة` : 'غير معروف'}
+            {item.episode_count ? `${item.episode_count} حلقة` : 
+             item.content_type === 'movie' ? 'فيلم' : 'مسلسل'}
           </Text>
         </View>
-        <Text style={styles.statusText}>{item.status}</Text>
+        <Text style={styles.statusText}>{item.status || 'غير محدد'}</Text>
         
         {/* Watch Button Inside Card */}
         <TouchableOpacity
