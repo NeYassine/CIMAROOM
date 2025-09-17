@@ -325,7 +325,9 @@ export default function Index() {
       <TouchableOpacity
         onPress={() => {
           setSelectedAnime(item);
+          setActiveDetailTab('info');
           setShowDetails(true);
+          fetchAnimeDetails(item);
         }}
       >
         <Image
