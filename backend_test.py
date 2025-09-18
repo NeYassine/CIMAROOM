@@ -172,10 +172,10 @@ class AnimeAPITester:
             response = self.session.get(f"{API_BASE}/anime/current-season")
             if response.status_code == 200:
                 data = response.json()
-                if "data" in data and isinstance(data["data"], list):
+                if "results" in data and isinstance(data["results"], list):
                     self.log_result("GET /api/anime/current-season", "PASS", 
-                                  f"Retrieved {len(data['data'])} currently airing anime", 
-                                  {"count": len(data["data"])})
+                                  f"Retrieved {len(data['results'])} currently airing anime", 
+                                  {"count": len(data["results"])})
                     return True
                 else:
                     self.log_result("GET /api/anime/current-season", "FAIL", 
