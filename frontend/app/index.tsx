@@ -574,15 +574,18 @@ export default function Index() {
         {showSearch && searchResults.length > 0 && (
           <View style={styles.section}>
             {renderSectionHeader('نتائج البحث')}
-            <FlatList
-              data={searchResults}
-              renderItem={renderAnimeCard}
-              keyExtractor={(item) => item.id.toString()}
+            <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollContainer}
-              ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
-            />
+            >
+              {searchResults.map((item, index) => (
+                <View key={item.id} style={{ flexDirection: 'row' }}>
+                  {renderAnimeCard({ item, index })}
+                  {index < searchResults.length - 1 && <View style={styles.cardSeparator} />}
+                </View>
+              ))}
+            </ScrollView>
           </View>
         )}
 
