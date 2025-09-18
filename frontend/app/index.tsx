@@ -501,13 +501,13 @@ export default function Index() {
     );
   };
 
-  if (loading) {
+  if (loading || !fontsLoaded) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#000" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FFD700" />
-          <Text style={styles.loadingText}>جاري تحميل الأنيمي...</Text>
+          <Text style={[styles.loadingText, { fontFamily: 'Tajawal_400Regular' }]}>جاري تحميل الأنيمي...</Text>
         </View>
       </SafeAreaView>
     );
