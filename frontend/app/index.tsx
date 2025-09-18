@@ -1479,4 +1479,131 @@ const styles = StyleSheet.create({
   headerSpacer: {
     width: 40, // Same as back button to center the title
   },
+  schedulePage: {
+    flex: 1,
+    backgroundColor: '#0F0F0F',
+  },
+  scheduleHeader: {
+    backgroundColor: '#1A1A1A',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  scheduleTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    textAlign: 'center',
+    fontFamily: 'Tajawal_700Bold',
+  },
+  scheduleSubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 5,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  scheduleContent: {
+    flex: 1,
+  },
+  daySection: {
+    marginBottom: 25,
+  },
+  dayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#1A1A1A',
+    marginBottom: 10,
+  },
+  dayName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    fontFamily: 'Tajawal_700Bold',
+  },
+  dayNameEn: {
+    fontSize: 14,
+    color: '#999',
+    textTransform: 'uppercase',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  scheduleAnimeCard: {
+    flexDirection: 'row',
+    backgroundColor: '#1A1A1A',
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+  },
+  scheduleAnimeImage: {
+    width: 60,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#333',
+  },
+  scheduleAnimeInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  scheduleAnimeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 6,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  scheduleAnimeMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  scheduleTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  scheduleTime: {
+    fontSize: 12,
+    color: '#FFD700',
+    marginLeft: 4,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  scheduleEpisodes: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  scheduleStudio: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  scheduleRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  scheduleScore: {
+    fontSize: 12,
+    color: '#FFD700',
+    marginLeft: 4,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  emptySchedule: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
+  emptyScheduleText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'Tajawal_400Regular',
+  },
 });
