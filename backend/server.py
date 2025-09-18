@@ -285,9 +285,9 @@ def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBas
 # Anime API routes
 @api_router.get("/anime/top", response_model=AnimeSearchResponse)
 async def get_top_anime(page: int = 1, limit: int = 25):
-    """Get top-rated real anime with Arabic descriptions and English titles"""
+    """Get top-rated real anime with English titles and Arabic descriptions"""
     try:
-        cache_key = f"top_anime_page_{page}_limit_{limit}"
+        cache_key = f"top_anime_english_page_{page}_limit_{limit}"
         
         # Check cache first
         if cache_key in cache:
@@ -295,46 +295,69 @@ async def get_top_anime(page: int = 1, limit: int = 25):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Search for real anime TV shows with Arabic language for descriptions
-        tv_params = {
+        # First get anime with English titles
+        tv_params_en = {
             'page': page,
             'with_genres': '16',  # Animation genre
             'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
             'sort_by': 'vote_average.desc',
             'vote_count.gte': 100,  # Minimum votes for quality filter
             'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE  # Arabic language for descriptions
+            'language': 'en-US'  # English language for titles
         }
         
-        tv_data = await make_tmdb_request("/discover/tv", tv_params)
+        tv_data_en = await make_tmdb_request("/discover/tv", tv_params_en)
         
         anime_results = []
-        for show in tv_data.get('results', []):
-            if is_anime_content(show):
+        
+        # Process TV shows and get Arabic descriptions
+        for show in tv_data_en.get('results', []):
+            if is_anime_content(show) and len(anime_results) < limit:
+                # Get Arabic description for this show
+                try:
+                    arabic_params = {
+                        'api_key': TMDB_API_KEY,
+                        'language': 'ar'
+                    }
+                    arabic_data = await make_tmdb_request(f"/tv/{show.get('id')}", arabic_params)
+                    # Update overview with Arabic version
+                    show['overview'] = arabic_data.get('overview', show.get('overview', ''))
+                except:
+                    pass  # Keep original overview if Arabic fetch fails
+                
                 anime_item = format_anime_content(show, 'tv')
                 anime_results.append(anime_item)
-            
-            if len(anime_results) >= limit:
-                break
         
         # If not enough TV anime, add some anime movies
         if len(anime_results) < limit:
-            movie_params = {
+            movie_params_en = {
                 'page': page,
                 'with_genres': '16',  # Animation genre
                 'with_original_language': 'ja|ko',  # Japanese/Korean content
                 'sort_by': 'vote_average.desc',
                 'vote_count.gte': 50,  # Lower threshold for movies
                 'api_key': TMDB_API_KEY,
-                'language': TMDB_LANGUAGE  # Arabic language for descriptions
+                'language': 'en-US'  # English language for titles
             }
             
-            movie_data = await make_tmdb_request("/discover/movie", movie_params)
+            movie_data_en = await make_tmdb_request("/discover/movie", movie_params_en)
             
-            for movie in movie_data.get('results', []):
+            for movie in movie_data_en.get('results', []):
                 if len(anime_results) >= limit:
                     break
                 if is_anime_content(movie):
+                    # Get Arabic description for this movie
+                    try:
+                        arabic_params = {
+                            'api_key': TMDB_API_KEY,
+                            'language': 'ar'
+                        }
+                        arabic_data = await make_tmdb_request(f"/movie/{movie.get('id')}", arabic_params)
+                        # Update overview with Arabic version
+                        movie['overview'] = arabic_data.get('overview', movie.get('overview', ''))
+                    except:
+                        pass  # Keep original overview if Arabic fetch fails
+                    
                     anime_item = format_anime_content(movie, 'movie')
                     anime_results.append(anime_item)
         
@@ -347,7 +370,7 @@ async def get_top_anime(page: int = 1, limit: int = 25):
         response = AnimeSearchResponse(
             results=anime_results,
             page=page,
-            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1) if 'movie_data' in locals() else 1),
+            total_pages=tv_data_en.get('total_pages', 1),
             total_results=len(anime_results)
         )
         
