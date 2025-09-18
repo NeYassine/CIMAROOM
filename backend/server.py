@@ -444,15 +444,26 @@ async def get_seasonal_anime(year: int, season: str, page: int = 1, limit: int =
 
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
-    """Get currently popular anime (simulates seasonal anime)"""
+    """Get Fall 2025 seasonal anime"""
     try:
-        # Get popular anime TV shows with recent dates
+        cache_key = f"fall_2025_anime_page_{page}_limit_{limit}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < CACHE_TTL:
+                return cached_data['data']
+        
+        # Get Fall 2025 anime TV shows (September - December 2025)
         tv_params = {
             'page': page,
             'with_genres': '16',  # Animation
             'with_original_language': 'ja',  # Japanese
             'sort_by': 'popularity.desc',
-            'first_air_date.gte': '2020-01-01'  # Recent anime
+            'first_air_date.gte': '2025-09-01',  # Fall 2025 start
+            'first_air_date.lte': '2025-12-31',  # Fall 2025 end
+            'api_key': TMDB_API_KEY,
+            'language': TMDB_LANGUAGE
         }
         
         tv_data = await make_tmdb_request("/discover/tv", tv_params)
@@ -463,14 +474,45 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
                 anime_item = format_anime_content(show, 'tv')
                 anime_results.append(anime_item)
         
+        # Also get Fall 2025 anime movies
+        movie_params = {
+            'page': page,
+            'with_genres': '16',  # Animation
+            'with_original_language': 'ja',  # Japanese
+            'sort_by': 'popularity.desc',
+            'release_date.gte': '2025-09-01',  # Fall 2025 start
+            'release_date.lte': '2025-12-31',  # Fall 2025 end
+            'api_key': TMDB_API_KEY,
+            'language': TMDB_LANGUAGE
+        }
+        
+        movie_data = await make_tmdb_request("/discover/movie", movie_params)
+        
+        for movie in movie_data.get('results', []):
+            if is_anime_content(movie):
+                anime_item = format_anime_content(movie, 'movie')
+                anime_results.append(anime_item)
+        
+        # Sort by anime confidence and popularity
         anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
         
-        return AnimeSearchResponse(
-            results=anime_results[:limit],
+        # Limit results
+        anime_results = anime_results[:limit]
+        
+        response = AnimeSearchResponse(
+            results=anime_results,
             page=page,
-            total_pages=tv_data.get('total_pages', 1),
+            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1)),
             total_results=len(anime_results)
         )
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': response,
+            'timestamp': time.time()
+        }
+        
+        return response
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
