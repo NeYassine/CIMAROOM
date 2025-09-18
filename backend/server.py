@@ -814,9 +814,9 @@ async def get_seasonal_anime(year: int, season: str, page: int = 1, limit: int =
 
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
-    """Get Fall 2025 seasonal anime with Arabic content"""
+    """Get Fall 2025 seasonal anime with English titles and Arabic descriptions"""
     try:
-        cache_key = f"fall_2025_anime_page_{page}_limit_{limit}"
+        cache_key = f"fall_2025_anime_english_page_{page}_limit_{limit}"
         
         # Check cache first
         if cache_key in cache:
@@ -824,69 +824,78 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Get Fall 2025 Arabic anime TV shows (September - December 2025)
-        tv_params = {
+        # Get Fall 2025 anime TV shows with English titles first
+        tv_params_en = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ar',  # Arabic content
+            'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
             'sort_by': 'popularity.desc',
             'first_air_date.gte': '2025-09-01',  # Fall 2025 start
             'first_air_date.lte': '2025-12-31',  # Fall 2025 end
+            'vote_count.gte': 10,  # Minimum votes for new anime
             'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE
+            'language': 'en-US'  # English language for titles
         }
         
-        tv_data = await make_tmdb_request("/discover/tv", tv_params)
+        tv_data_en = await make_tmdb_request("/discover/tv", tv_params_en)
         
         anime_results = []
-        for show in tv_data.get('results', []):
-            anime_item = format_anime_content(show, 'tv')
-            anime_results.append(anime_item)
         
-        # If Arabic content is not enough, add some international popular anime
-        if len(anime_results) < limit:
-            # Add popular international anime with Arabic translations
-            intl_tv_params = {
-                'page': page,
-                'with_genres': '16',  # Animation genre
-                'sort_by': 'popularity.desc',
-                'first_air_date.gte': '2025-09-01',  # Fall 2025 start
-                'first_air_date.lte': '2025-12-31',  # Fall 2025 end
-                'api_key': TMDB_API_KEY,
-                'language': TMDB_LANGUAGE
-            }
-            
-            intl_tv_data = await make_tmdb_request("/discover/tv", intl_tv_params)
-            
-            for show in intl_tv_data.get('results', []):
-                if len(anime_results) >= limit:
-                    break
-                if is_anime_content(show):
-                    anime_item = format_anime_content(show, 'tv')
-                    anime_results.append(anime_item)
-        
-        # Also get Fall 2025 anime movies
-        movie_params = {
-            'page': page,
-            'with_genres': '16',  # Animation genre
-            'sort_by': 'popularity.desc',
-            'release_date.gte': '2025-09-01',  # Fall 2025 start
-            'release_date.lte': '2025-12-31',  # Fall 2025 end
-            'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE
-        }
-        
-        movie_data = await make_tmdb_request("/discover/movie", movie_params)
-        
-        for movie in movie_data.get('results', []):
-            if len(anime_results) >= limit:
-                break
-            if is_anime_content(movie):
-                anime_item = format_anime_content(movie, 'movie')
+        # Process TV shows and get Arabic descriptions
+        for show in tv_data_en.get('results', []):
+            if is_anime_content(show) and len(anime_results) < limit:
+                # Get Arabic description for this show
+                try:
+                    arabic_params = {
+                        'api_key': TMDB_API_KEY,
+                        'language': 'ar'
+                    }
+                    arabic_data = await make_tmdb_request(f"/tv/{show.get('id')}", arabic_params)
+                    # Update overview with Arabic version
+                    show['overview'] = arabic_data.get('overview', show.get('overview', ''))
+                except:
+                    pass  # Keep original overview if Arabic fetch fails
+                
+                anime_item = format_anime_content(show, 'tv')
                 anime_results.append(anime_item)
         
-        # Sort by anime confidence and popularity
-        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        # Also get Fall 2025 anime movies if needed
+        if len(anime_results) < limit:
+            movie_params_en = {
+                'page': page,
+                'with_genres': '16',  # Animation genre
+                'with_original_language': 'ja|ko',  # Japanese/Korean content
+                'sort_by': 'popularity.desc',
+                'release_date.gte': '2025-09-01',  # Fall 2025 start
+                'release_date.lte': '2025-12-31',  # Fall 2025 end
+                'vote_count.gte': 5,  # Lower threshold for new movies
+                'api_key': TMDB_API_KEY,
+                'language': 'en-US'  # English language for titles
+            }
+            
+            movie_data_en = await make_tmdb_request("/discover/movie", movie_params_en)
+            
+            for movie in movie_data_en.get('results', []):
+                if len(anime_results) >= limit:
+                    break
+                if is_anime_content(movie):
+                    # Get Arabic description for this movie
+                    try:
+                        arabic_params = {
+                            'api_key': TMDB_API_KEY,
+                            'language': 'ar'
+                        }
+                        arabic_data = await make_tmdb_request(f"/movie/{movie.get('id')}", arabic_params)
+                        # Update overview with Arabic version
+                        movie['overview'] = arabic_data.get('overview', movie.get('overview', ''))
+                    except:
+                        pass  # Keep original overview if Arabic fetch fails
+                    
+                    anime_item = format_anime_content(movie, 'movie')
+                    anime_results.append(anime_item)
+        
+        # Sort by popularity (most popular Fall 2025 anime first)
+        anime_results.sort(key=lambda x: x.popularity or 0, reverse=True)
         
         # Limit results
         anime_results = anime_results[:limit]
@@ -894,7 +903,7 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
         response = AnimeSearchResponse(
             results=anime_results,
             page=page,
-            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1)),
+            total_pages=tv_data_en.get('total_pages', 1),
             total_results=len(anime_results)
         )
         
