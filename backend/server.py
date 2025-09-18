@@ -245,6 +245,61 @@ async def get_top_anime(page: int = 1, limit: int = 25):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/anime/movies", response_model=AnimeSearchResponse)
+async def get_anime_movies(page: int = 1, limit: int = 25):
+    """Get popular anime movies"""
+    try:
+        cache_key = f"anime_movies_page_{page}_limit_{limit}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < CACHE_TTL:
+                return cached_data['data']
+        
+        # Get anime movies from TMDB
+        movie_params = {
+            'page': page,
+            'with_genres': '16',  # Animation genre
+            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
+            'sort_by': 'popularity.desc',
+            'api_key': TMDB_API_KEY,
+            'language': TMDB_LANGUAGE
+        }
+        
+        movie_data = await make_tmdb_request("/discover/movie", movie_params)
+        
+        # Filter for anime content and format
+        anime_movies = []
+        for movie in movie_data.get('results', []):
+            if is_anime_content(movie):
+                anime_item = format_anime_content(movie, 'movie')
+                anime_movies.append(anime_item)
+        
+        # Sort by anime confidence and popularity
+        anime_movies.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        
+        # Limit results
+        anime_movies = anime_movies[:limit]
+        
+        response = AnimeSearchResponse(
+            results=anime_movies,
+            page=page,
+            total_pages=movie_data.get('total_pages', 1),
+            total_results=len(anime_movies)
+        )
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': response,
+            'timestamp': time.time()
+        }
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/anime/search", response_model=AnimeSearchResponse)
 async def search_anime(
     q: str = None, 
