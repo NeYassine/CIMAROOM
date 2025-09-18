@@ -96,11 +96,11 @@ class AnimeAPITester:
                 response = self.session.get(f"{API_BASE}/anime/search", params={"q": query})
                 if response.status_code == 200:
                     data = response.json()
-                    if "data" in data and isinstance(data["data"], list):
-                        if len(data["data"]) > 0:
-                            first_result = data["data"][0]
+                    if "results" in data and isinstance(data["results"], list):
+                        if len(data["results"]) > 0:
+                            first_result = data["results"][0]
                             self.log_result(f"GET /api/anime/search?q={query}", "PASS", 
-                                          f"Found {len(data['data'])} results for '{query}'", 
+                                          f"Found {len(data['results'])} results for '{query}'", 
                                           {"first_result": first_result.get("title", "Unknown")})
                         else:
                             self.log_result(f"GET /api/anime/search?q={query}", "WARN", 
