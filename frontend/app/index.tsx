@@ -742,6 +742,114 @@ export default function Index() {
         )}
       </ScrollView>
 
+      {/* Anime Schedule Page */}
+      {showSchedule && (
+        <View style={styles.schedulePage}>
+          <View style={styles.scheduleHeader}>
+            <Text style={styles.scheduleTitle}>مواعيد الأنميات</Text>
+            <Text style={styles.scheduleSubtitle}>جدول عرض الأنميات الأسبوعي</Text>
+          </View>
+          
+          <ScrollView 
+            style={styles.scheduleContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#FFD700']}
+                tintColor="#FFD700"
+              />
+            }
+          >
+            {animeSchedule.map((dayData, dayIndex) => (
+              <View key={dayIndex} style={styles.daySection}>
+                <View style={styles.dayHeader}>
+                  <Text style={styles.dayName}>{dayData.day_arabic}</Text>
+                  <Text style={styles.dayNameEn}>{dayData.day}</Text>
+                </View>
+                
+                {dayData.anime.map((anime: any, animeIndex: number) => (
+                  <TouchableOpacity
+                    key={animeIndex}
+                    style={styles.scheduleAnimeCard}
+                    onPress={() => {
+                      // Convert schedule anime to our Anime format for details
+                      const animeForDetails: Anime = {
+                        id: anime.id,
+                        title: anime.title,
+                        title_arabic: anime.title_arabic,
+                        original_title: anime.title,
+                        poster_path: anime.poster_image,
+                        overview: anime.synopsis,
+                        overview_arabic: anime.synopsis_arabic,
+                        vote_average: anime.mal_score,
+                        episode_count: anime.episode_count,
+                        status: anime.status,
+                        genres: anime.genres?.map((g: string) => ({ name: g })) || [],
+                        content_type: 'tv'
+                      };
+                      setSelectedAnime(animeForDetails);
+                      setShowDetails(true);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Image
+                      source={{ 
+                        uri: anime.poster_image || 'https://via.placeholder.com/100x140/333/fff?text=Anime'
+                      }}
+                      style={styles.scheduleAnimeImage}
+                      resizeMode="cover"
+                    />
+                    
+                    <View style={styles.scheduleAnimeInfo}>
+                      <Text style={styles.scheduleAnimeTitle} numberOfLines={2}>
+                        {anime.title_arabic || anime.title}
+                      </Text>
+                      
+                      <View style={styles.scheduleAnimeMeta}>
+                        {anime.air_time && (
+                          <View style={styles.scheduleTimeContainer}>
+                            <Ionicons name="time-outline" size={14} color="#FFD700" />
+                            <Text style={styles.scheduleTime}>{anime.air_time}</Text>
+                          </View>
+                        )}
+                        
+                        {anime.episode_count && (
+                          <Text style={styles.scheduleEpisodes}>
+                            {anime.episode_count} حلقة
+                          </Text>
+                        )}
+                      </View>
+                      
+                      {anime.studio && (
+                        <Text style={styles.scheduleStudio} numberOfLines={1}>
+                          {anime.studio}
+                        </Text>
+                      )}
+                      
+                      {anime.mal_score && (
+                        <View style={styles.scheduleRating}>
+                          <Ionicons name="star" size={12} color="#FFD700" />
+                          <Text style={styles.scheduleScore}>{anime.mal_score}</Text>
+                        </View>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+            
+            {animeSchedule.length === 0 && (
+              <View style={styles.emptySchedule}>
+                <Ionicons name="calendar-outline" size={64} color="#666" />
+                <Text style={styles.emptyScheduleText}>لا توجد مواعيد متاحة</Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
