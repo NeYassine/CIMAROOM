@@ -335,6 +335,50 @@ export default function Index() {
     }
   };
 
+  // Fetch detailed anime information
+  const fetchAnimeDetails = async (animeId: number, contentType: string) => {
+    try {
+      setAnimeDetailsLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/${animeId}/details?content_type=${contentType}`);
+      const data: Anime = await response.json();
+      setDetailedAnime(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching anime details:', error);
+      return null;
+    } finally {
+      setAnimeDetailsLoading(false);
+    }
+  };
+
+  // Fetch person details
+  const fetchPersonDetails = async (personId: number) => {
+    try {
+      setPersonLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/person/${personId}`);
+      const data: PersonDetails = await response.json();
+      setSelectedPerson(data);
+      setShowPersonDetails(true);
+    } catch (error) {
+      console.error('Error fetching person details:', error);
+      Alert.alert('خطأ', 'لا يمكن تحميل تفاصيل الممثل');
+    } finally {
+      setPersonLoading(false);
+    }
+  };
+
+  // Handle anime selection with enhanced details
+  const handleAnimeSelection = async (anime: Anime) => {
+    setSelectedAnime(anime);
+    setShowDetails(true);
+    
+    // Fetch detailed information in background
+    const detailedData = await fetchAnimeDetails(anime.id, anime.content_type);
+    if (detailedData) {
+      setDetailedAnime(detailedData);
+    }
+  };
+
   // Handle search input
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
