@@ -252,12 +252,46 @@ async def get_english_title_arabic_overview(item_id: int, content_type: str) -> 
         return '', ''
 
 def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
-    """Format TMDB content into AnimeBasic model with English titles and Arabic descriptions"""
+    """Format TMDB content into AnimeBasic model with Arabic and English titles"""
     
     # Get English title - prioritize English name over original Japanese
     english_title = content.get('name') or content.get('title', '')
     if not english_title or len(english_title) < 3:  # If English title is too short or missing
         english_title = content.get('original_name') or content.get('original_title', '')
+    
+    # Try to get Arabic title, fallback to English
+    arabic_title = content.get('name') or content.get('title', '') if content.get('name') or content.get('title') else english_title
+    
+    # Arabic title translations for popular anime
+    arabic_titles = {
+        'Spirited Away': 'فتاة الأرواح',
+        'Princess Mononoke': 'الأميرة مونونوكي',
+        'My Neighbor Totoro': 'جاري توتورو',
+        'Howl\'s Moving Castle': 'قلعة هاول المتحركة',
+        'Castle in the Sky': 'القلعة في السماء',
+        'Kiki\'s Delivery Service': 'خدمة توصيل كيكي',
+        'The Tale of Princess Kaguya': 'حكاية الأميرة كاغويا',
+        'Grave of the Fireflies': 'قبر اليراعات',
+        'When Marnie Was There': 'عندما كانت مارني هناك',
+        'The Wind Rises': 'الريح تنهض',
+        'Ponyo': 'بونيو',
+        'Demon Slayer': 'قاتل الشياطين',
+        'Attack on Titan': 'هجوم العمالقة',
+        'Death Note': 'مذكرة الموت',
+        'One Piece': 'ون بيس',
+        'Naruto': 'ناروتو',
+        'Dragon Ball': 'دراغون بول',
+        'Your Name': 'اسمك',
+        'Weathering With You': 'الطقس معك',
+        'A Silent Voice': 'صوت صامت',
+        'Ghost in the Shell': 'الشبح في الصدفة',
+        'Akira': 'أكيرا',
+        'Perfect Blue': 'الأزرق المثالي'
+    }
+    
+    # Check if we have an Arabic translation for this title
+    if english_title in arabic_titles:
+        arabic_title = arabic_titles[english_title]
     
     # Keep Arabic overview from current response
     arabic_overview = content.get('overview', '') if content.get('overview') else ''
@@ -265,7 +299,7 @@ def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBas
     return AnimeBasic(
         id=content.get('id'),
         title=english_title,  # English title when available
-        title_arabic=english_title,  # Same as title for consistency
+        title_arabic=arabic_title,  # Arabic title when available, otherwise English
         original_title=content.get('original_name') or content.get('original_title', ''),
         poster_path=content.get('poster_path'),
         backdrop_path=content.get('backdrop_path'),
