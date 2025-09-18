@@ -109,7 +109,7 @@ backend:
     implemented: true
     working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -122,6 +122,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "CRITICAL ISSUE FOUND: Backend is using TMDB API instead of Jikan API as specified in requirements. While the endpoints work correctly and return anime data, this is NOT the Jikan API integration that was requested. The user problem statement specifically mentions 'Jikan API from https://jikan.moe/' but the implementation uses TMDB API. This explains why frontend shows 'لا توجد أنيمي متاحة' - there's a data format mismatch between expected Jikan format and actual TMDB format."
+        - working: false
+          agent: "testing"
+          comment: "COMPREHENSIVE TESTING COMPLETED: Backend still uses TMDB API (not Jikan as requested). CRITICAL ISSUES: 1) /api/anime/search endpoint MISSING - function exists but not registered, 2) Japanese titles appearing in responses despite Arabic/English requirement, 3) /api/anime/current-season returns 0 results (expected for future Fall 2025 dates), 4) Seasonal endpoint response structure incorrect. WORKING: Enhanced details endpoint with cast/genres in Arabic, person endpoint, basic anime details, pagination. Core functionality works but title language filtering and missing search endpoint need fixes."
 
   - task: "API Endpoints Structure"
     implemented: true
