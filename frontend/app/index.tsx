@@ -166,8 +166,10 @@ export default function Index() {
   const fetchMoreSeasonalAnime = async (page: number = 1) => {
     try {
       setMoreSeasonalLoading(true);
+      console.log(`Fetching seasonal anime page ${page}`);
       const response = await fetch(`${BACKEND_URL}/api/anime/current-season?page=${page}&limit=20`);
       const data: AnimeResponse = await response.json();
+      console.log(`Fetched seasonal anime:`, data);
       
       if (page === 1) {
         setMoreSeasonalAnime(data.results || []);
@@ -176,6 +178,7 @@ export default function Index() {
       }
       
       setHasMoreSeasonalPages(data.page < data.total_pages);
+      console.log(`Has more seasonal pages: ${data.page < data.total_pages}`);
     } catch (error) {
       console.error('Error fetching more seasonal anime:', error);
     } finally {
