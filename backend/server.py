@@ -369,6 +369,46 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/anime/genres")
+async def get_anime_genres():
+    """Get all available anime genres in Arabic"""
+    try:
+        # Get TV genres
+        tv_genres = await make_tmdb_request("/genre/tv/list")
+        movie_genres = await make_tmdb_request("/genre/movie/list")
+        
+        # Combine and filter for anime-relevant genres
+        all_genres = tv_genres.get('genres', []) + movie_genres.get('genres', [])
+        
+        # Remove duplicates and filter for anime-relevant genres
+        anime_relevant_genres = {}
+        anime_genre_ids = {16, 10765, 10759, 14, 878, 35, 18, 10749, 10751}
+        
+        for genre in all_genres:
+            if genre['id'] in anime_genre_ids:
+                anime_relevant_genres[genre['id']] = genre
+        
+        return {"data": list(anime_relevant_genres.values())}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
+async def get_anime_details(anime_id: int, content_type: str = "tv"):
+    """Get detailed information about a specific anime"""
+    try:
+        endpoint = f"/{content_type}/{anime_id}"
+        data = await make_tmdb_request(endpoint)
+        
+        if is_anime_content(data):
+            anime_item = format_anime_content(data, content_type)
+            return AnimeDetailResponse(data=anime_item)
+        else:
+            raise HTTPException(status_code=404, detail="Anime not found or not anime content")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/anime/{anime_id}/videos")
 async def get_anime_videos(anime_id: int, content_type: str = "tv"):
     """Get videos (trailers, teasers) for specific anime"""
