@@ -230,7 +230,7 @@ export default function NewsScreen() {
   const renderNewsArticle = ({ item }: { item: NewsArticle }) => (
     <TouchableOpacity 
       style={styles.articleCard}
-      onPress={() => openArticleLink(item.link)}
+      onPress={() => openArticleInApp(item)}
       activeOpacity={0.8}
     >
       <View style={styles.articleContent}>
