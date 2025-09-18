@@ -290,11 +290,30 @@ export default function ListsScreen() {
     fetchAllAnime();
   }, []);
 
+  // Handle anime selection with enhanced details
+  const handleAnimeSelection = async (anime: Anime) => {
+    // You can navigate to anime details or show modal here
+    // For now, let's show an alert with anime info
+    Alert.alert(
+      anime.title_arabic || anime.title || 'أنمي',
+      `التقييم: ${anime.vote_average ? anime.vote_average.toFixed(1) : 'غير متاح'}\nالنوع: ${anime.content_type === 'movie' ? 'فيلم' : 'مسلسل'}${anime.release_date || anime.first_air_date ? `\nالسنة: ${(anime.release_date || anime.first_air_date)?.substring(0, 4)}` : ''}`,
+      [
+        { text: 'إغلاق', style: 'cancel' },
+        { text: 'تفاصيل أكثر', onPress: () => {
+          // Here you can navigate to detailed view
+          // router.push(`/anime/${anime.id}?type=${anime.content_type}`);
+          console.log('Navigate to anime details:', anime.id);
+        }}
+      ]
+    );
+  };
+
   // Render anime card
   const renderAnimeCard = ({ item }: { item: Anime }) => (
     <TouchableOpacity 
       style={styles.animeCard}
       activeOpacity={0.8}
+      onPress={() => handleAnimeSelection(item)}
     >
       <Image
         source={{
