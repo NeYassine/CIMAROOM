@@ -223,24 +223,23 @@ async def make_tmdb_request(endpoint: str, params: Dict[str, Any] = None) -> Dic
             raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
 
 def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
-    """Format TMDB content into AnimeBasic model."""
+    """Format TMDB content into AnimeBasic model with English titles and Arabic descriptions"""
     
-    # Get alternative titles and overview in Arabic if available
-    title = content.get('title') if content_type == 'movie' else content.get('name')
-    original_title = content.get('original_title') if content_type == 'movie' else content.get('original_name')
+    # Get English title (keep original)
+    english_title = content.get('name') or content.get('title') or content.get('original_name') or content.get('original_title', '')
     
-    # Calculate anime confidence
-    confidence = calculate_anime_confidence(content)
+    # Get Arabic overview/description
+    arabic_overview = content.get('overview', '') if content.get('overview') else ''
     
     return AnimeBasic(
         id=content.get('id'),
-        title=title or original_title or 'عنوان غير متاح',
-        title_arabic=title if TMDB_LANGUAGE == 'ar' else None,
-        original_title=original_title,
+        title=english_title,  # Keep English title
+        title_arabic=english_title,  # Same as title for consistency
+        original_title=content.get('original_name') or content.get('original_title', ''),
         poster_path=content.get('poster_path'),
         backdrop_path=content.get('backdrop_path'),
-        overview=content.get('overview') or 'لا يوجد وصف متاح',
-        overview_arabic=content.get('overview') if TMDB_LANGUAGE == 'ar' else None,
+        overview=arabic_overview,  # Arabic description from API response
+        overview_arabic=arabic_overview,  # Same as overview
         vote_average=content.get('vote_average'),
         vote_count=content.get('vote_count'),
         popularity=content.get('popularity'),
@@ -251,7 +250,7 @@ def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBas
         genres=[],  # Will be populated separately if needed
         origin_country=content.get('origin_country', []),
         content_type=content_type,
-        anime_confidence=confidence
+        anime_confidence=1.0  # Since we're filtering for real anime only
     )
 
 # Anime API routes
