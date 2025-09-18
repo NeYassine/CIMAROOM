@@ -112,6 +112,15 @@ export default function Index() {
   const [morePopularPage, setMorePopularPage] = useState(1);
   const [hasMorePages, setHasMorePages] = useState(true);
   
+  // Cast and person details states
+  const [selectedPerson, setSelectedPerson] = useState<PersonDetails | null>(null);
+  const [showPersonDetails, setShowPersonDetails] = useState(false);
+  const [personLoading, setPersonLoading] = useState(false);
+  
+  // Enhanced anime details states
+  const [animeDetailsLoading, setAnimeDetailsLoading] = useState(false);
+  const [detailedAnime, setDetailedAnime] = useState<Anime | null>(null);
+  
   // Seasonal anime states
   const [showMoreSeasonal, setShowMoreSeasonal] = useState(false);
   const [moreSeasonalAnime, setMoreSeasonalAnime] = useState<Anime[]>([]);
