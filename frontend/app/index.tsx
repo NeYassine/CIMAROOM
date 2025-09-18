@@ -771,7 +771,7 @@ export default function Index() {
         </View>
       )}
 
-      {/* More Seasonal Modal */}
+      {/* More Fall 2025 Anime Modal */}
       {showMoreSeasonal && (
         <View style={styles.morePopularContainer}>
           <SafeAreaView style={styles.morePopularSafeArea}>
@@ -783,7 +783,7 @@ export default function Index() {
               >
                 <Ionicons name="arrow-back" size={24} color="#fff" />
               </TouchableOpacity>
-              <Text style={styles.morePopularTitle}>أنميات الموسم</Text>
+              <Text style={styles.morePopularTitle}>أنميات خريف 2025</Text>
               <View style={styles.headerSpacer} />
             </View>
 
@@ -805,7 +805,7 @@ export default function Index() {
                   </View>
                 ) : !hasMoreSeasonalPages ? (
                   <View style={styles.endOfListFooter}>
-                    <Text style={styles.endOfListText}>لا يوجد المزيد من أنميات الموسم</Text>
+                    <Text style={styles.endOfListText}>لا يوجد المزيد من أنميات خريف 2025</Text>
                   </View>
                 ) : null
               }
