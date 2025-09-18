@@ -128,9 +128,9 @@ backend:
 
   - task: "API Endpoints Structure"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -143,6 +143,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "CONFIRMED: All 7 core API endpoints are fully functional: /api/, /api/anime/top, /api/anime/search, /api/anime/{id}, /api/anime/current-season, /api/anime/seasonal/{year}/{season}, /api/anime/genres. Fixed route ordering issues and added missing seasonal endpoint. Backend API structure is working correctly with TMDB data source."
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ENDPOINT ISSUE: /api/anime/search endpoint is MISSING - the search_anime function exists in code but is not registered as a FastAPI route. This causes 422 errors when frontend tries to search. All other endpoints work: /api/, /api/anime/top, /api/anime/{id}, /api/anime/current-season, /api/anime/seasonal/{year}/{season}, /api/anime/genres, /api/anime/movies, /api/anime/{id}/details, /api/person/{id}. Need to add @api_router.get decorator for search endpoint."
 
 frontend:
   - task: "MyAnimeList-like UI"
