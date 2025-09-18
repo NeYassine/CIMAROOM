@@ -859,12 +859,13 @@ export default function Index() {
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => {
+            console.log('Home button pressed');
             setShowSchedule(false);
             setShowSearch(false);
           }}
         >
-          <Ionicons name="home" size={24} color={showSearch || showSchedule ? "#666" : "#FFD700"} />
-          <Text style={[styles.navText, showSearch || showSchedule && styles.inactiveNavText]}>الرئيسية</Text>
+          <Ionicons name="home" size={24} color={!showSearch && !showSchedule ? "#FFD700" : "#666"} />
+          <Text style={[styles.navText, (showSearch || showSchedule) && styles.inactiveNavText]}>الرئيسية</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
@@ -875,8 +876,10 @@ export default function Index() {
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => {
+            console.log('Schedule button pressed, current showSchedule:', showSchedule);
             setShowSchedule(true);
             setShowSearch(false);
+            console.log('Schedule data:', animeSchedule.length, 'items');
           }}
         >
           <Ionicons name="calendar-outline" size={24} color={showSchedule ? "#FFD700" : "#666"} />
