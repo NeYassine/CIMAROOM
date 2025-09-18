@@ -431,6 +431,30 @@ export default function ListsScreen() {
               </View>
             </View>
 
+            {/* Year Filter */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterTitle}>السنة</Text>
+              <View style={styles.filterOptions}>
+                {yearOptions.slice(0, 8).map((year, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.filterOption,
+                      filters.year === year && styles.activeFilterOption
+                    ]}
+                    onPress={() => setFilters({...filters, year: year === 'الكل' ? 'all' : year})}
+                  >
+                    <Text style={[
+                      styles.filterOptionText,
+                      filters.year === year && styles.activeFilterOptionText
+                    ]}>
+                      {year}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             {/* Rating Filter */}
             <View style={styles.filterSection}>
               <Text style={styles.filterTitle}>التقييم</Text>
