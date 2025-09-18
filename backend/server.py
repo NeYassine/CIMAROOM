@@ -1532,6 +1532,237 @@ async def search_anime_recaps(q: str, max_results: int = 10):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# News Models
+class NewsArticle(BaseModel):
+    id: str
+    title: str
+    title_arabic: str
+    summary: str
+    summary_arabic: str
+    link: str
+    published: str
+    published_arabic: str
+    author: str = ""
+    image_url: str = ""
+    source: str = ""
+    category: str = ""
+
+class NewsResponse(BaseModel):
+    articles: List[NewsArticle]
+    total: int
+    page: int
+    source: str
+
+@api_router.get("/news", response_model=NewsResponse)
+async def get_anime_news(page: int = 1, limit: int = 50):
+    """Get latest anime news from multiple sources"""
+    try:
+        cache_key = f"anime_news_page_{page}_limit_{limit}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < 3600:  # Cache for 1 hour
+                return cached_data['data']
+        
+        articles = []
+        
+        # RSS feeds to fetch from
+        rss_feeds = [
+            {
+                'url': 'https://www.animenewsnetwork.com/all/rss.xml',
+                'source': 'Anime News Network',
+                'category': 'General'
+            },
+            {
+                'url': 'https://myanimelist.net/rss/news.xml',
+                'source': 'MyAnimeList',
+                'category': 'News'
+            },
+            {
+                'url': 'https://feeds.feedburner.com/crunchyroll/news',
+                'source': 'Crunchyroll',
+                'category': 'News'
+            }
+        ]
+        
+        # Fetch from all RSS feeds
+        for feed_info in rss_feeds:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get(feed_info['url'])
+                    
+                if response.status_code == 200:
+                    # Parse RSS feed
+                    feed_data = feedparser.parse(response.text)
+                    
+                    for entry in feed_data.entries[:20]:  # Take first 20 entries per source
+                        # Extract and clean data
+                        title = entry.get('title', '').strip()
+                        summary = entry.get('summary', entry.get('description', '')).strip()
+                        
+                        # Clean HTML tags from summary
+                        summary = re.sub(r'<[^>]+>', '', summary)
+                        summary = re.sub(r'\s+', ' ', summary).strip()
+                        
+                        # Translate titles to Arabic (basic mapping for common terms)
+                        title_arabic = translate_anime_title(title)
+                        summary_arabic = translate_anime_summary(summary)
+                        
+                        # Get published date
+                        published = entry.get('published', entry.get('pubDate', ''))
+                        published_arabic = format_arabic_date(published)
+                        
+                        # Extract image if available
+                        image_url = ""
+                        if hasattr(entry, 'links'):
+                            for link in entry.links:
+                                if hasattr(link, 'type') and 'image' in str(link.type):
+                                    image_url = link.href
+                                    break
+                                    
+                        # Check for enclosures (images/media)
+                        if not image_url and hasattr(entry, 'enclosures'):
+                            for enc in entry.enclosures:
+                                if 'image' in enc.type:
+                                    image_url = enc.href
+                                    break
+                        
+                        # Generate unique ID
+                        article_id = hashlib.md5(f"{title}{entry.get('link', '')}".encode()).hexdigest()
+                        
+                        article = NewsArticle(
+                            id=article_id,
+                            title=title,
+                            title_arabic=title_arabic,
+                            summary=summary[:500] + "..." if len(summary) > 500 else summary,
+                            summary_arabic=summary_arabic[:500] + "..." if len(summary_arabic) > 500 else summary_arabic,
+                            link=entry.get('link', ''),
+                            published=published,
+                            published_arabic=published_arabic,
+                            author=entry.get('author', ''),
+                            image_url=image_url,
+                            source=feed_info['source'],
+                            category=feed_info['category']
+                        )
+                        
+                        articles.append(article)
+                        
+            except Exception as feed_error:
+                print(f"Error fetching from {feed_info['source']}: {feed_error}")
+                continue
+        
+        # Sort articles by published date (newest first)
+        articles.sort(key=lambda x: x.published, reverse=True)
+        
+        # Remove duplicates based on title similarity
+        unique_articles = []
+        seen_titles = set()
+        
+        for article in articles:
+            title_key = re.sub(r'[^\w\s]', '', article.title.lower())
+            if title_key not in seen_titles:
+                seen_titles.add(title_key)
+                unique_articles.append(article)
+        
+        # Pagination
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        paginated_articles = unique_articles[start_idx:end_idx]
+        
+        response = NewsResponse(
+            articles=paginated_articles,
+            total=len(unique_articles),
+            page=page,
+            source="Multiple RSS Feeds"
+        )
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': response,
+            'timestamp': time.time()
+        }
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+def translate_anime_title(title: str) -> str:
+    """Basic translation of common anime terms to Arabic"""
+    translations = {
+        'News': 'الأخبار',
+        'Review': 'مراجعة',
+        'Episode': 'الحلقة',
+        'Season': 'الموسم',
+        'Movie': 'فيلم',
+        'Anime': 'أنمي',
+        'Manga': 'مانجا',
+        'Studio': 'استوديو',
+        'Director': 'المخرج',
+        'Voice Actor': 'المؤدي الصوتي',
+        'Opening': 'الفتتاحية',
+        'Ending': 'الخاتمة',
+        'Character': 'الشخصية',
+        'Release': 'إصدار',
+        'Trailer': 'إعلان ترويجي',
+        'Preview': 'معاينة',
+        'Crunchyroll': 'كرانشي رول',
+        'Funimation': 'فونيميشن',
+        'Netflix': 'نتفلكس'
+    }
+    
+    title_arabic = title
+    for english, arabic in translations.items():
+        title_arabic = re.sub(f'\\b{english}\\b', arabic, title_arabic, flags=re.IGNORECASE)
+    
+    return title_arabic
+
+def translate_anime_summary(summary: str) -> str:
+    """Basic translation of common anime terms in summary"""
+    translations = {
+        'anime': 'أنمي',
+        'manga': 'مانجا',
+        'episode': 'حلقة',
+        'season': 'موسم',
+        'character': 'شخصية',
+        'story': 'قصة',
+        'series': 'مسلسل',
+        'movie': 'فيلم',
+        'director': 'مخرج',
+        'studio': 'استوديو',
+        'voice actor': 'مؤدي صوتي',
+        'release': 'إصدار'
+    }
+    
+    summary_arabic = summary
+    for english, arabic in translations.items():
+        summary_arabic = re.sub(f'\\b{english}\\b', arabic, summary_arabic, flags=re.IGNORECASE)
+    
+    return summary_arabic
+
+def format_arabic_date(date_str: str) -> str:
+    """Format date string to Arabic"""
+    if not date_str:
+        return ""
+    
+    try:
+        # Parse common date formats
+        import dateutil.parser
+        parsed_date = dateutil.parser.parse(date_str)
+        
+        # Format in Arabic
+        months_arabic = [
+            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+        ]
+        
+        arabic_month = months_arabic[parsed_date.month - 1]
+        return f"{parsed_date.day} {arabic_month} {parsed_date.year}"
+        
+    except:
+        return date_str
+
 async def make_youtube_request(endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
     """Make request to YouTube API with error handling."""
     if params is None:
