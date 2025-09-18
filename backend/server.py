@@ -256,7 +256,7 @@ def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBas
 # Anime API routes
 @api_router.get("/anime/top", response_model=AnimeSearchResponse)
 async def get_top_anime(page: int = 1, limit: int = 25):
-    """Get top-rated anime with Arabic language response"""
+    """Get top-rated real anime with Arabic descriptions and English titles"""
     try:
         cache_key = f"top_anime_page_{page}_limit_{limit}"
         
@@ -266,14 +266,15 @@ async def get_top_anime(page: int = 1, limit: int = 25):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Discover anime TV shows (Japanese/Korean/Chinese content but Arabic language response)
+        # Search for real anime TV shows with Arabic language for descriptions
         tv_params = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
+            'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
             'sort_by': 'vote_average.desc',
+            'vote_count.gte': 100,  # Minimum votes for quality filter
             'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE  # Arabic language response
+            'language': TMDB_LANGUAGE  # Arabic language for descriptions
         }
         
         tv_data = await make_tmdb_request("/discover/tv", tv_params)
@@ -283,26 +284,33 @@ async def get_top_anime(page: int = 1, limit: int = 25):
             if is_anime_content(show):
                 anime_item = format_anime_content(show, 'tv')
                 anime_results.append(anime_item)
+            
+            if len(anime_results) >= limit:
+                break
         
-        # Also get anime movies
-        movie_params = {
-            'page': page,
-            'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
-            'sort_by': 'vote_average.desc',
-            'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE  # Arabic language response
-        }
+        # If not enough TV anime, add some anime movies
+        if len(anime_results) < limit:
+            movie_params = {
+                'page': page,
+                'with_genres': '16',  # Animation genre
+                'with_original_language': 'ja|ko',  # Japanese/Korean content
+                'sort_by': 'vote_average.desc',
+                'vote_count.gte': 50,  # Lower threshold for movies
+                'api_key': TMDB_API_KEY,
+                'language': TMDB_LANGUAGE  # Arabic language for descriptions
+            }
+            
+            movie_data = await make_tmdb_request("/discover/movie", movie_params)
+            
+            for movie in movie_data.get('results', []):
+                if len(anime_results) >= limit:
+                    break
+                if is_anime_content(movie):
+                    anime_item = format_anime_content(movie, 'movie')
+                    anime_results.append(anime_item)
         
-        movie_data = await make_tmdb_request("/discover/movie", movie_params)
-        
-        for movie in movie_data.get('results', []):
-            if is_anime_content(movie):
-                anime_item = format_anime_content(movie, 'movie')
-                anime_results.append(anime_item)
-        
-        # Sort by anime confidence and rating
-        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.vote_average or 0), reverse=True)
+        # Sort by vote average (best anime first)
+        anime_results.sort(key=lambda x: x.vote_average or 0, reverse=True)
         
         # Limit results
         anime_results = anime_results[:limit]
@@ -310,7 +318,7 @@ async def get_top_anime(page: int = 1, limit: int = 25):
         response = AnimeSearchResponse(
             results=anime_results,
             page=page,
-            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1)),
+            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1) if 'movie_data' in locals() else 1),
             total_results=len(anime_results)
         )
         
