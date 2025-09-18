@@ -654,7 +654,7 @@ export default function Index() {
             
             <View style={styles.detailsContent}>
               <Text style={styles.detailsTitle}>
-                {currentAnimeData.title || currentAnimeData.original_title}
+                {currentAnimeData.original_title || currentAnimeData.title}
               </Text>
               
               {/* Ratings Section */}
