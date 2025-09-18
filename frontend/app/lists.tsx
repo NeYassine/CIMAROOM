@@ -290,22 +290,30 @@ export default function ListsScreen() {
     fetchAllAnime();
   }, []);
 
+  // State for anime details modal
+  const [selectedDetailedAnime, setSelectedDetailedAnime] = useState<Anime | null>(null);
+  const [showAnimeDetails, setShowAnimeDetails] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
   // Handle anime selection with enhanced details
   const handleAnimeSelection = async (anime: Anime) => {
-    // You can navigate to anime details or show modal here
-    // For now, let's show an alert with anime info
-    Alert.alert(
-      anime.title_arabic || anime.title || 'أنمي',
-      `التقييم: ${anime.vote_average ? anime.vote_average.toFixed(1) : 'غير متاح'}\nالنوع: ${anime.content_type === 'movie' ? 'فيلم' : 'مسلسل'}${anime.release_date || anime.first_air_date ? `\nالسنة: ${(anime.release_date || anime.first_air_date)?.substring(0, 4)}` : ''}`,
-      [
-        { text: 'إغلاق', style: 'cancel' },
-        { text: 'تفاصيل أكثر', onPress: () => {
-          // Here you can navigate to detailed view
-          // router.push(`/anime/${anime.id}?type=${anime.content_type}`);
-          console.log('Navigate to anime details:', anime.id);
-        }}
-      ]
-    );
+    try {
+      setDetailsLoading(true);
+      setSelectedDetailedAnime(anime);
+      setShowAnimeDetails(true);
+      
+      // Fetch detailed information
+      const response = await fetch(`${BACKEND_URL}/api/anime/${anime.id}/details?content_type=${anime.content_type}`);
+      if (response.ok) {
+        const detailedData: Anime = await response.json();
+        setSelectedDetailedAnime(detailedData);
+      }
+    } catch (error) {
+      console.error('Error fetching anime details:', error);
+      Alert.alert('خطأ', 'لا يمكن تحميل تفاصيل الأنمي');
+    } finally {
+      setDetailsLoading(false);
+    }
   };
 
   // Render anime card
