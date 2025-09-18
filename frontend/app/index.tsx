@@ -976,12 +976,10 @@ export default function Index() {
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => {
-            setShowSearch(false);
-          }}
+          onPress={() => router.push('/news')}
         >
-          <Ionicons name="home" size={24} color={!showSearch ? "#FFD700" : "#666"} />
-          <Text style={[styles.navText, showSearch && styles.inactiveNavText]}>الرئيسية</Text>
+          <Ionicons name="newspaper-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>الأخبار</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -994,10 +992,12 @@ export default function Index() {
         
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => router.push('/news')}
+          onPress={() => {
+            setShowSearch(false);
+          }}
         >
-          <Ionicons name="newspaper-outline" size={24} color="#666" />
-          <Text style={[styles.navText, styles.inactiveNavText]}>الأخبار</Text>
+          <Ionicons name="home" size={24} color={!showSearch ? "#FFD700" : "#666"} />
+          <Text style={[styles.navText, showSearch && styles.inactiveNavText]}>الرئيسية</Text>
         </TouchableOpacity>
       </View>
 
