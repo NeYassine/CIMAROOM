@@ -222,18 +222,47 @@ async def make_tmdb_request(endpoint: str, params: Dict[str, Any] = None) -> Dic
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"API request failed: {str(e)}")
 
+async def get_english_title_arabic_overview(item_id: int, content_type: str) -> tuple[str, str]:
+    """Get English title and Arabic overview for an anime"""
+    try:
+        # First get English version
+        english_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'en-US'
+        }
+        
+        english_endpoint = f"/{content_type}/{item_id}"
+        english_data = await make_tmdb_request(english_endpoint, english_params)
+        
+        english_title = english_data.get('title') or english_data.get('name', '')
+        
+        # Then get Arabic overview
+        arabic_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'ar'
+        }
+        
+        arabic_data = await make_tmdb_request(english_endpoint, arabic_params)
+        arabic_overview = arabic_data.get('overview', '')
+        
+        return english_title, arabic_overview
+        
+    except:
+        # Fallback to empty strings if API calls fail
+        return '', ''
+
 def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
     """Format TMDB content into AnimeBasic model with English titles and Arabic descriptions"""
     
-    # Get English title (keep original)
-    english_title = content.get('name') or content.get('title') or content.get('original_name') or content.get('original_title', '')
+    # Get English name from original data (before language translation)
+    english_title = content.get('original_name') or content.get('original_title') or content.get('name') or content.get('title', '')
     
-    # Get Arabic overview/description
+    # Keep Arabic overview from current response
     arabic_overview = content.get('overview', '') if content.get('overview') else ''
     
     return AnimeBasic(
         id=content.get('id'),
-        title=english_title,  # Keep English title
+        title=english_title,  # Original/English title
         title_arabic=english_title,  # Same as title for consistency
         original_title=content.get('original_name') or content.get('original_title', ''),
         poster_path=content.get('poster_path'),
