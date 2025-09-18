@@ -379,8 +379,16 @@ export default function Index() {
         index % 2 === 0 ? styles.leftCard : styles.rightCard
       ]}
       onPress={() => {
-        setSelectedAnime(item);
-        setShowDetails(true);
+        // Close the current modal first, then show details
+        setShowMorePopular(false);
+        setShowMoreSeasonal(false);
+        setShowMoreMovies(false);
+        
+        // Small delay to ensure modal is closed before showing details
+        setTimeout(() => {
+          setSelectedAnime(item);
+          setShowDetails(true);
+        }, 100);
       }}
       activeOpacity={0.8}
     >
