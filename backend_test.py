@@ -126,8 +126,8 @@ class AnimeAPITester:
     
     def test_anime_details(self):
         """Test specific anime details endpoint"""
-        # Test with One Piece (ID: 1) as mentioned in requirements
-        anime_ids = [1, 20, 16498]  # One Piece, Naruto, Attack on Titan
+        # Test with popular anime IDs from TMDB
+        anime_ids = [207468, 95479, 46260]  # Monster #8, Jujutsu Kaisen, Naruto
         
         for anime_id in anime_ids:
             try:
@@ -136,10 +136,10 @@ class AnimeAPITester:
                     data = response.json()
                     if "data" in data and isinstance(data["data"], dict):
                         anime_data = data["data"]
-                        if "mal_id" in anime_data and "title" in anime_data:
+                        if "id" in anime_data and "title" in anime_data:
                             self.log_result(f"GET /api/anime/{anime_id}", "PASS", 
                                           f"Retrieved details for '{anime_data['title']}'", 
-                                          {"title": anime_data["title"], "mal_id": anime_data["mal_id"]})
+                                          {"title": anime_data["title"], "id": anime_data["id"]})
                         else:
                             self.log_result(f"GET /api/anime/{anime_id}", "FAIL", 
                                           "Missing required fields in anime details")
