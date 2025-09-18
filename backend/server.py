@@ -254,15 +254,17 @@ async def get_english_title_arabic_overview(item_id: int, content_type: str) -> 
 def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
     """Format TMDB content into AnimeBasic model with English titles and Arabic descriptions"""
     
-    # Get English name from original data (before language translation)
-    english_title = content.get('original_name') or content.get('original_title') or content.get('name') or content.get('title', '')
+    # Get English title - prioritize English name over original Japanese
+    english_title = content.get('name') or content.get('title', '')
+    if not english_title or len(english_title) < 3:  # If English title is too short or missing
+        english_title = content.get('original_name') or content.get('original_title', '')
     
     # Keep Arabic overview from current response
     arabic_overview = content.get('overview', '') if content.get('overview') else ''
     
     return AnimeBasic(
         id=content.get('id'),
-        title=english_title,  # Original/English title
+        title=english_title,  # English title when available
         title_arabic=english_title,  # Same as title for consistency
         original_title=content.get('original_name') or content.get('original_title', ''),
         poster_path=content.get('poster_path'),
