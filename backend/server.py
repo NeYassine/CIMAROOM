@@ -336,6 +336,57 @@ async def search_anime(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/anime/seasonal/{year}/{season}")
+async def get_seasonal_anime(year: int, season: str, page: int = 1, limit: int = 20):
+    """Get seasonal anime for a specific year and season"""
+    try:
+        # Validate season
+        valid_seasons = ['winter', 'spring', 'summer', 'fall']
+        if season.lower() not in valid_seasons:
+            raise HTTPException(status_code=400, detail="Invalid season. Must be one of: winter, spring, summer, fall")
+        
+        # Map seasons to months
+        season_months = {
+            'winter': ('01-01', '03-31'),
+            'spring': ('04-01', '06-30'), 
+            'summer': ('07-01', '09-30'),
+            'fall': ('10-01', '12-31')
+        }
+        
+        start_date, end_date = season_months[season.lower()]
+        
+        # Get anime TV shows for the season
+        tv_params = {
+            'page': page,
+            'with_genres': '16',  # Animation
+            'with_original_language': 'ja',  # Japanese
+            'sort_by': 'popularity.desc',
+            'first_air_date.gte': f'{year}-{start_date}',
+            'first_air_date.lte': f'{year}-{end_date}'
+        }
+        
+        tv_data = await make_tmdb_request("/discover/tv", tv_params)
+        
+        anime_results = []
+        for show in tv_data.get('results', []):
+            if is_anime_content(show):
+                anime_item = format_anime_content(show, 'tv')
+                anime_results.append(anime_item)
+        
+        anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        
+        return AnimeSearchResponse(
+            results=anime_results[:limit],
+            page=page,
+            total_pages=tv_data.get('total_pages', 1),
+            total_results=len(anime_results)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
     """Get currently popular anime (simulates seasonal anime)"""
