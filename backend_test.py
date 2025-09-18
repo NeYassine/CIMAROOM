@@ -187,14 +187,28 @@ class AnimeAPITester:
         return True
     
     def test_current_season(self):
-        """Test current season anime endpoint"""
+        """Test current season anime endpoint - should return Fall 2025 anime ONLY (September-December 2025)"""
         try:
             response = self.session.get(f"{API_BASE}/anime/current-season")
             if response.status_code == 200:
                 data = response.json()
                 if "results" in data and isinstance(data["results"], list):
+                    # Check if anime are from Fall 2025 (Sept-Dec 2025)
+                    fall_2025_issues = []
+                    for anime in data["results"][:5]:  # Check first 5 anime
+                        air_date = anime.get("first_air_date") or anime.get("release_date", "")
+                        if air_date:
+                            # Check if date is in Fall 2025 range (2025-09-01 to 2025-12-31)
+                            if not (air_date >= "2025-09-01" and air_date <= "2025-12-31"):
+                                fall_2025_issues.append(f"Anime '{anime.get('title', 'Unknown')}' has air date {air_date} (not Fall 2025)")
+                    
+                    if fall_2025_issues:
+                        self.log_result("GET /api/anime/current-season", "FAIL", 
+                                      f"Non-Fall 2025 anime found: {'; '.join(fall_2025_issues[:2])}")
+                        return False
+                    
                     self.log_result("GET /api/anime/current-season", "PASS", 
-                                  f"Retrieved {len(data['results'])} currently airing anime", 
+                                  f"Retrieved {len(data['results'])} Fall 2025 anime correctly", 
                                   {"count": len(data["results"])})
                     return True
                 else:
