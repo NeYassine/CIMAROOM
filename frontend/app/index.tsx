@@ -1913,4 +1913,234 @@ const styles = StyleSheet.create({
     color: '#666',
     fontFamily: 'Tajawal_400Regular',
   },
+  
+  // Enhanced Details Styles
+  ratingsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  ratingLabel: {
+    fontSize: 12,
+    color: '#999',
+    marginLeft: 5,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  detailsVoteCount: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Genres Styles
+  genresContainer: {
+    marginBottom: 20,
+  },
+  sectionSubTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 10,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  genresList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  genreTag: {
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  genreText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#000',
+    fontFamily: 'Tajawal_500Medium',
+  },
+  
+  // Cast Styles
+  castContainer: {
+    marginBottom: 20,
+  },
+  castList: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+  },
+  castCard: {
+    width: 80,
+    marginRight: 15,
+    alignItems: 'center',
+  },
+  castImage: {
+    width: 70,
+    height: 90,
+    borderRadius: 8,
+    backgroundColor: '#333',
+    marginBottom: 8,
+  },
+  castName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  castCharacter: {
+    fontSize: 10,
+    color: '#999',
+    textAlign: 'center',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Recommendations Styles
+  recommendationsContainer: {
+    marginBottom: 20,
+  },
+  recommendationsList: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+  },
+  recommendationCard: {
+    width: 120,
+    marginRight: 15,
+  },
+  recommendationImage: {
+    width: 120,
+    height: 180,
+    borderRadius: 8,
+    backgroundColor: '#333',
+    marginBottom: 8,
+  },
+  recommendationTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  recommendationRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recommendationRatingText: {
+    fontSize: 12,
+    color: '#FFD700',
+    marginLeft: 4,
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Person Details Styles
+  personDetailsContent: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  personImage: {
+    width: 150,
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: '#333',
+    marginBottom: 20,
+  },
+  personInfo: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  personName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontFamily: 'Tajawal_700Bold',
+  },
+  personDepartment: {
+    fontSize: 16,
+    color: '#FFD700',
+    fontWeight: '600',
+    marginBottom: 10,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  personBirthplace: {
+    fontSize: 14,
+    color: '#ccc',
+    marginBottom: 5,
+    textAlign: 'center',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  personBirthday: {
+    fontSize: 14,
+    color: '#ccc',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  biographyContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  biographyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 10,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  biographyText: {
+    fontSize: 14,
+    color: '#ccc',
+    lineHeight: 22,
+    textAlign: 'right',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  knownForContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  knownForTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 10,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  knownForList: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+  },
+  knownForCard: {
+    width: 80,
+    marginRight: 15,
+    alignItems: 'center',
+  },
+  knownForImage: {
+    width: 70,
+    height: 105,
+    borderRadius: 8,
+    backgroundColor: '#333',
+    marginBottom: 8,
+  },
+  knownForWorkTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  knownForCharacter: {
+    fontSize: 10,
+    color: '#999',
+    textAlign: 'center',
+    fontFamily: 'Tajawal_400Regular',
+  },
 });
