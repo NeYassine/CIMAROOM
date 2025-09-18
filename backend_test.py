@@ -289,13 +289,13 @@ class AnimeAPITester:
             response = self.session.get(f"{API_BASE}/anime/top", params={"page": 1, "limit": 10})
             if response.status_code == 200:
                 data = response.json()
-                if "data" in data and len(data["data"]) <= 10:
+                if "results" in data and len(data["results"]) <= 10:
                     self.log_result("PAGINATION TEST: /api/anime/top", "PASS", 
-                                  f"Pagination working - got {len(data['data'])} items with limit=10")
+                                  f"Pagination working - got {len(data['results'])} items with limit=10")
                     return True
                 else:
                     self.log_result("PAGINATION TEST: /api/anime/top", "FAIL", 
-                                  f"Pagination not working properly - got {len(data.get('data', []))} items")
+                                  f"Pagination not working properly - got {len(data.get('results', []))} items")
                     return False
             else:
                 self.log_result("PAGINATION TEST: /api/anime/top", "FAIL", 
