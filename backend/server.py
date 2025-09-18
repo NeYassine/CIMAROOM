@@ -688,30 +688,6 @@ async def make_youtube_request(endpoint: str, params: Dict[str, Any] = None) -> 
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"YouTube API request failed: {str(e)}")
 
-@api_router.get("/anime/genres")
-async def get_anime_genres():
-    """Get all available anime genres in Arabic"""
-    try:
-        # Get TV genres
-        tv_genres = await make_tmdb_request("/genre/tv/list")
-        movie_genres = await make_tmdb_request("/genre/movie/list")
-        
-        # Combine and filter for anime-relevant genres
-        all_genres = tv_genres.get('genres', []) + movie_genres.get('genres', [])
-        
-        # Remove duplicates and filter for anime-relevant genres
-        anime_relevant_genres = {}
-        anime_genre_ids = {16, 10765, 10759, 14, 878, 35, 18, 10749, 10751}
-        
-        for genre in all_genres:
-            if genre['id'] in anime_genre_ids:
-                anime_relevant_genres[genre['id']] = genre
-        
-        return {"data": list(anime_relevant_genres.values())}
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 # Original routes
 @api_router.get("/")
 async def root():
