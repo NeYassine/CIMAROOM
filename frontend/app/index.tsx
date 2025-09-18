@@ -607,14 +607,14 @@ export default function Index() {
     );
   };
 
-  // Render section header
+  // Render section header with RTL layout
   const renderSectionHeader = (title: string, onLoadMore?: () => void) => (
-    <View style={styles.sectionHeader}>
+    <View style={[styles.sectionHeader, { flexDirection: 'row-reverse' }]}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {onLoadMore && (
         <TouchableOpacity onPress={onLoadMore} style={styles.loadMoreButton}>
+          <Ionicons name="chevron-forward" size={16} color="#FFD700" />
           <Text style={styles.loadMoreText}>تحميل مزيد</Text>
-          <Ionicons name="chevron-back" size={16} color="#FFD700" />
         </TouchableOpacity>
       )}
     </View>
