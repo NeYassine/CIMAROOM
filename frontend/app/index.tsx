@@ -800,15 +800,6 @@ export default function Index() {
                 </View>
               )}
               
-              <TouchableOpacity
-                style={styles.detailsWatchButton}
-                onPress={handleWatchAnime}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="play" size={24} color="#fff" />
-                <Text style={styles.detailsWatchButtonText}>شاهد الآن</Text>
-              </TouchableOpacity>
-              
               {animeDetailsLoading && (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color="#FFD700" />
