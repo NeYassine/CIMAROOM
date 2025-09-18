@@ -295,7 +295,8 @@ export default function Index() {
       setLoading(true);
       await Promise.all([
         fetchPopularAnime(),
-        fetchSeasonalAnime()
+        fetchSeasonalAnime(),
+        fetchAnimeMovies()
       ]);
       setLoading(false);
     };
@@ -308,7 +309,8 @@ export default function Index() {
     setRefreshing(true);
     await Promise.all([
       fetchPopularAnime(),
-      fetchSeasonalAnime()
+      fetchSeasonalAnime(),
+      fetchAnimeMovies()
     ]);
     setRefreshing(false);
   };
