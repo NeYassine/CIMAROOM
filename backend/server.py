@@ -1211,6 +1211,69 @@ async def get_anime_recommendations(anime_id: int, content_type: str = "tv"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/person/{person_id}")
+async def get_person_details(person_id: int):
+    """Get detailed information about a cast member"""
+    try:
+        cache_key = f"person_details_{person_id}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < CACHE_TTL:
+                return cached_data['data']
+        
+        # Get person details
+        person_data = await make_tmdb_request(f"/person/{person_id}")
+        
+        # Get known for (filmography)
+        credits_data = await make_tmdb_request(f"/person/{person_id}/combined_credits")
+        
+        # Filter for anime works only
+        known_for_anime = []
+        all_credits = credits_data.get('cast', []) + credits_data.get('crew', [])
+        
+        for credit in all_credits[:10]:  # Top 10 works
+            if is_anime_content(credit):
+                work_item = {
+                    'id': credit.get('id'),
+                    'title': credit.get('name') or credit.get('title', ''),
+                    'character': credit.get('character', ''),
+                    'job': credit.get('job', ''),
+                    'poster_path': credit.get('poster_path'),
+                    'vote_average': credit.get('vote_average'),
+                    'release_date': credit.get('release_date') or credit.get('first_air_date'),
+                    'content_type': 'tv' if credit.get('first_air_date') else 'movie'
+                }
+                known_for_anime.append(work_item)
+        
+        # Format person details
+        person_details = {
+            'id': person_data.get('id'),
+            'name': person_data.get('name', ''),
+            'biography': person_data.get('biography', ''),
+            'birthday': person_data.get('birthday'),
+            'deathday': person_data.get('deathday'),
+            'place_of_birth': person_data.get('place_of_birth'),
+            'profile_path': person_data.get('profile_path'),
+            'popularity': person_data.get('popularity', 0),
+            'known_for_department': person_data.get('known_for_department', 'Acting'),
+            'also_known_as': person_data.get('also_known_as', []),
+            'gender': person_data.get('gender', 0),  # 0: Not specified, 1: Female, 2: Male
+            'known_for_anime': known_for_anime
+        }
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': person_details,
+            'timestamp': time.time()
+        }
+        
+        return person_details
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # YouTube API routes for Arabic anime recaps - Real data from Bta3AnimeOfficial
 @api_router.get("/recaps")
 async def get_anime_recaps(page_token: str = None, max_results: int = 20):
