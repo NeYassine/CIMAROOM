@@ -1052,15 +1052,15 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # STRICT Fall 2025 dates - October to December only
+        # Fall 2025 dates - October to December (with flexible search)
         tv_params_en = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja',  # Japanese content only (real anime)
+            'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
             'sort_by': 'popularity.desc',
-            'first_air_date.gte': '2025-10-01',  # Fall 2025 STRICT start (October)
+            'first_air_date.gte': '2025-09-01',  # Fall 2025 broader start (September)
             'first_air_date.lte': '2025-12-31',  # Fall 2025 end (December)
-            'vote_count.gte': 5,  # Lower threshold for new anime
+            'vote_count.gte': 1,  # Very low threshold for new anime
             'api_key': TMDB_API_KEY,
             'language': 'en-US'  # English language for titles
         }
