@@ -1095,11 +1095,11 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             movie_params_en = {
                 'page': page,
                 'with_genres': '16',  # Animation genre
-                'with_original_language': 'ja',  # Japanese content only
+                'with_original_language': 'ja|ko',  # Japanese/Korean content
                 'sort_by': 'popularity.desc',
-                'release_date.gte': '2025-10-01',  # Fall 2025 STRICT start
+                'release_date.gte': '2025-09-01',  # Fall 2025 broader start
                 'release_date.lte': '2025-12-31',  # Fall 2025 end
-                'vote_count.gte': 3,  # Lower threshold for new movies
+                'vote_count.gte': 1,  # Very low threshold for new movies
                 'api_key': TMDB_API_KEY,
                 'language': 'en-US'  # English language for titles
             }
