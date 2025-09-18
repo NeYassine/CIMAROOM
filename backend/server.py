@@ -444,7 +444,7 @@ async def get_seasonal_anime(year: int, season: str, page: int = 1, limit: int =
 
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
-    """Get Fall 2025 seasonal anime"""
+    """Get Fall 2025 seasonal anime with Arabic content"""
     try:
         cache_key = f"fall_2025_anime_page_{page}_limit_{limit}"
         
@@ -454,11 +454,11 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Get Fall 2025 anime TV shows (September - December 2025)
+        # Get Fall 2025 Arabic anime TV shows (September - December 2025)
         tv_params = {
             'page': page,
-            'with_genres': '16',  # Animation
-            'with_original_language': 'ja',  # Japanese
+            'with_genres': '16',  # Animation genre
+            'with_original_language': 'ar',  # Arabic content
             'sort_by': 'popularity.desc',
             'first_air_date.gte': '2025-09-01',  # Fall 2025 start
             'first_air_date.lte': '2025-12-31',  # Fall 2025 end
@@ -470,15 +470,35 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
         
         anime_results = []
         for show in tv_data.get('results', []):
-            if is_anime_content(show):
-                anime_item = format_anime_content(show, 'tv')
-                anime_results.append(anime_item)
+            anime_item = format_anime_content(show, 'tv')
+            anime_results.append(anime_item)
+        
+        # If Arabic content is not enough, add some international popular anime
+        if len(anime_results) < limit:
+            # Add popular international anime with Arabic translations
+            intl_tv_params = {
+                'page': page,
+                'with_genres': '16',  # Animation genre
+                'sort_by': 'popularity.desc',
+                'first_air_date.gte': '2025-09-01',  # Fall 2025 start
+                'first_air_date.lte': '2025-12-31',  # Fall 2025 end
+                'api_key': TMDB_API_KEY,
+                'language': TMDB_LANGUAGE
+            }
+            
+            intl_tv_data = await make_tmdb_request("/discover/tv", intl_tv_params)
+            
+            for show in intl_tv_data.get('results', []):
+                if len(anime_results) >= limit:
+                    break
+                if is_anime_content(show):
+                    anime_item = format_anime_content(show, 'tv')
+                    anime_results.append(anime_item)
         
         # Also get Fall 2025 anime movies
         movie_params = {
             'page': page,
-            'with_genres': '16',  # Animation
-            'with_original_language': 'ja',  # Japanese
+            'with_genres': '16',  # Animation genre
             'sort_by': 'popularity.desc',
             'release_date.gte': '2025-09-01',  # Fall 2025 start
             'release_date.lte': '2025-12-31',  # Fall 2025 end
@@ -489,6 +509,8 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
         movie_data = await make_tmdb_request("/discover/movie", movie_params)
         
         for movie in movie_data.get('results', []):
+            if len(anime_results) >= limit:
+                break
             if is_anime_content(movie):
                 anime_item = format_anime_content(movie, 'movie')
                 anime_results.append(anime_item)
