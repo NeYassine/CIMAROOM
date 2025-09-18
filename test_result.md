@@ -166,7 +166,7 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "Fixed Modal Overlap Issue and Arabic Content Integration"
+  - task: "Restored Original Content with Arabic Language Response"
     implemented: true
     working: true
     file: "index.tsx, server.py"
@@ -176,7 +176,7 @@ frontend:
     status_history:
         - working: true
           agent: "main"
-          comment: "Fixed critical modal overlap issue where anime details modal wouldn't show correctly when clicked from 'Load More' pages. Implemented modal state management with sequential closing/opening and 100ms delay. Updated all backend endpoints (/anime/top, /anime/movies, /anime/current-season) to prioritize Arabic content with fallback to international content. All sections now show Arabic anime content first, then supplement with popular international anime when Arabic content is insufficient."
+          comment: "Successfully restored 'الأكثر شعبية' (Most Popular) and 'أفلام الأنيمي' (Anime Movies) sections to show original Japanese/Korean/Chinese anime content, but with Arabic language API response for better Arabic translations. Fixed modal overlap issue where anime details wouldn't show when clicked from 'Load More' pages by implementing proper modal state management with sequential closing/opening. Only 'أنميات خريف 2025' (Fall 2025) section maintains Arabic content focus as requested."
 
 metadata:
   created_by: "main_agent"
