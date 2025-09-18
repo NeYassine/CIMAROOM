@@ -443,7 +443,7 @@ export default function Index() {
       
       <View style={styles.animeCardInfo}>
         <Text style={styles.animeCardTitle} numberOfLines={2}>
-          {item.original_title || item.title}
+          {item.title_arabic || item.title || 'بدون عنوان'}
         </Text>
         
         <View style={styles.animeCardMeta}>
@@ -497,7 +497,7 @@ export default function Index() {
       
       <View style={styles.animeCardInfo}>
         <Text style={styles.animeCardTitle} numberOfLines={2}>
-          {item.original_title || item.title}
+          {item.title_arabic || item.title || 'بدون عنوان'}
         </Text>
         
         <View style={styles.animeCardMeta}>
