@@ -190,12 +190,40 @@ export default function Index() {
     fetchMoreSeasonalAnime(1);
   };
 
-  // Handle infinite scroll in more seasonal page
-  const handleLoadSeasonalNextPage = () => {
-    if (!moreSeasonalLoading && hasMoreSeasonalPages) {
-      const nextPage = moreSeasonalPage + 1;
-      setMoreSeasonalPage(nextPage);
-      fetchMoreSeasonalAnime(nextPage);
+  // Fetch more anime movies for infinite scroll
+  const fetchMoreMoviesAnime = async (page: number = 1) => {
+    try {
+      setMoreMoviesLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/anime/movies?page=${page}&limit=20`);
+      const data: AnimeResponse = await response.json();
+      
+      if (page === 1) {
+        setMoreMoviesAnime(data.results || []);
+      } else {
+        setMoreMoviesAnime(prev => [...prev, ...(data.results || [])]);
+      }
+      
+      setHasMoreMoviesPages(data.page < data.total_pages);
+    } catch (error) {
+      console.error('Error fetching more anime movies:', error);
+    } finally {
+      setMoreMoviesLoading(false);
+    }
+  };
+
+  // Handle load more anime movies
+  const handleLoadMoreMovies = () => {
+    setShowMoreMovies(true);
+    setMoreMoviesPage(1);
+    fetchMoreMoviesAnime(1);
+  };
+
+  // Handle infinite scroll in more movies page
+  const handleLoadMoviesNextPage = () => {
+    if (!moreMoviesLoading && hasMoreMoviesPages) {
+      const nextPage = moreMoviesPage + 1;
+      setMoreMoviesPage(nextPage);
+      fetchMoreMoviesAnime(nextPage);
     }
   };
 
