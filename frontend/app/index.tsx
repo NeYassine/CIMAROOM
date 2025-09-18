@@ -23,7 +23,7 @@ import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold } from
 import * as SplashScreen from 'expo-splash-screen';
 
 const { width: screenWidth } = Dimensions.get('window');
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 interface Anime {
   id: number;
