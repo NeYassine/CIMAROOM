@@ -711,6 +711,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#666',
+    fontFamily: 'Tajawal_400Regular',
   },
   header: {
     flexDirection: 'row',
@@ -728,6 +729,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFD700',
     textAlign: 'center',
+    fontFamily: 'Tajawal_700Bold',
   },
   menuButton: {
     padding: 8,
@@ -752,6 +754,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#fff',
+    fontFamily: 'Tajawal_400Regular',
   },
   scrollView: {
     flex: 1,
@@ -782,6 +785,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 5,
     textTransform: 'uppercase',
+    fontFamily: 'Tajawal_500Medium',
   },
   heroTitle: {
     fontSize: 22,
@@ -789,6 +793,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     lineHeight: 28,
+    fontFamily: 'Tajawal_700Bold',
   },
   heroMeta: {
     flexDirection: 'row',
@@ -805,16 +810,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
+    fontFamily: 'Tajawal_500Medium',
   },
   heroEpisodes: {
     color: '#ccc',
     fontSize: 14,
+    fontFamily: 'Tajawal_400Regular',
   },
   heroDescription: {
     color: '#ccc',
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 15,
+    fontFamily: 'Tajawal_400Regular',
   },
   watchButton: {
     backgroundColor: '#FFD700',
@@ -831,6 +839,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
+    fontFamily: 'Tajawal_700Bold',
   },
   section: {
     marginBottom: 30,
@@ -846,6 +855,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+    fontFamily: 'Tajawal_700Bold',
   },
   viewAllButton: {
     flexDirection: 'row',
@@ -856,6 +866,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginRight: 5,
+    fontFamily: 'Tajawal_500Medium',
   },
   loadMoreButton: {
     flexDirection: 'row',
@@ -866,6 +877,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginRight: 5,
+    fontFamily: 'Tajawal_500Medium',
   },
   gridContainer: {
     paddingHorizontal: 15,
@@ -924,6 +936,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginLeft: 4,
+    fontFamily: 'Tajawal_500Medium',
   },
   animeCardInfo: {
     padding: 12,
@@ -934,6 +947,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 6,
     lineHeight: 18,
+    fontFamily: 'Tajawal_500Medium',
   },
   animeCardMeta: {
     flexDirection: 'row',
@@ -943,11 +957,13 @@ const styles = StyleSheet.create({
   episodeCount: {
     fontSize: 12,
     color: '#999',
+    fontFamily: 'Tajawal_400Regular',
   },
   animeStatus: {
     fontSize: 12,
     color: '#FFD700',
     fontWeight: '500',
+    fontFamily: 'Tajawal_500Medium',
   },
   bottomNav: {
     flexDirection: 'row',
@@ -967,6 +983,7 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     marginTop: 4,
     fontWeight: '600',
+    fontFamily: 'Tajawal_500Medium',
   },
   inactiveNavText: {
     color: '#666',
@@ -981,6 +998,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: 16,
     color: '#666',
+    fontFamily: 'Tajawal_400Regular',
   },
   detailsOverlay: {
     position: 'absolute',
@@ -1021,6 +1039,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 15,
     lineHeight: 28,
+    fontFamily: 'Tajawal_700Bold',
   },
   detailsMetadata: {
     flexDirection: 'row',
@@ -1037,21 +1056,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFD700',
     fontWeight: '600',
+    fontFamily: 'Tajawal_500Medium',
   },
   detailsEpisodeText: {
     fontSize: 14,
     color: '#999',
+    fontFamily: 'Tajawal_400Regular',
   },
   detailsStatus: {
     fontSize: 14,
     color: '#FFD700',
     fontWeight: '500',
     marginBottom: 8,
+    fontFamily: 'Tajawal_500Medium',
   },
   detailsAired: {
     fontSize: 14,
     color: '#999',
     marginBottom: 15,
+    fontFamily: 'Tajawal_400Regular',
   },
   synopsisContainer: {
     marginBottom: 20,
@@ -1061,11 +1084,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     marginBottom: 10,
+    fontFamily: 'Tajawal_500Medium',
   },
   synopsisText: {
     fontSize: 14,
     color: '#ccc',
     lineHeight: 22,
+    fontFamily: 'Tajawal_400Regular',
   },
   detailsWatchButton: {
     backgroundColor: '#FFD700',
@@ -1080,6 +1105,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 8,
+    fontFamily: 'Tajawal_700Bold',
   },
   morePopularContainer: {
     position: 'absolute',
@@ -1112,6 +1138,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
+    fontFamily: 'Tajawal_700Bold',
   },
   morePopularList: {
     padding: 15,
@@ -1128,5 +1155,9 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 16,
     fontStyle: 'italic',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  headerSpacer: {
+    width: 40, // Same as back button to center the title
   },
 });
