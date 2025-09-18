@@ -1042,9 +1042,9 @@ async def get_seasonal_anime(year: int, season: str, page: int = 1, limit: int =
 
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
-    """Get Fall 2025 seasonal anime with English titles and Arabic descriptions"""
+    """Get Fall 2025 seasonal anime ONLY - strictly October-December 2025"""
     try:
-        cache_key = f"fall_2025_anime_english_page_{page}_limit_{limit}"
+        cache_key = f"fall_2025_only_page_{page}_limit_{limit}"
         
         # Check cache first
         if cache_key in cache:
@@ -1052,15 +1052,15 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Get Fall 2025 anime TV shows with English titles first
+        # STRICT Fall 2025 dates - October to December only
         tv_params_en = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
+            'with_original_language': 'ja',  # Japanese content only (real anime)
             'sort_by': 'popularity.desc',
-            'first_air_date.gte': '2025-09-01',  # Fall 2025 start
-            'first_air_date.lte': '2025-12-31',  # Fall 2025 end
-            'vote_count.gte': 10,  # Minimum votes for new anime
+            'first_air_date.gte': '2025-10-01',  # Fall 2025 STRICT start (October)
+            'first_air_date.lte': '2025-12-31',  # Fall 2025 end (December)
+            'vote_count.gte': 5,  # Lower threshold for new anime
             'api_key': TMDB_API_KEY,
             'language': 'en-US'  # English language for titles
         }
@@ -1069,34 +1069,37 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
         
         anime_results = []
         
-        # Process TV shows and get Arabic descriptions
+        # Process TV shows and get Arabic descriptions - VERY STRICT FILTERING
         for show in tv_data_en.get('results', []):
-            if is_anime_content(show) and len(anime_results) < limit:
-                # Get Arabic description for this show
-                try:
-                    arabic_params = {
-                        'api_key': TMDB_API_KEY,
-                        'language': 'ar'
-                    }
-                    arabic_data = await make_tmdb_request(f"/tv/{show.get('id')}", arabic_params)
-                    # Update overview with Arabic version
-                    show['overview'] = arabic_data.get('overview', show.get('overview', ''))
-                except:
-                    pass  # Keep original overview if Arabic fetch fails
-                
-                anime_item = format_anime_content(show, 'tv')
-                anime_results.append(anime_item)
+            # Double check the air date is in Fall 2025 (Oct-Dec)
+            air_date = show.get('first_air_date', '')
+            if air_date and (air_date >= '2025-10-01' and air_date <= '2025-12-31'):
+                if is_anime_content(show) and len(anime_results) < limit:
+                    # Get Arabic description for this show
+                    try:
+                        arabic_params = {
+                            'api_key': TMDB_API_KEY,
+                            'language': 'ar'
+                        }
+                        arabic_data = await make_tmdb_request(f"/tv/{show.get('id')}", arabic_params)
+                        # Update overview with Arabic version
+                        show['overview'] = arabic_data.get('overview', show.get('overview', ''))
+                    except:
+                        pass  # Keep original overview if Arabic fetch fails
+                    
+                    anime_item = format_anime_content(show, 'tv')
+                    anime_results.append(anime_item)
         
-        # Also get Fall 2025 anime movies if needed
+        # Also get Fall 2025 anime movies if needed - STRICT dates
         if len(anime_results) < limit:
             movie_params_en = {
                 'page': page,
                 'with_genres': '16',  # Animation genre
-                'with_original_language': 'ja|ko',  # Japanese/Korean content
+                'with_original_language': 'ja',  # Japanese content only
                 'sort_by': 'popularity.desc',
-                'release_date.gte': '2025-09-01',  # Fall 2025 start
+                'release_date.gte': '2025-10-01',  # Fall 2025 STRICT start
                 'release_date.lte': '2025-12-31',  # Fall 2025 end
-                'vote_count.gte': 5,  # Lower threshold for new movies
+                'vote_count.gte': 3,  # Lower threshold for new movies
                 'api_key': TMDB_API_KEY,
                 'language': 'en-US'  # English language for titles
             }
@@ -1106,21 +1109,24 @@ async def get_current_season_anime(page: int = 1, limit: int = 20):
             for movie in movie_data_en.get('results', []):
                 if len(anime_results) >= limit:
                     break
-                if is_anime_content(movie):
-                    # Get Arabic description for this movie
-                    try:
-                        arabic_params = {
-                            'api_key': TMDB_API_KEY,
-                            'language': 'ar'
-                        }
-                        arabic_data = await make_tmdb_request(f"/movie/{movie.get('id')}", arabic_params)
-                        # Update overview with Arabic version
-                        movie['overview'] = arabic_data.get('overview', movie.get('overview', ''))
-                    except:
-                        pass  # Keep original overview if Arabic fetch fails
-                    
-                    anime_item = format_anime_content(movie, 'movie')
-                    anime_results.append(anime_item)
+                # Double check the release date is in Fall 2025 (Oct-Dec)
+                release_date = movie.get('release_date', '')
+                if release_date and (release_date >= '2025-10-01' and release_date <= '2025-12-31'):
+                    if is_anime_content(movie):
+                        # Get Arabic description for this movie
+                        try:
+                            arabic_params = {
+                                'api_key': TMDB_API_KEY,
+                                'language': 'ar'
+                            }
+                            arabic_data = await make_tmdb_request(f"/movie/{movie.get('id')}", arabic_params)
+                            # Update overview with Arabic version
+                            movie['overview'] = arabic_data.get('overview', movie.get('overview', ''))
+                        except:
+                            pass  # Keep original overview if Arabic fetch fails
+                        
+                        anime_item = format_anime_content(movie, 'movie')
+                        anime_results.append(anime_item)
         
         # Sort by popularity (most popular Fall 2025 anime first)
         anime_results.sort(key=lambda x: x.popularity or 0, reverse=True)
