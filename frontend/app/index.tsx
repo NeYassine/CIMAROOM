@@ -894,6 +894,7 @@ const styles = StyleSheet.create({
   horizontalScrollContainer: {
     paddingHorizontal: 20,
     paddingRight: 40, // Extra padding for right edge
+    flexDirection: 'row',
   },
   cardSeparator: {
     width: 15, // Space between cards in horizontal scroll
