@@ -166,17 +166,17 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "More Seasonal Anime Modal with Infinite Scroll"
+  - task: "Anime Movies Section with Infinite Scroll Modal"
     implemented: true
     working: true
-    file: "index.tsx"
+    file: "index.tsx, server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "main"
-          comment: "Successfully implemented 'More Seasonal Anime' modal that opens a new page when user clicks 'تحميل مزيد' in seasonal anime section. Added infinite scroll functionality that loads more anime as user scrolls down. Modal includes proper header with back button, FlatList with 2-column grid layout, loading indicators, and end-of-list messages."
+          comment: "Successfully implemented complete 'أفلام الأنيمي' (Anime Movies) section with identical functionality to seasonal anime. Added new backend endpoint /api/anime/movies, horizontal scroll section on main page, and dedicated modal with infinite scroll for 'تحميل مزيد'. When user clicks 'تحميل مزيد' in movies section, opens new page with 2-column grid layout and loads more movies as user scrolls down. Includes proper loading states, error handling, and Arabic translations."
 
 metadata:
   created_by: "main_agent"
