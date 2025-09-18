@@ -166,7 +166,7 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "Restored Original Content with Arabic Language Response"
+  - task: "Anime Schedule Page with LiveChart API Integration"
     implemented: true
     working: true
     file: "index.tsx, server.py"
@@ -176,7 +176,7 @@ frontend:
     status_history:
         - working: true
           agent: "main"
-          comment: "Successfully restored 'الأكثر شعبية' (Most Popular) and 'أفلام الأنيمي' (Anime Movies) sections to show original Japanese/Korean/Chinese anime content, but with Arabic language API response for better Arabic translations. Fixed modal overlap issue where anime details wouldn't show when clicked from 'Load More' pages by implementing proper modal state management with sequential closing/opening. Only 'أنميات خريف 2025' (Fall 2025) section maintains Arabic content focus as requested."
+          comment: "Successfully created complete anime schedule feature replacing profile section. Integrated with LiveChart.me unofficial API to fetch anime schedules. Added new backend endpoint /api/anime/schedule that fetches weekly anime schedules and translates to Arabic using TMDB API. Updated bottom navigation to replace 'الملف الشخصي' with 'مواعيد الأنميات'. Created dedicated schedule page with day-wise anime listings, air times, ratings, studios, and episode counts. Implemented Arabic translations for day names and anime details. Added proper navigation between main page and schedule page with visual indicators."
 
 metadata:
   created_by: "main_agent"
