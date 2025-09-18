@@ -679,6 +679,25 @@ export default function Index() {
           </View>
         )}
 
+        {/* Anime Movies Section */}
+        {!showSearch && animeMovies.length > 0 && (
+          <View style={styles.section}>
+            {renderSectionHeader('أفلام الأنيمي', handleLoadMoreMovies)}
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollContainer}
+            >
+              {animeMovies.map((item, index) => (
+                <View key={item.id} style={{ flexDirection: 'row' }}>
+                  {renderAnimeCard({ item, index })}
+                  {index < animeMovies.length - 1 && <View style={styles.cardSeparator} />}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         {/* Empty State */}
         {!showSearch && popularAnime.length === 0 && (
           <View style={styles.emptyContainer}>
