@@ -35,16 +35,53 @@ interface Anime {
   overview?: string;
   overview_arabic?: string;
   vote_average?: number;
+  audience_rating?: number;
   vote_count?: number;
   popularity?: number;
   release_date?: string;
   first_air_date?: string;
   episode_count?: number;
   status?: string;
-  genres?: Array<{ name: string }>;
+  genres?: Array<{ id: number; name: string; name_arabic: string }>;
+  cast?: Array<{
+    id: number;
+    name: string;
+    character: string;
+    character_arabic: string;
+    profile_path?: string;
+    popularity: number;
+  }>;
+  recommendations?: Array<{
+    id: number;
+    title: string;
+    poster_path?: string;
+    vote_average?: number;
+    overview_arabic?: string;
+    content_type: string;
+  }>;
   origin_country?: string[];
   content_type: string;
   anime_confidence?: number;
+}
+
+interface PersonDetails {
+  id: number;
+  name: string;
+  biography: string;
+  birthday?: string;
+  deathday?: string;
+  place_of_birth?: string;
+  profile_path?: string;
+  popularity: number;
+  known_for_department: string;
+  known_for_anime: Array<{
+    id: number;
+    title: string;
+    character: string;
+    poster_path?: string;
+    vote_average?: number;
+    content_type: string;
+  }>;
 }
 
 interface AnimeResponse {
