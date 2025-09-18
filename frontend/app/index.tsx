@@ -992,9 +992,12 @@ export default function Index() {
           <Text style={[styles.navText, styles.inactiveNavText]}>القوائم</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="bookmark-outline" size={24} color="#666" />
-          <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => router.push('/news')}
+        >
+          <Ionicons name="newspaper-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>الأخبار</Text>
         </TouchableOpacity>
       </View>
 
