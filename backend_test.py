@@ -60,16 +60,16 @@ class AnimeAPITester:
             response = self.session.get(f"{API_BASE}/anime/top")
             if response.status_code == 200:
                 data = response.json()
-                if "data" in data and isinstance(data["data"], list) and len(data["data"]) > 0:
-                    # Check first anime structure
-                    first_anime = data["data"][0]
-                    required_fields = ["mal_id", "title", "images"]
+                if "results" in data and isinstance(data["results"], list) and len(data["results"]) > 0:
+                    # Check first anime structure (TMDB format)
+                    first_anime = data["results"][0]
+                    required_fields = ["id", "title", "poster_path"]
                     missing_fields = [field for field in required_fields if field not in first_anime]
                     
                     if not missing_fields:
                         self.log_result("GET /api/anime/top", "PASS", 
-                                      f"Retrieved {len(data['data'])} top anime successfully", 
-                                      {"sample_anime": first_anime["title"], "total_count": len(data["data"])})
+                                      f"Retrieved {len(data['results'])} top anime successfully", 
+                                      {"sample_anime": first_anime["title"], "total_count": len(data["results"])})
                         return True
                     else:
                         self.log_result("GET /api/anime/top", "FAIL", 
