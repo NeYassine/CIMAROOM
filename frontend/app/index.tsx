@@ -93,6 +93,7 @@ interface AnimeResponse {
 }
 
 export default function Index() {
+  const router = useRouter();
   const [popularAnime, setPopularAnime] = useState<Anime[]>([]);
   const [seasonalAnime, setSeasonalAnime] = useState<Anime[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<Anime[]>([]);
