@@ -615,15 +615,18 @@ export default function Index() {
         {!showSearch && seasonalAnime.length > 0 && (
           <View style={styles.section}>
             {renderSectionHeader('أنميات الموسم', handleLoadMoreSeasonal)}
-            <FlatList
-              data={seasonalAnime}
-              renderItem={renderAnimeCard}
-              keyExtractor={(item) => item.id.toString()}
+            <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollContainer}
-              ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
-            />
+            >
+              {seasonalAnime.map((item, index) => (
+                <View key={item.id} style={{ flexDirection: 'row' }}>
+                  {renderAnimeCard({ item, index })}
+                  {index < seasonalAnime.length - 1 && <View style={styles.cardSeparator} />}
+                </View>
+              ))}
+            </ScrollView>
           </View>
         )}
 
