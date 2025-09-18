@@ -195,7 +195,7 @@ def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBas
 # Anime API routes
 @api_router.get("/anime/top", response_model=AnimeSearchResponse)
 async def get_top_anime(page: int = 1, limit: int = 25):
-    """Get top-rated anime with Arabic content preference"""
+    """Get top-rated anime with Arabic language response"""
     try:
         cache_key = f"top_anime_page_{page}_limit_{limit}"
         
@@ -205,61 +205,40 @@ async def get_top_anime(page: int = 1, limit: int = 25):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # First try to get Arabic anime content
-        arabic_tv_params = {
+        # Discover anime TV shows (Japanese/Korean/Chinese content but Arabic language response)
+        tv_params = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ar',  # Arabic content
+            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
             'sort_by': 'vote_average.desc',
             'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE
+            'language': TMDB_LANGUAGE  # Arabic language response
         }
         
-        arabic_tv_data = await make_tmdb_request("/discover/tv", arabic_tv_params)
+        tv_data = await make_tmdb_request("/discover/tv", tv_params)
         
         anime_results = []
-        for show in arabic_tv_data.get('results', []):
-            anime_item = format_anime_content(show, 'tv')
-            anime_results.append(anime_item)
+        for show in tv_data.get('results', []):
+            if is_anime_content(show):
+                anime_item = format_anime_content(show, 'tv')
+                anime_results.append(anime_item)
         
-        # If Arabic content is not enough, add international popular anime
-        if len(anime_results) < limit:
-            # Discover anime TV shows
-            tv_params = {
-                'page': page,
-                'with_genres': '16',  # Animation genre
-                'sort_by': 'vote_average.desc',
-                'api_key': TMDB_API_KEY,
-                'language': TMDB_LANGUAGE
-            }
-            
-            tv_data = await make_tmdb_request("/discover/tv", tv_params)
-            
-            for show in tv_data.get('results', []):
-                if len(anime_results) >= limit:
-                    break
-                if is_anime_content(show):
-                    anime_item = format_anime_content(show, 'tv')
-                    anime_results.append(anime_item)
+        # Also get anime movies
+        movie_params = {
+            'page': page,
+            'with_genres': '16',  # Animation genre
+            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
+            'sort_by': 'vote_average.desc',
+            'api_key': TMDB_API_KEY,
+            'language': TMDB_LANGUAGE  # Arabic language response
+        }
         
-        # Also get anime movies to mix in
-        if len(anime_results) < limit:
-            movie_params = {
-                'page': page,
-                'with_genres': '16',  # Animation genre
-                'sort_by': 'vote_average.desc',
-                'api_key': TMDB_API_KEY,
-                'language': TMDB_LANGUAGE
-            }
-            
-            movie_data = await make_tmdb_request("/discover/movie", movie_params)
-            
-            for movie in movie_data.get('results', []):
-                if len(anime_results) >= limit:
-                    break
-                if is_anime_content(movie):
-                    anime_item = format_anime_content(movie, 'movie')
-                    anime_results.append(anime_item)
+        movie_data = await make_tmdb_request("/discover/movie", movie_params)
+        
+        for movie in movie_data.get('results', []):
+            if is_anime_content(movie):
+                anime_item = format_anime_content(movie, 'movie')
+                anime_results.append(anime_item)
         
         # Sort by anime confidence and rating
         anime_results.sort(key=lambda x: (x.anime_confidence or 0, x.vote_average or 0), reverse=True)
@@ -270,11 +249,7 @@ async def get_top_anime(page: int = 1, limit: int = 25):
         response = AnimeSearchResponse(
             results=anime_results,
             page=page,
-            total_pages=max(
-                arabic_tv_data.get('total_pages', 1),
-                tv_data.get('total_pages', 1) if 'tv_data' in locals() else 1,
-                movie_data.get('total_pages', 1) if 'movie_data' in locals() else 1
-            ),
+            total_pages=max(tv_data.get('total_pages', 1), movie_data.get('total_pages', 1)),
             total_results=len(anime_results)
         )
         
