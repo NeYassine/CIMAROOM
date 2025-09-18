@@ -660,10 +660,10 @@ export default function Index() {
           </View>
         )}
 
-        {/* Seasonal Anime Section */}
+        {/* Fall 2025 Anime Section */}
         {!showSearch && seasonalAnime.length > 0 && (
           <View style={styles.section}>
-            {renderSectionHeader('أنميات الموسم', handleLoadMoreSeasonal)}
+            {renderSectionHeader('أنميات خريف 2025', handleLoadMoreSeasonal)}
             <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
