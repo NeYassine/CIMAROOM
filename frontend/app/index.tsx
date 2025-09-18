@@ -623,6 +623,8 @@ export default function Index() {
   // Render anime details modal
   const renderAnimeDetails = () => {
     if (!selectedAnime) return null;
+    
+    const currentAnimeData = detailedAnime || selectedAnime;
 
     return (
       <View style={styles.detailsOverlay}>
@@ -630,17 +632,20 @@ export default function Index() {
           <ScrollView showsVerticalScrollIndicator={false}>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setShowDetails(false)}
+              onPress={() => {
+                setShowDetails(false);
+                setDetailedAnime(null);
+              }}
             >
               <Ionicons name="close" size={28} color="#fff" />
             </TouchableOpacity>
             
             <Image
               source={{ 
-                uri: selectedAnime.backdrop_path 
-                  ? `https://image.tmdb.org/t/p/w780${selectedAnime.backdrop_path}` 
-                  : selectedAnime.poster_path 
-                    ? `https://image.tmdb.org/t/p/w500${selectedAnime.poster_path}`
+                uri: currentAnimeData.backdrop_path 
+                  ? `https://image.tmdb.org/t/p/w780${currentAnimeData.backdrop_path}` 
+                  : currentAnimeData.poster_path 
+                    ? `https://image.tmdb.org/t/p/w500${currentAnimeData.poster_path}`
                     : 'https://via.placeholder.com/780x440/333/fff?text=No+Image'
               }}
               style={styles.detailsImage}
@@ -649,36 +654,156 @@ export default function Index() {
             
             <View style={styles.detailsContent}>
               <Text style={styles.detailsTitle}>
-                {selectedAnime.title_arabic || selectedAnime.title || selectedAnime.original_title}
+                {currentAnimeData.title || currentAnimeData.original_title}
               </Text>
               
-              <View style={styles.detailsMetadata}>
+              {/* Ratings Section */}
+              <View style={styles.ratingsContainer}>
                 <View style={styles.detailsScoreContainer}>
                   <Ionicons name="star" size={18} color="#FFD700" />
                   <Text style={styles.detailsScoreText}>
-                    {selectedAnime.vote_average ? selectedAnime.vote_average.toFixed(1) : 'غير متاح'}
+                    {currentAnimeData.vote_average ? currentAnimeData.vote_average.toFixed(1) : 'غير متاح'}
                   </Text>
+                  <Text style={styles.ratingLabel}>تقييم رسمي</Text>
                 </View>
+                
+                {currentAnimeData.audience_rating && (
+                  <View style={styles.detailsScoreContainer}>
+                    <Ionicons name="people" size={18} color="#4CAF50" />
+                    <Text style={[styles.detailsScoreText, { color: '#4CAF50' }]}>
+                      {currentAnimeData.audience_rating.toFixed(1)}
+                    </Text>
+                    <Text style={styles.ratingLabel}>تقييم الجمهور</Text>
+                  </View>
+                )}
+              </View>
+              
+              <View style={styles.detailsMetadata}>
                 <Text style={styles.detailsEpisodeText}>
-                  {selectedAnime.episode_count ? `${selectedAnime.episode_count} حلقة` : 
-                   selectedAnime.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
+                  {currentAnimeData.episode_count ? `${currentAnimeData.episode_count} حلقة` : 
+                   currentAnimeData.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
+                </Text>
+                <Text style={styles.detailsVoteCount}>
+                  {currentAnimeData.vote_count ? `${currentAnimeData.vote_count} تقييم` : ''}
                 </Text>
               </View>
               
-              <Text style={styles.detailsStatus}>{selectedAnime.status || 'غير محدد'}</Text>
+              <Text style={styles.detailsStatus}>{currentAnimeData.status || 'غير محدد'}</Text>
               
-              {(selectedAnime.release_date || selectedAnime.first_air_date) && (
+              {(currentAnimeData.release_date || currentAnimeData.first_air_date) && (
                 <Text style={styles.detailsAired}>
-                  تاريخ العرض: {selectedAnime.release_date || selectedAnime.first_air_date}
+                  تاريخ العرض: {currentAnimeData.release_date || currentAnimeData.first_air_date}
                 </Text>
               )}
               
-              {selectedAnime.overview && (
+              {/* Genres Section */}
+              {currentAnimeData.genres && currentAnimeData.genres.length > 0 && (
+                <View style={styles.genresContainer}>
+                  <Text style={styles.sectionSubTitle}>التصنيفات</Text>
+                  <View style={styles.genresList}>
+                    {currentAnimeData.genres.map((genre, index) => (
+                      <View key={genre.id} style={styles.genreTag}>
+                        <Text style={styles.genreText}>
+                          {genre.name_arabic || genre.name}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+              
+              {/* Synopsis Section */}
+              {currentAnimeData.overview && (
                 <View style={styles.synopsisContainer}>
                   <Text style={styles.synopsisTitle}>القصة</Text>
                   <Text style={styles.synopsisText}>
-                    {selectedAnime.overview_arabic || selectedAnime.overview}
+                    {currentAnimeData.overview_arabic || currentAnimeData.overview}
                   </Text>
+                </View>
+              )}
+              
+              {/* Cast Section */}
+              {currentAnimeData.cast && currentAnimeData.cast.length > 0 && (
+                <View style={styles.castContainer}>
+                  <Text style={styles.sectionSubTitle}>طاقم العمل</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.castList}>
+                      {currentAnimeData.cast.slice(0, 8).map((member, index) => (
+                        <TouchableOpacity
+                          key={member.id}
+                          style={styles.castCard}
+                          onPress={() => fetchPersonDetails(member.id)}
+                          activeOpacity={0.8}
+                        >
+                          <Image
+                            source={{
+                              uri: member.profile_path
+                                ? `https://image.tmdb.org/t/p/w185${member.profile_path}`
+                                : 'https://via.placeholder.com/100x150/333/fff?text=No+Image'
+                            }}
+                            style={styles.castImage}
+                            resizeMode="cover"
+                          />
+                          <Text style={styles.castName} numberOfLines={2}>
+                            {member.name}
+                          </Text>
+                          <Text style={styles.castCharacter} numberOfLines={2}>
+                            {member.character_arabic || member.character}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
+              )}
+              
+              {/* Recommendations Section */}
+              {currentAnimeData.recommendations && currentAnimeData.recommendations.length > 0 && (
+                <View style={styles.recommendationsContainer}>
+                  <Text style={styles.sectionSubTitle}>اقتراحات مشابهة</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.recommendationsList}>
+                      {currentAnimeData.recommendations.slice(0, 6).map((rec, index) => (
+                        <TouchableOpacity
+                          key={rec.id}
+                          style={styles.recommendationCard}
+                          onPress={() => {
+                            setShowDetails(false);
+                            setDetailedAnime(null);
+                            setTimeout(() => {
+                              handleAnimeSelection({
+                                ...rec,
+                                title_arabic: rec.title,
+                                overview_arabic: rec.overview_arabic
+                              });
+                            }, 100);
+                          }}
+                          activeOpacity={0.8}
+                        >
+                          <Image
+                            source={{
+                              uri: rec.poster_path
+                                ? `https://image.tmdb.org/t/p/w300${rec.poster_path}`
+                                : 'https://via.placeholder.com/120x180/333/fff?text=No+Image'
+                            }}
+                            style={styles.recommendationImage}
+                            resizeMode="cover"
+                          />
+                          <Text style={styles.recommendationTitle} numberOfLines={2}>
+                            {rec.title}
+                          </Text>
+                          {rec.vote_average && (
+                            <View style={styles.recommendationRating}>
+                              <Ionicons name="star" size={12} color="#FFD700" />
+                              <Text style={styles.recommendationRatingText}>
+                                {rec.vote_average.toFixed(1)}
+                              </Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
                 </View>
               )}
               
@@ -690,6 +815,13 @@ export default function Index() {
                 <Ionicons name="play" size={24} color="#fff" />
                 <Text style={styles.detailsWatchButtonText}>شاهد الآن</Text>
               </TouchableOpacity>
+              
+              {animeDetailsLoading && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="#FFD700" />
+                  <Text style={styles.loadingText}>جاري تحميل التفاصيل...</Text>
+                </View>
+              )}
             </View>
           </ScrollView>
         </View>
