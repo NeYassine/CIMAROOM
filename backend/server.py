@@ -119,9 +119,71 @@ def calculate_anime_confidence(content: Dict[str, Any]) -> float:
     
     return min(confidence, 1.0)
 
-def is_anime_content(content: Dict[str, Any], min_confidence: float = 0.3) -> bool:
-    """Determine if content is anime based on confidence score."""
-    return calculate_anime_confidence(content) >= min_confidence
+def is_anime_content(item: dict) -> bool:
+    """
+    Enhanced function to determine if content is real anime
+    """
+    if not item:
+        return False
+    
+    # Get title and original title
+    title = item.get('name') or item.get('title') or item.get('original_name') or item.get('original_title', '')
+    original_title = item.get('original_name') or item.get('original_title') or ''
+    overview = item.get('overview', '')
+    origin_country = item.get('origin_country', [])
+    original_language = item.get('original_language', '')
+    
+    # Strong indicators of anime content
+    anime_keywords = [
+        'anime', 'manga', 'otaku', 'kawaii', 'senpai', 'chan', 'kun', 'san',
+        'dragon ball', 'naruto', 'one piece', 'attack on titan', 'demon slayer',
+        'my hero academia', 'death note', 'fullmetal alchemist', 'bleach',
+        'hunter x hunter', 'one punch man', 'jujutsu kaisen', 'chainsaw man',
+        'tokyo ghoul', 'mob psycho', 'cowboy bebop', 'evangelion', 'akira',
+        'studio ghibli', 'mappa', 'madhouse', 'pierrot', 'bones', 'ufotable',
+        'toei animation', 'gainax', 'wit studio', 'a-1 pictures', 'trigger',
+        'shonen', 'seinen', 'shojo', 'josei', 'mecha', 'isekai', 'slice of life'
+    ]
+    
+    # Check title and overview for anime keywords
+    text_to_check = f"{title} {original_title} {overview}".lower()
+    
+    # Strong anime indicators
+    strong_indicators = 0
+    
+    # Japanese origin
+    if 'JP' in origin_country or original_language == 'ja':
+        strong_indicators += 2
+    
+    # Contains anime keywords
+    for keyword in anime_keywords:
+        if keyword in text_to_check:
+            strong_indicators += 1
+            if keyword in ['anime', 'manga', 'dragon ball', 'naruto', 'one piece']:
+                strong_indicators += 2  # Extra weight for famous anime
+    
+    # Japanese characters in title
+    import re
+    if re.search(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]', original_title):
+        strong_indicators += 2
+    
+    # Animation genre check
+    genre_ids = item.get('genre_ids', [])
+    if 16 in genre_ids:  # Animation genre
+        strong_indicators += 1
+    
+    # Check production companies for anime studios
+    production_companies = item.get('production_companies', [])
+    anime_studios = ['mappa', 'madhouse', 'pierrot', 'bones', 'ufotable', 'toei', 'gainax', 'wit', 'trigger']
+    for company in production_companies:
+        company_name = company.get('name', '').lower()
+        for studio in anime_studios:
+            if studio in company_name:
+                strong_indicators += 2
+                break
+    
+    # Need at least 3 strong indicators to be considered anime
+    return strong_indicators >= 3
 
 async def make_tmdb_request(endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
     """Make request to TMDB API with error handling."""
