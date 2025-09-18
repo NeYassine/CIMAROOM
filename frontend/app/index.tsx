@@ -533,7 +533,7 @@ export default function Index() {
           <View style={styles.heroContent}>
             <Text style={styles.heroCategory}>أنيمي مميز</Text>
             <Text style={styles.heroTitle} numberOfLines={2}>
-              {currentAnime.original_title || currentAnime.title}
+              {currentAnime.title_arabic || currentAnime.title || 'بدون عنوان'}
             </Text>
             
             <View style={styles.heroMeta}>
