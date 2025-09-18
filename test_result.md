@@ -243,9 +243,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Jikan API Integration"
     - "API Endpoints Structure"
-  stuck_tasks: []
+    - "Title Language Requirements"
+  stuck_tasks:
+    - "Jikan API Integration"
   test_all: true
   test_priority: "high_first"
 
