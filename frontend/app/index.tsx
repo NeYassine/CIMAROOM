@@ -420,10 +420,7 @@ export default function Index() {
   const renderAnimeCard = ({ item, index }: { item: Anime; index: number }) => (
     <TouchableOpacity
       style={styles.animeCard}
-      onPress={() => {
-        setSelectedAnime(item);
-        setShowDetails(true);
-      }}
+      onPress={() => handleAnimeSelection(item)}
       activeOpacity={0.8}
     >
       <Image
