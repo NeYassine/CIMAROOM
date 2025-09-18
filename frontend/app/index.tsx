@@ -1014,6 +1014,121 @@ export default function Index() {
       {/* Details Modal */}
       {showDetails && renderAnimeDetails()}
 
+      {/* Person Details Modal */}
+      {showPersonDetails && selectedPerson && (
+        <View style={styles.detailsOverlay}>
+          <View style={styles.detailsContainer}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  setShowPersonDetails(false);
+                  setSelectedPerson(null);
+                }}
+              >
+                <Ionicons name="close" size={28} color="#fff" />
+              </TouchableOpacity>
+              
+              <View style={styles.personDetailsContent}>
+                <Image
+                  source={{
+                    uri: selectedPerson.profile_path
+                      ? `https://image.tmdb.org/t/p/w300${selectedPerson.profile_path}`
+                      : 'https://via.placeholder.com/200x300/333/fff?text=No+Image'
+                  }}
+                  style={styles.personImage}
+                  resizeMode="cover"
+                />
+                
+                <View style={styles.personInfo}>
+                  <Text style={styles.personName}>
+                    {selectedPerson.name}
+                  </Text>
+                  
+                  <Text style={styles.personDepartment}>
+                    {selectedPerson.known_for_department === 'Acting' ? 'ممثل' : selectedPerson.known_for_department}
+                  </Text>
+                  
+                  {selectedPerson.place_of_birth && (
+                    <Text style={styles.personBirthplace}>
+                      مكان الولادة: {selectedPerson.place_of_birth}
+                    </Text>
+                  )}
+                  
+                  {selectedPerson.birthday && (
+                    <Text style={styles.personBirthday}>
+                      تاريخ الولادة: {selectedPerson.birthday}
+                    </Text>
+                  )}
+                  
+                  {selectedPerson.biography && (
+                    <View style={styles.biographyContainer}>
+                      <Text style={styles.biographyTitle}>نبذة</Text>
+                      <Text style={styles.biographyText} numberOfLines={6}>
+                        {selectedPerson.biography}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {selectedPerson.known_for_anime && selectedPerson.known_for_anime.length > 0 && (
+                    <View style={styles.knownForContainer}>
+                      <Text style={styles.knownForTitle}>أعمال مشهورة</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={styles.knownForList}>
+                          {selectedPerson.known_for_anime.slice(0, 6).map((work, index) => (
+                            <TouchableOpacity
+                              key={work.id}
+                              style={styles.knownForCard}
+                              onPress={() => {
+                                setShowPersonDetails(false);
+                                setSelectedPerson(null);
+                                setTimeout(() => {
+                                  handleAnimeSelection({
+                                    ...work,
+                                    title_arabic: work.title,
+                                    overview_arabic: ''
+                                  });
+                                }, 100);
+                              }}
+                              activeOpacity={0.8}
+                            >
+                              <Image
+                                source={{
+                                  uri: work.poster_path
+                                    ? `https://image.tmdb.org/t/p/w154${work.poster_path}`
+                                    : 'https://via.placeholder.com/80x120/333/fff?text=No+Image'
+                                }}
+                                style={styles.knownForImage}
+                                resizeMode="cover"
+                              />
+                              <Text style={styles.knownForWorkTitle} numberOfLines={2}>
+                                {work.title}
+                              </Text>
+                              {work.character && (
+                                <Text style={styles.knownForCharacter} numberOfLines={1}>
+                                  {work.character}
+                                </Text>
+                              )}
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+              </View>
+              
+              {personLoading && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#FFD700" />
+                  <Text style={styles.loadingText}>جاري تحميل المعلومات...</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
       {/* More Popular Modal */}
       {showMorePopular && (
         <View style={styles.morePopularContainer}>
