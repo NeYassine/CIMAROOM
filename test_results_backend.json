@@ -1,7 +1,7 @@
 {
   "summary": {
     "passed": 8,
-    "total": 9
+    "total": 12
   },
   "results": [
     {
@@ -15,36 +15,52 @@
     },
     {
       "endpoint": "GET /api/anime/top",
+      "status": "FAIL",
+      "details": "Title language issues: Japanese characters found in title: \u5287\u5834\u7248\u300c\u9032\u6483\u306e\u5de8\u4eba\u300d\u5b8c\u7d50\u7de8 THE LAST ATTACK",
+      "response_data": null
+    },
+    {
+      "endpoint": "GET /api/anime/current-season",
       "status": "PASS",
-      "details": "Retrieved 25 top anime successfully",
+      "details": "Retrieved 0 Fall 2025 anime correctly",
       "response_data": {
-        "sample_anime": "\u0627\u0644\u0648\u062d\u0634 \u0627\u0644\u062b\u0627\u0645\u0646",
-        "total_count": 25
+        "count": 0
+      }
+    },
+    {
+      "endpoint": "GET /api/anime/movies",
+      "status": "FAIL",
+      "details": "Title language issues: Japanese characters found in movie title: \u30a2\u30cb\u30e1\u300e\u602a\u7363\uff18\u53f7\u300f\u7b2c\uff11\u671f\u7dcf\u96c6\u7de8\uff0f\u540c\u6642\u4e0a\u6620\u300c\u4fdd\u79d1\u306e\u4f11\u65e5\u300d",
+      "response_data": null
+    },
+    {
+      "endpoint": "GET /api/anime/65930/details",
+      "status": "PASS",
+      "details": "Retrieved detailed info for '\u0623\u0643\u0627\u062f\u064a\u0645\u064a\u0629 \u0627\u0644\u0623\u0628\u0637\u0627\u0644' with cast, genres in Arabic, recommendations, and ratings",
+      "response_data": {
+        "title": "\u0623\u0643\u0627\u062f\u064a\u0645\u064a\u0629 \u0627\u0644\u0623\u0628\u0637\u0627\u0644",
+        "genres_count": 3,
+        "cast_count": 1,
+        "recommendations_count": 8,
+        "official_rating": 8.6,
+        "audience_rating": 8.4
+      }
+    },
+    {
+      "endpoint": "GET /api/person/1325962",
+      "status": "PASS",
+      "details": "Retrieved person details for '\u062f\u0627\u064a\u0643\u064a \u064a\u0627\u0645\u0627\u0634\u064a\u062a\u0627' with 10 known anime works",
+      "response_data": {
+        "name": "\u062f\u0627\u064a\u0643\u064a \u064a\u0627\u0645\u0627\u0634\u064a\u062a\u0627",
+        "known_for_count": 10,
+        "department": "Acting"
       }
     },
     {
       "endpoint": "GET /api/anime/search?q=naruto",
-      "status": "PASS",
-      "details": "Found 23 results for 'naruto'",
-      "response_data": {
-        "first_result": "NARUTO Spin-Off: Rock Lee & His Ninja Pals"
-      }
-    },
-    {
-      "endpoint": "GET /api/anime/search?q=one piece",
-      "status": "PASS",
-      "details": "Found 23 results for 'one piece'",
-      "response_data": {
-        "first_result": "THE ONE PIECE"
-      }
-    },
-    {
-      "endpoint": "GET /api/anime/search?q=attack on titan",
-      "status": "PASS",
-      "details": "Found 11 results for 'attack on titan'",
-      "response_data": {
-        "first_result": "Attack on Titan: Junior High"
-      }
+      "status": "FAIL",
+      "details": "HTTP 422: {\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"anime_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"search\",\"url\":\"https://errors.pydantic.dev/2.11/v/int_parsing\"}]}",
+      "response_data": null
     },
     {
       "endpoint": "GET /api/anime/207468",
@@ -74,17 +90,9 @@
       }
     },
     {
-      "endpoint": "GET /api/anime/current-season",
-      "status": "PASS",
-      "details": "Retrieved 20 currently airing anime",
-      "response_data": {
-        "count": 20
-      }
-    },
-    {
       "endpoint": "GET /api/anime/seasonal/2025/winter",
       "status": "FAIL",
-      "details": "HTTP 404: {\"detail\":\"Not Found\"}",
+      "details": "Invalid response structure: {'results': [{'id': 207332, 'title': '\u0623\u064a\u0627\u0645 \u0633\u0627\u0643\u0627\u0645\u0648\u062a\u0648', 'title_arabic': '\u0623\u064a\u0627\u0645 \u0633\u0627\u0643\u0627\u0645\u0648\u062a\u0648', 'original_title': 'SAKAMOTO DAYS', 'poster_path': '/7tcxEtM1ZPMqH1hgYIPMQZJeJpV.jpg', 'backdrop_path': '/blSthAPRbEOJBowdxppeQqNPRh9.jpg', 'overview': '\u062a\u0642\u0627\u0639\u062f \"\u062a\u0627\u0631\u0648 \u0633\u0627\u0643\u0627\u0645\u0648\u062a\u0648\" \u0628\u0627\u0633\u0645 \u0627\u0644\u062d\u0628 \u0628\u0639\u062f \u0623\u0646 \u0643\u0627\u0646 \u0623\u0641\u0636\u0644 \u0642\u0627\u062a\u0644 \u0645\u0623\u062c\u0648\u0631 \u0639\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642. \u0648\u0644\u0643\u0646 \u0639\u0646\u062f\u0645\u0627 \u064a\u0644\u0627\u062d\u0642\u0647 \u0645\u0627\u0636\u064a\u0647\u060c \u064a\u062a\u0639\u064a\u0646 \u0639\u0644\u064a\u0647 \u0627\u0644\u0642\u062a\u0627\u0644 \u0644\u062d\u0645\u0627\u064a\u0629 \u0639\u0627\u0626\u0644\u062a\u0647 \u0627\u0644\u062d\u0628\u064a\u0628\u0629.', 'overview_arabic': '\u062a\u0642\u0627\u0639\u062f \"\u062a\u0627\u0631\u0648 \u0633\u0627\u0643\u0627\u0645\u0648\u062a\u0648\" \u0628\u0627\u0633\u0645 \u0627\u0644\u062d\u0628 \u0628\u0639\u062f \u0623\u0646 \u0643\u0627\u0646 \u0623\u0641\u0636\u0644 \u0642\u0627\u062a\u0644 \u0645\u0623\u062c\u0648\u0631 \u0639\u0644\u0649 \u0627\u0644\u0625\u0637\u0644\u0627\u0642. \u0648\u0644\u0643\u0646 \u0639\u0646\u062f\u0645\u0627 \u064a\u0644\u0627\u062d\u0642\u0647 \u0645\u0627\u0636\u064a\u0647\u060c \u064a\u062a\u0639\u064a\u0646 \u0639\u0644\u064a\u0647 \u0627\u0644\u0642\u062a\u0627\u0644 \u0644\u062d\u0645\u0627\u064a\u0629 \u0639\u0627\u0626\u0644\u062a\u0647 \u0627\u0644\u062d\u0628\u064a\u0628\u0629.', 'vote_average': 8.1, 'vote_count': 228, 'popularity': 62.2002, 'release_date': None, 'first_air_date': '2025-01-11', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 279120, 'title': '\u300c\uff11\u5206\u9593\u3060\u3051\u89e6\u308c\u3066\u3082\u3044\u3044\u3088\u2026\u300d\u30b7\u30a7\u30a2\u30cf\u30a6\u30b9\u306e\u79d8\u5bc6\u30eb\u30fc\u30eb\u3002', 'title_arabic': '\u300c\uff11\u5206\u9593\u3060\u3051\u89e6\u308c\u3066\u3082\u3044\u3044\u3088\u2026\u300d\u30b7\u30a7\u30a2\u30cf\u30a6\u30b9\u306e\u79d8\u5bc6\u30eb\u30fc\u30eb\u3002', 'original_title': '\u300c\uff11\u5206\u9593\u3060\u3051\u89e6\u308c\u3066\u3082\u3044\u3044\u3088\u2026\u300d\u30b7\u30a7\u30a2\u30cf\u30a6\u30b9\u306e\u79d8\u5bc6\u30eb\u30fc\u30eb\u3002', 'poster_path': '/pJ8ls5yuBPPYdS7kbZd3yzJdxKx.jpg', 'backdrop_path': '/3aY6GAOLhPDVNbms9bPc7lNite8.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 4.0, 'vote_count': 1, 'popularity': 28.3431, 'release_date': None, 'first_air_date': '2025-01-06', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 133154, 'title': '\u0633\u064a\u0641 \u0635\u0627\u0626\u062f \u0627\u0644\u0634\u064a\u0627\u0637\u064a\u0646', 'title_arabic': '\u0633\u064a\u0641 \u0635\u0627\u0626\u062f \u0627\u0644\u0634\u064a\u0627\u0637\u064a\u0646', 'original_title': '\u9b3c\u4eba\u5e7b\u71c8\u6284', 'poster_path': '/1y4poiE9nZS8CplmX914GKnIdH1.jpg', 'backdrop_path': '/7ylrebWFQZAHOW1TMGdhp9AfRp1.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 8.4, 'vote_count': 8, 'popularity': 7.2733, 'release_date': None, 'first_air_date': '2025-03-31', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 237529, 'title': '\u30e1\u30c0\u30ea\u30b9\u30c8', 'title_arabic': '\u30e1\u30c0\u30ea\u30b9\u30c8', 'original_title': '\u30e1\u30c0\u30ea\u30b9\u30c8', 'poster_path': '/7DXsDnyOTTlqcj1fKrNQz8Ftxco.jpg', 'backdrop_path': '/lUZ6ThctsCMee63Cu02F1F6rgC1.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 8.455, 'vote_count': 33, 'popularity': 4.8855, 'release_date': None, 'first_air_date': '2025-01-05', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 278378, 'title': '\u30ad\u30df\u3068\u30a2\u30a4\u30c9\u30eb\u30d7\u30ea\u30ad\u30e5\u30a2\u266a', 'title_arabic': '\u30ad\u30df\u3068\u30a2\u30a4\u30c9\u30eb\u30d7\u30ea\u30ad\u30e5\u30a2\u266a', 'original_title': '\u30ad\u30df\u3068\u30a2\u30a4\u30c9\u30eb\u30d7\u30ea\u30ad\u30e5\u30a2\u266a', 'poster_path': '/fvmTTlKu2Q6q4pQMu62SZpQEiVT.jpg', 'backdrop_path': '/gI8mSIkYLHDphDBBulkaSCMFvPN.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 6.2, 'vote_count': 4, 'popularity': 4.7232, 'release_date': None, 'first_air_date': '2025-02-02', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 249545, 'title': 'S\u30e9\u30f3\u30af\u30e2\u30f3\u30b9\u30bf\u30fc\u306e\u300a\u30d9\u30d2\u30fc\u30e2\u30b9\u300b\u3060\u3051\u3069\u3001\u732b\u3068\u9593\u9055\u308f\u308c\u3066\u30a8\u30eb\u30d5\u5a18\u306e\u9a0e\u58eb\uff08\u30da\u30c3\u30c8\uff09\u3068\u3057\u3066\u66ae\u3089\u3057\u3066\u307e\u3059', 'title_arabic': 'S\u30e9\u30f3\u30af\u30e2\u30f3\u30b9\u30bf\u30fc\u306e\u300a\u30d9\u30d2\u30fc\u30e2\u30b9\u300b\u3060\u3051\u3069\u3001\u732b\u3068\u9593\u9055\u308f\u308c\u3066\u30a8\u30eb\u30d5\u5a18\u306e\u9a0e\u58eb\uff08\u30da\u30c3\u30c8\uff09\u3068\u3057\u3066\u66ae\u3089\u3057\u3066\u307e\u3059', 'original_title': 'S\u30e9\u30f3\u30af\u30e2\u30f3\u30b9\u30bf\u30fc\u306e\u300a\u30d9\u30d2\u30fc\u30e2\u30b9\u300b\u3060\u3051\u3069\u3001\u732b\u3068\u9593\u9055\u308f\u308c\u3066\u30a8\u30eb\u30d5\u5a18\u306e\u9a0e\u58eb\uff08\u30da\u30c3\u30c8\uff09\u3068\u3057\u3066\u66ae\u3089\u3057\u3066\u307e\u3059', 'poster_path': '/j9q6ZUfdKMHS67w82ASbYf0eDIL.jpg', 'backdrop_path': '/kwczoZpGHJm9Gzk52FWsGWHRhFQ.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 6.5, 'vote_count': 25, 'popularity': 4.5934, 'release_date': None, 'first_air_date': '2025-01-04', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 250994, 'title': '\u5929\u4e45\u9df9\u592e\u306e\u63a8\u7406\u30ab\u30eb\u30c6', 'title_arabic': '\u5929\u4e45\u9df9\u592e\u306e\u63a8\u7406\u30ab\u30eb\u30c6', 'original_title': '\u5929\u4e45\u9df9\u592e\u306e\u63a8\u7406\u30ab\u30eb\u30c6', 'poster_path': '/jfUwdU2MSi4oZoc8hErn5cOI1Gs.jpg', 'backdrop_path': '/oBYKvW0VS1L3Gfr81VoJgeK7jzo.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.5, 'vote_count': 21, 'popularity': 4.3664, 'release_date': None, 'first_air_date': '2025-01-02', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 247367, 'title': '\u00dcbel Blatt\uff5e\u30e6\u30fc\u30d9\u30eb\u30d6\u30e9\u30c3\u30c8\uff5e', 'title_arabic': '\u00dcbel Blatt\uff5e\u30e6\u30fc\u30d9\u30eb\u30d6\u30e9\u30c3\u30c8\uff5e', 'original_title': '\u00dcbel Blatt\uff5e\u30e6\u30fc\u30d9\u30eb\u30d6\u30e9\u30c3\u30c8\uff5e', 'poster_path': '/jZePlRUlM4qIuuJHnjqjs4JufpO.jpg', 'backdrop_path': '/rtFYv6dXv3tiM3I0P2BBPML3Ch.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 6.9, 'vote_count': 23, 'popularity': 4.0928, 'release_date': None, 'first_air_date': '2025-01-11', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 270474, 'title': '\u4e0d\u9047\u8077\u3010\u9451\u5b9a\u58eb\u3011\u304c\u5b9f\u306f\u6700\u5f37\u3060\u3063\u305f\uff5e\u5948\u843d\u3067\u935b\u3048\u305f\u6700\u5f37\u306e\u3010\u795e\u773c\u3011\u3067\u7121\u53cc\u3059\u308b\uff5e', 'title_arabic': '\u4e0d\u9047\u8077\u3010\u9451\u5b9a\u58eb\u3011\u304c\u5b9f\u306f\u6700\u5f37\u3060\u3063\u305f\uff5e\u5948\u843d\u3067\u935b\u3048\u305f\u6700\u5f37\u306e\u3010\u795e\u773c\u3011\u3067\u7121\u53cc\u3059\u308b\uff5e', 'original_title': '\u4e0d\u9047\u8077\u3010\u9451\u5b9a\u58eb\u3011\u304c\u5b9f\u306f\u6700\u5f37\u3060\u3063\u305f\uff5e\u5948\u843d\u3067\u935b\u3048\u305f\u6700\u5f37\u306e\u3010\u795e\u773c\u3011\u3067\u7121\u53cc\u3059\u308b\uff5e', 'poster_path': '/iWQchD5iAc3Ou9zTQnPuNbLPsLB.jpg', 'backdrop_path': '/aTk5XhDb4vdqVXBiatmpbdDJIVK.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.1, 'vote_count': 32, 'popularity': 4.0713, 'release_date': None, 'first_air_date': '2025-01-09', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 257790, 'title': '\u30af\u30e9\u30b9\u306e\u5927\u5acc\u3044\u306a\u5973\u5b50\u3068\u7d50\u5a5a\u3059\u308b\u3053\u3068\u306b\u306a\u3063\u305f\u3002', 'title_arabic': '\u30af\u30e9\u30b9\u306e\u5927\u5acc\u3044\u306a\u5973\u5b50\u3068\u7d50\u5a5a\u3059\u308b\u3053\u3068\u306b\u306a\u3063\u305f\u3002', 'original_title': '\u30af\u30e9\u30b9\u306e\u5927\u5acc\u3044\u306a\u5973\u5b50\u3068\u7d50\u5a5a\u3059\u308b\u3053\u3068\u306b\u306a\u3063\u305f\u3002', 'poster_path': '/xVFH6pqDjE6NIpeSNxcK9sTbC4d.jpg', 'backdrop_path': '/rn9aAeJQSXRK0FG14bFmQrktQtY.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.2, 'vote_count': 15, 'popularity': 3.8868, 'release_date': None, 'first_air_date': '2025-01-03', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 247859, 'title': '\u30cf\u30cb\u30fc\u30ec\u30e2\u30f3\u30bd\u30fc\u30c0', 'title_arabic': '\u30cf\u30cb\u30fc\u30ec\u30e2\u30f3\u30bd\u30fc\u30c0', 'original_title': '\u30cf\u30cb\u30fc\u30ec\u30e2\u30f3\u30bd\u30fc\u30c0', 'poster_path': '/ixAbDT5lO399pMgVsjnR2Flc1JX.jpg', 'backdrop_path': '/5Ltkep2dzaupq62nmmejl9Nk6vT.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 8.4, 'vote_count': 22, 'popularity': 3.8735, 'release_date': None, 'first_air_date': '2025-01-09', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 261298, 'title': '\u3044\u305a\u308c\u6700\u5f37\u306e\u932c\u91d1\u8853\u5e2b\uff1f', 'title_arabic': '\u3044\u305a\u308c\u6700\u5f37\u306e\u932c\u91d1\u8853\u5e2b\uff1f', 'original_title': '\u3044\u305a\u308c\u6700\u5f37\u306e\u932c\u91d1\u8853\u5e2b\uff1f', 'poster_path': '/qfdzcGkQ0j1YEYBO7XZctlFz6FY.jpg', 'backdrop_path': '/qDQt2pdwyWEWWWTBVBDo2UhYODc.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.7, 'vote_count': 31, 'popularity': 3.7982, 'release_date': None, 'first_air_date': '2025-01-08', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 270487, 'title': 'A\u30e9\u30f3\u30af\u30d1\u30fc\u30c6\u30a3\u3092\u96e2\u8131\u3057\u305f\u4ffa\u306f\u3001\u5143\u6559\u3048\u5b50\u305f\u3061\u3068\u8ff7\u5bae\u6df1\u90e8\u3092\u76ee\u6307\u3059\u3002', 'title_arabic': 'A\u30e9\u30f3\u30af\u30d1\u30fc\u30c6\u30a3\u3092\u96e2\u8131\u3057\u305f\u4ffa\u306f\u3001\u5143\u6559\u3048\u5b50\u305f\u3061\u3068\u8ff7\u5bae\u6df1\u90e8\u3092\u76ee\u6307\u3059\u3002', 'original_title': 'A\u30e9\u30f3\u30af\u30d1\u30fc\u30c6\u30a3\u3092\u96e2\u8131\u3057\u305f\u4ffa\u306f\u3001\u5143\u6559\u3048\u5b50\u305f\u3061\u3068\u8ff7\u5bae\u6df1\u90e8\u3092\u76ee\u6307\u3059\u3002', 'poster_path': '/aGNAhNVdzvhawzJHXgCF5UiWxiE.jpg', 'backdrop_path': '/mjCLM0KHXErVCvz4UMuUV1l2Th.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.0, 'vote_count': 20, 'popularity': 3.6371, 'release_date': None, 'first_air_date': '2025-01-12', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 262141, 'title': '\u3053\u306e\u4f1a\u793e\u306b\u597d\u304d\u306a\u4eba\u304c\u3044\u307e\u3059', 'title_arabic': '\u3053\u306e\u4f1a\u793e\u306b\u597d\u304d\u306a\u4eba\u304c\u3044\u307e\u3059', 'original_title': '\u3053\u306e\u4f1a\u793e\u306b\u597d\u304d\u306a\u4eba\u304c\u3044\u307e\u3059', 'poster_path': '/a6RVShj5Cef8t7kbuBPC2czjWVW.jpg', 'backdrop_path': '/dOECK5Ru10T77ZXTiqZ3yv5UE5k.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 8.0, 'vote_count': 11, 'popularity': 3.3976, 'release_date': None, 'first_air_date': '2025-01-06', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 276204, 'title': '\u5916\u308c\u30b9\u30ad\u30eb\u300a\u6728\u306e\u5b9f\u30de\u30b9\u30bf\u30fc\u300b \uff5e\u30b9\u30ad\u30eb\u306e\u5b9f\uff08\u98df\u3079\u305f\u3089\u6b7b\u306c\uff09\u3092\u7121\u9650\u306b\u98df\u3079\u3089\u308c\u308b\u3088\u3046\u306b\u306a\u3063\u305f\u4ef6\u306b\u3064\u3044\u3066\uff5e', 'title_arabic': '\u5916\u308c\u30b9\u30ad\u30eb\u300a\u6728\u306e\u5b9f\u30de\u30b9\u30bf\u30fc\u300b \uff5e\u30b9\u30ad\u30eb\u306e\u5b9f\uff08\u98df\u3079\u305f\u3089\u6b7b\u306c\uff09\u3092\u7121\u9650\u306b\u98df\u3079\u3089\u308c\u308b\u3088\u3046\u306b\u306a\u3063\u305f\u4ef6\u306b\u3064\u3044\u3066\uff5e', 'original_title': '\u5916\u308c\u30b9\u30ad\u30eb\u300a\u6728\u306e\u5b9f\u30de\u30b9\u30bf\u30fc\u300b \uff5e\u30b9\u30ad\u30eb\u306e\u5b9f\uff08\u98df\u3079\u305f\u3089\u6b7b\u306c\uff09\u3092\u7121\u9650\u306b\u98df\u3079\u3089\u308c\u308b\u3088\u3046\u306b\u306a\u3063\u305f\u4ef6\u306b\u3064\u3044\u3066\uff5e', 'poster_path': '/ctnnqBBZoJ3O3Mvo6leqYWxjGos.jpg', 'backdrop_path': '/vUtfUpXxdrbUTrpsvRF8nPPinPv.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.9, 'vote_count': 19, 'popularity': 3.2904, 'release_date': None, 'first_air_date': '2025-01-07', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 249031, 'title': '\u65e5\u672c\u3078\u3088\u3046\u3053\u305d\u30a8\u30eb\u30d5\u3055\u3093\u3002', 'title_arabic': '\u65e5\u672c\u3078\u3088\u3046\u3053\u305d\u30a8\u30eb\u30d5\u3055\u3093\u3002', 'original_title': '\u65e5\u672c\u3078\u3088\u3046\u3053\u305d\u30a8\u30eb\u30d5\u3055\u3093\u3002', 'poster_path': '/dTHuaL41DzvSByG4jyn26KXZw4E.jpg', 'backdrop_path': '/nmlyumUP75OATOl4TiRzbEVc7or.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.5, 'vote_count': 17, 'popularity': 3.2683, 'release_date': None, 'first_air_date': '2025-01-10', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 261148, 'title': '\u6226\u968a\u30ec\u30c3\u30c9 \u7570\u4e16\u754c\u3067\u5192\u967a\u8005\u306b\u306a\u308b', 'title_arabic': '\u6226\u968a\u30ec\u30c3\u30c9 \u7570\u4e16\u754c\u3067\u5192\u967a\u8005\u306b\u306a\u308b', 'original_title': '\u6226\u968a\u30ec\u30c3\u30c9 \u7570\u4e16\u754c\u3067\u5192\u967a\u8005\u306b\u306a\u308b', 'poster_path': '/6Mh3iaUrL4ZPvpmbCJKBICBEbNi.jpg', 'backdrop_path': '/wWv4YVdsK17NbMTicoubbwOmi7i.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.9, 'vote_count': 22, 'popularity': 3.107, 'release_date': None, 'first_air_date': '2025-01-12', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 261745, 'title': '\u30a2\u30e9\u30d5\u30a9\u30fc\u7537\u306e\u7570\u4e16\u754c\u901a\u8ca9', 'title_arabic': '\u30a2\u30e9\u30d5\u30a9\u30fc\u7537\u306e\u7570\u4e16\u754c\u901a\u8ca9', 'original_title': '\u30a2\u30e9\u30d5\u30a9\u30fc\u7537\u306e\u7570\u4e16\u754c\u901a\u8ca9', 'poster_path': '/mpQjKNcka5SG6TN2N4hBf9aAS2o.jpg', 'backdrop_path': '/tcNah6yo0hwChrI77NT4KvdGsC4.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.2, 'vote_count': 25, 'popularity': 3.0746, 'release_date': None, 'first_air_date': '2025-01-09', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 258994, 'title': '\u9ed2\u5ca9\u30e1\u30c0\u30ab\u306b\u79c1\u306e\u53ef\u611b\u3044\u304c\u901a\u3058\u306a\u3044', 'title_arabic': '\u9ed2\u5ca9\u30e1\u30c0\u30ab\u306b\u79c1\u306e\u53ef\u611b\u3044\u304c\u901a\u3058\u306a\u3044', 'original_title': '\u9ed2\u5ca9\u30e1\u30c0\u30ab\u306b\u79c1\u306e\u53ef\u611b\u3044\u304c\u901a\u3058\u306a\u3044', 'poster_path': '/1EZhXcl8abvXLj23GhDxBvwkpdP.jpg', 'backdrop_path': '/s4QEjHrJ1BXIjv6OQ1Jh67uVRYP.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 7.2, 'vote_count': 15, 'popularity': 3.0355, 'release_date': None, 'first_air_date': '2025-01-07', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}, {'id': 271264, 'title': '\u9b54\u795e\u5275\u9020\u4f1d\u30ef\u30bf\u30eb', 'title_arabic': '\u9b54\u795e\u5275\u9020\u4f1d\u30ef\u30bf\u30eb', 'original_title': '\u9b54\u795e\u5275\u9020\u4f1d\u30ef\u30bf\u30eb', 'poster_path': '/oeRcjRVXLDUe2gq8niQztrQh5zN.jpg', 'backdrop_path': '/gXWYeB9yo7qywNBozWtSVcqq84m.jpg', 'overview': '', 'overview_arabic': '', 'vote_average': 8.0, 'vote_count': 3, 'popularity': 2.9779, 'release_date': None, 'first_air_date': '2025-01-12', 'episode_count': None, 'status': None, 'genres': [], 'origin_country': ['JP'], 'content_type': 'tv', 'anime_confidence': 1.0}], 'page': 1, 'total_pages': 3, 'total_results': 20}",
       "response_data": null
     },
     {
@@ -110,13 +118,13 @@
     {
       "endpoint": "ERROR TEST: Invalid season name",
       "status": "PASS",
-      "details": "Properly handled error with HTTP 404",
+      "details": "Properly handled error with HTTP 400",
       "response_data": null
     },
     {
       "endpoint": "ERROR TEST: Very old year",
-      "status": "PASS",
-      "details": "Properly handled error with HTTP 404",
+      "status": "WARN",
+      "details": "Request succeeded when error was expected",
       "response_data": null
     },
     {
