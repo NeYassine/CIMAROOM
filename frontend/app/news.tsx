@@ -129,7 +129,31 @@ export default function NewsScreen() {
     fetchNews(1, false);
   };
 
-  // Open article link
+  // State for in-app article reader
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [showArticleReader, setShowArticleReader] = useState(false);
+  const [articleContent, setArticleContent] = useState('');
+  const [loadingArticle, setLoadingArticle] = useState(false);
+
+  // Open article in app
+  const openArticleInApp = async (article: NewsArticle) => {
+    setSelectedArticle(article);
+    setShowArticleReader(true);
+    setLoadingArticle(true);
+    
+    try {
+      // For now, show the summary and link to full article
+      // In a real implementation, you might scrape the full content
+      setArticleContent(article.summary_arabic || article.summary);
+    } catch (error) {
+      console.error('Error loading article:', error);
+      setArticleContent('لا يمكن تحميل محتوى المقال');
+    } finally {
+      setLoadingArticle(false);
+    }
+  };
+
+  // Open article link externally (fallback)
   const openArticleLink = async (url: string) => {
     try {
       const supported = await Linking.canOpenURL(url);
