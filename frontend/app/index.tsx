@@ -702,6 +702,49 @@ export default function Index() {
           </SafeAreaView>
         </View>
       )}
+
+      {/* More Seasonal Modal */}
+      {showMoreSeasonal && (
+        <View style={styles.morePopularContainer}>
+          <SafeAreaView style={styles.morePopularSafeArea}>
+            {/* Header */}
+            <View style={styles.morePopularHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowMoreSeasonal(false)}
+              >
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.morePopularTitle}>أنميات الموسم</Text>
+              <View style={styles.headerSpacer} />
+            </View>
+
+            {/* Content */}
+            <FlatList
+              data={moreSeasonalAnime}
+              renderItem={renderMoreAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              contentContainerStyle={styles.morePopularList}
+              showsVerticalScrollIndicator={false}
+              onEndReached={handleLoadSeasonalNextPage}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                moreSeasonalLoading ? (
+                  <View style={styles.loadingFooter}>
+                    <ActivityIndicator size="large" color="#FFD700" />
+                    <Text style={styles.loadingText}>جاري تحميل المزيد...</Text>
+                  </View>
+                ) : !hasMoreSeasonalPages ? (
+                  <View style={styles.endOfListFooter}>
+                    <Text style={styles.endOfListText}>لا يوجد المزيد من أنميات الموسم</Text>
+                  </View>
+                ) : null
+              }
+            />
+          </SafeAreaView>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
