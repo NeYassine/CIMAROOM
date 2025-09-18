@@ -693,218 +693,106 @@ export default function Index() {
           />
         }
       >
-        {!showSchedule && (
-          <>
-            {/* Search Results */}
-            {showSearch && searchResults.length > 0 && (
-              <View style={styles.section}>
-                {renderSectionHeader('نتائج البحث')}
-                <ScrollView
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {searchResults.map((item, index) => (
-                    <View key={item.id} style={{ flexDirection: 'row' }}>
-                      {renderAnimeCard({ item, index })}
-                      {index < searchResults.length - 1 && <View style={styles.cardSeparator} />}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Hero Section */}
-            {!showSearch && renderHeroSection()}
-
-            {/* Popular Anime Section */}
-            {!showSearch && popularAnime.length > 0 && (
-              <View style={styles.section}>
-                {renderSectionHeader('الأكثر شعبية', handleLoadMorePopular)}
-                <ScrollView
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {popularAnime.slice(1, 7).map((item, index) => (
-                    <View key={item.id} style={{ flexDirection: 'row' }}>
-                      {renderAnimeCard({ item, index })}
-                      {index < popularAnime.slice(1, 7).length - 1 && <View style={styles.cardSeparator} />}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Fall 2025 Anime Section */}
-            {!showSearch && seasonalAnime.length > 0 && (
-              <View style={styles.section}>
-                {renderSectionHeader('أنميات خريف 2025', handleLoadMoreSeasonal)}
-                <ScrollView
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {seasonalAnime.map((item, index) => (
-                    <View key={item.id} style={{ flexDirection: 'row' }}>
-                      {renderAnimeCard({ item, index })}
-                      {index < seasonalAnime.length - 1 && <View style={styles.cardSeparator} />}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Anime Movies Section */}
-            {!showSearch && animeMovies.length > 0 && (
-              <View style={styles.section}>
-                {renderSectionHeader('أفلام الأنيمي', handleLoadMoreMovies)}
-                <ScrollView
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {animeMovies.map((item, index) => (
-                    <View key={item.id} style={{ flexDirection: 'row' }}>
-                      {renderAnimeCard({ item, index })}
-                      {index < animeMovies.length - 1 && <View style={styles.cardSeparator} />}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Empty State */}
-            {!showSearch && popularAnime.length === 0 && (
-              <View style={styles.emptyContainer}>
-                <Ionicons name="film-outline" size={64} color="#666" />
-                <Text style={styles.emptyText}>لا توجد أنيمي متاحة</Text>
-              </View>
-            )}
-          </>
-        )}
-      </ScrollView>
-
-      {/* Anime Schedule Page */}
-      {showSchedule && (
-        <View style={styles.schedulePage}>
-          <View style={styles.scheduleHeader}>
-            <Text style={styles.scheduleTitle}>مواعيد الأنميات</Text>
-            <Text style={styles.scheduleSubtitle}>جدول عرض الأنميات الأسبوعي</Text>
-          </View>
-          
-          <ScrollView 
-            style={styles.scheduleContent}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={['#FFD700']}
-                tintColor="#FFD700"
-              />
-            }
-          >
-            {animeSchedule.map((dayData, dayIndex) => (
-              <View key={dayIndex} style={styles.daySection}>
-                <View style={styles.dayHeader}>
-                  <Text style={styles.dayName}>{dayData.day_arabic}</Text>
-                  <Text style={styles.dayNameEn}>{dayData.day}</Text>
-                </View>
-                
-                {dayData.anime.map((anime: any, animeIndex: number) => (
-                  <TouchableOpacity
-                    key={animeIndex}
-                    style={styles.scheduleAnimeCard}
-                    onPress={() => {
-                      // Convert schedule anime to our Anime format for details
-                      const animeForDetails: Anime = {
-                        id: anime.id,
-                        title: anime.title,
-                        title_arabic: anime.title_arabic,
-                        original_title: anime.title,
-                        poster_path: anime.poster_image,
-                        overview: anime.synopsis,
-                        overview_arabic: anime.synopsis_arabic,
-                        vote_average: anime.mal_score,
-                        episode_count: anime.episode_count,
-                        status: anime.status,
-                        genres: anime.genres?.map((g: string) => ({ name: g })) || [],
-                        content_type: 'tv'
-                      };
-                      setSelectedAnime(animeForDetails);
-                      setShowDetails(true);
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Image
-                      source={{ 
-                        uri: anime.poster_image || 'https://via.placeholder.com/100x140/333/fff?text=Anime'
-                      }}
-                      style={styles.scheduleAnimeImage}
-                      resizeMode="cover"
-                    />
-                    
-                    <View style={styles.scheduleAnimeInfo}>
-                      <Text style={styles.scheduleAnimeTitle} numberOfLines={2}>
-                        {anime.title_arabic || anime.title}
-                      </Text>
-                      
-                      <View style={styles.scheduleAnimeMeta}>
-                        {anime.air_time && (
-                          <View style={styles.scheduleTimeContainer}>
-                            <Ionicons name="time-outline" size={14} color="#FFD700" />
-                            <Text style={styles.scheduleTime}>{anime.air_time}</Text>
-                          </View>
-                        )}
-                        
-                        {anime.episode_count && (
-                          <Text style={styles.scheduleEpisodes}>
-                            {anime.episode_count} حلقة
-                          </Text>
-                        )}
-                      </View>
-                      
-                      {anime.studio && (
-                        <Text style={styles.scheduleStudio} numberOfLines={1}>
-                          {anime.studio}
-                        </Text>
-                      )}
-                      
-                      {anime.mal_score && (
-                        <View style={styles.scheduleRating}>
-                          <Ionicons name="star" size={12} color="#FFD700" />
-                          <Text style={styles.scheduleScore}>{anime.mal_score}</Text>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
+        <>
+          {/* Search Results */}
+          {showSearch && searchResults.length > 0 && (
+            <View style={styles.section}>
+              {renderSectionHeader('نتائج البحث')}
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScrollContainer}
+              >
+                {searchResults.map((item, index) => (
+                  <View key={item.id} style={{ flexDirection: 'row' }}>
+                    {renderAnimeCard({ item, index })}
+                    {index < searchResults.length - 1 && <View style={styles.cardSeparator} />}
+                  </View>
                 ))}
-              </View>
-            ))}
-            
-            {animeSchedule.length === 0 && (
-              <View style={styles.emptySchedule}>
-                <Ionicons name="calendar-outline" size={64} color="#666" />
-                <Text style={styles.emptyScheduleText}>لا توجد مواعيد متاحة</Text>
-              </View>
-            )}
-          </ScrollView>
-        </View>
-      )}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Hero Section with Slider */}
+          {!showSearch && renderHeroSection()}
+
+          {/* Popular Anime Section */}
+          {!showSearch && popularAnime.length > 0 && (
+            <View style={styles.section}>
+              {renderSectionHeader('الأكثر شعبية', handleLoadMorePopular)}
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScrollContainer}
+              >
+                {popularAnime.slice(5, 11).map((item, index) => (
+                  <View key={item.id} style={{ flexDirection: 'row' }}>
+                    {renderAnimeCard({ item, index })}
+                    {index < popularAnime.slice(5, 11).length - 1 && <View style={styles.cardSeparator} />}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Fall 2025 Anime Section */}
+          {!showSearch && seasonalAnime.length > 0 && (
+            <View style={styles.section}>
+              {renderSectionHeader('أنميات خريف 2025', handleLoadMoreSeasonal)}
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScrollContainer}
+              >
+                {seasonalAnime.map((item, index) => (
+                  <View key={item.id} style={{ flexDirection: 'row' }}>
+                    {renderAnimeCard({ item, index })}
+                    {index < seasonalAnime.length - 1 && <View style={styles.cardSeparator} />}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Anime Movies Section */}
+          {!showSearch && animeMovies.length > 0 && (
+            <View style={styles.section}>
+              {renderSectionHeader('أفلام الأنيمي', handleLoadMoreMovies)}
+              <ScrollView
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScrollContainer}
+              >
+                {animeMovies.map((item, index) => (
+                  <View key={item.id} style={{ flexDirection: 'row' }}>
+                    {renderAnimeCard({ item, index })}
+                    {index < animeMovies.length - 1 && <View style={styles.cardSeparator} />}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Empty State */}
+          {!showSearch && popularAnime.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="film-outline" size={64} color="#666" />
+              <Text style={styles.emptyText}>لا توجد أنيمي متاحة</Text>
+            </View>
+          )}
+        </>
+      </ScrollView>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => {
-            console.log('Home button pressed');
-            setShowSchedule(false);
             setShowSearch(false);
           }}
         >
-          <Ionicons name="home" size={24} color={!showSearch && !showSchedule ? "#FFD700" : "#666"} />
-          <Text style={[styles.navText, (showSearch || showSchedule) && styles.inactiveNavText]}>الرئيسية</Text>
+          <Ionicons name="home" size={24} color={!showSearch ? "#FFD700" : "#666"} />
+          <Text style={[styles.navText, showSearch && styles.inactiveNavText]}>الرئيسية</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
@@ -912,17 +800,9 @@ export default function Index() {
           <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => {
-            console.log('Schedule button pressed, current showSchedule:', showSchedule);
-            setShowSchedule(true);
-            setShowSearch(false);
-            console.log('Schedule data:', animeSchedule.length, 'items');
-          }}
-        >
-          <Ionicons name="calendar-outline" size={24} color={showSchedule ? "#FFD700" : "#666"} />
-          <Text style={[styles.navText, !showSchedule && styles.inactiveNavText]}>مواعيد الأنميات</Text>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="person-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>الملف الشخصي</Text>
         </TouchableOpacity>
       </View>
 
