@@ -335,7 +335,7 @@ async def get_top_anime(page: int = 1, limit: int = 25):
 
 @api_router.get("/anime/movies", response_model=AnimeSearchResponse)
 async def get_anime_movies(page: int = 1, limit: int = 25):
-    """Get popular anime movies with Arabic language response"""
+    """Get popular real anime movies with Arabic descriptions and English titles"""
     try:
         cache_key = f"anime_movies_page_{page}_limit_{limit}"
         
@@ -345,27 +345,31 @@ async def get_anime_movies(page: int = 1, limit: int = 25):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Get anime movies from TMDB (Japanese/Korean/Chinese content but Arabic language response)
+        # Get real anime movies from TMDB (Japanese/Korean content with Arabic descriptions)
         movie_params = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
+            'with_original_language': 'ja|ko',  # Japanese/Korean content (real anime)
             'sort_by': 'popularity.desc',
+            'vote_count.gte': 20,  # Minimum votes filter
             'api_key': TMDB_API_KEY,
-            'language': TMDB_LANGUAGE  # Arabic language response
+            'language': TMDB_LANGUAGE  # Arabic language for descriptions
         }
         
         movie_data = await make_tmdb_request("/discover/movie", movie_params)
         
-        # Filter for anime content and format
+        # Filter for real anime content
         anime_movies = []
         for movie in movie_data.get('results', []):
             if is_anime_content(movie):
                 anime_item = format_anime_content(movie, 'movie')
                 anime_movies.append(anime_item)
+            
+            if len(anime_movies) >= limit:
+                break
         
-        # Sort by anime confidence and popularity
-        anime_movies.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
+        # Sort by popularity (most popular anime movies first)
+        anime_movies.sort(key=lambda x: x.popularity or 0, reverse=True)
         
         # Limit results
         anime_movies = anime_movies[:limit]
