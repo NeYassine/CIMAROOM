@@ -556,10 +556,7 @@ export default function Index() {
             <View style={styles.heroButtons}>
               <TouchableOpacity
                 style={styles.watchButton}
-                onPress={() => {
-                  setSelectedAnime(currentAnime);
-                  setShowDetails(true);
-                }}
+                onPress={() => handleAnimeSelection(currentAnime)}
                 activeOpacity={0.8}
               >
                 <Ionicons name="play" size={20} color="#fff" />
