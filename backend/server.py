@@ -319,6 +319,139 @@ async def get_anime_movies(page: int = 1, limit: int = 25):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/anime/schedule")
+async def get_anime_schedule():
+    """Get anime schedule from LiveChart.me API with Arabic translations"""
+    try:
+        cache_key = "anime_schedule"
+        
+        # Check cache first (cache for 1 hour since schedules change frequently)
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < 3600:  # 1 hour cache
+                return cached_data['data']
+        
+        # Get schedule from LiveChart.me API
+        livechart_url = "https://www.livechart.me/api/v1/schedule"
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(livechart_url)
+            response.raise_for_status()
+            schedule_data = response.json()
+        
+        # Format schedule data for our app
+        formatted_schedule = []
+        
+        for day_entry in schedule_data:
+            day_name = day_entry.get('day', '')
+            anime_list = day_entry.get('anime', [])
+            
+            formatted_day = {
+                'day': day_name,
+                'day_arabic': translate_day_to_arabic(day_name),
+                'anime': []
+            }
+            
+            for anime in anime_list:
+                # Get basic anime info
+                anime_id = anime.get('id')
+                title = anime.get('romaji_title') or anime.get('english_title') or ''
+                arabic_title = await get_arabic_title_from_tmdb(title)
+                
+                formatted_anime = {
+                    'id': anime_id,
+                    'title': title,
+                    'title_arabic': arabic_title,
+                    'poster_image': anime.get('poster', {}).get('large') or '',
+                    'synopsis': anime.get('synopsis', ''),
+                    'synopsis_arabic': await get_arabic_synopsis_from_tmdb(title),
+                    'episode_count': anime.get('episode_count'),
+                    'studio': anime.get('studios', [{}])[0].get('name', '') if anime.get('studios') else '',
+                    'genres': [tag.get('name', '') for tag in anime.get('tags', [])],
+                    'release_season': anime.get('release_season'),
+                    'release_year': anime.get('release_year'),
+                    'air_time': anime.get('countdown', {}).get('air_time') if anime.get('countdown') else None,
+                    'status': anime.get('status', ''),
+                    'mal_score': anime.get('mal_score'),
+                    'livechart_url': f"https://www.livechart.me/anime/{anime_id}"
+                }
+                
+                formatted_day['anime'].append(formatted_anime)
+            
+            formatted_schedule.append(formatted_day)
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': formatted_schedule,
+            'timestamp': time.time()
+        }
+        
+        return formatted_schedule
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching anime schedule: {str(e)}")
+
+def translate_day_to_arabic(day_name: str) -> str:
+    """Translate English day names to Arabic"""
+    day_translations = {
+        'monday': 'الإثنين',
+        'tuesday': 'الثلاثاء', 
+        'wednesday': 'الأربعاء',
+        'thursday': 'الخميس',
+        'friday': 'الجمعة',
+        'saturday': 'السبت',
+        'sunday': 'الأحد'
+    }
+    return day_translations.get(day_name.lower(), day_name)
+
+async def get_arabic_title_from_tmdb(title: str) -> str:
+    """Get Arabic title from TMDB API"""
+    try:
+        if not title:
+            return title
+            
+        # Search for the anime in TMDB
+        search_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'ar',
+            'query': title
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get("https://api.themoviedb.org/3/search/tv", params=search_params)
+            if response.status_code == 200:
+                results = response.json().get('results', [])
+                if results:
+                    return results[0].get('name', title)
+    except:
+        pass
+    
+    return title
+
+async def get_arabic_synopsis_from_tmdb(title: str) -> str:
+    """Get Arabic synopsis from TMDB API"""
+    try:
+        if not title:
+            return ""
+            
+        # Search for the anime in TMDB
+        search_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'ar',
+            'query': title
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get("https://api.themoviedb.org/3/search/tv", params=search_params)
+            if response.status_code == 200:
+                results = response.json().get('results', [])
+                if results:
+                    return results[0].get('overview', "")
+    except:
+        pass
+    
+    return ""
+
 @api_router.get("/anime/search", response_model=AnimeSearchResponse)
 async def search_anime(
     q: str = None, 
