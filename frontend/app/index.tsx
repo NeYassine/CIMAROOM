@@ -131,6 +131,17 @@ export default function Index() {
     }
   };
 
+  // Fetch anime movies
+  const fetchAnimeMovies = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/anime/movies?limit=8`);
+      const data: AnimeResponse = await response.json();
+      setAnimeMovies(data.results || []);
+    } catch (error) {
+      console.error('Error fetching anime movies:', error);
+    }
+  };
+
   // Search anime
   const searchAnime = async (query: string) => {
     if (!query.trim()) {
