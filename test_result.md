@@ -166,17 +166,17 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "Completely Fixed Anime Schedule Page with Rich Content"
+  - task: "Removed Anime Schedule and Enhanced Hero Section with Slider"
     implemented: true
     working: true
-    file: "index.tsx, server.py"
+    file: "index.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "main"
-          comment: "Completely rebuilt anime schedule feature with realistic popular anime content. Created comprehensive weekly schedule with 21 popular anime distributed across 7 days (3 per day). Includes famous titles like Attack on Titan (هجوم العمالقة), One Piece (ون بيس), Demon Slayer (قاتل الشياطين), Naruto Shippuden (ناروتو شيبودن), My Hero Academia (مي هيرو أكاديميا), One Punch Man (ون بانش مان), Fullmetal Alchemist (الكيميائي المعدني), Hunter x Hunter (هنتر إكس هنتر), and others. Each anime entry includes Arabic title, air time, episode count, studio name, MAL score, and detailed information. Added debugging console logs for navigation testing and improved bottom navigation button functionality."
+          comment: "Successfully removed all anime schedule functionality and replaced with enhanced hero section. Removed schedule page, navigation button, API calls, and related code. Created new featured anime slider with 5 top anime from popular list. Added interactive slider with navigation dots, left/right arrows, and touch controls. Hero section now displays one anime at a time with ability to navigate between 5 featured anime. Added 'شاهد التفاصيل' button that opens anime details modal when clicked. Enhanced hero section with dual buttons: 'شاهد التفاصيل' (shows details) and 'شاهد الآن' (external link). Updated popular anime section to skip first 5 anime (now used in slider) and show next 6 anime in horizontal scroll."
 
 metadata:
   created_by: "main_agent"
