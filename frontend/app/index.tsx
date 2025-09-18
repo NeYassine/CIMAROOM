@@ -744,9 +744,15 @@ export default function Index() {
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="#FFD700" />
-          <Text style={styles.navText}>الرئيسية</Text>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => {
+            setShowSchedule(false);
+            setShowSearch(false);
+          }}
+        >
+          <Ionicons name="home" size={24} color={showSearch || showSchedule ? "#666" : "#FFD700"} />
+          <Text style={[styles.navText, showSearch || showSchedule && styles.inactiveNavText]}>الرئيسية</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
@@ -754,9 +760,15 @@ export default function Index() {
           <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={24} color="#666" />
-          <Text style={[styles.navText, styles.inactiveNavText]}>الملف الشخصي</Text>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => {
+            setShowSchedule(true);
+            setShowSearch(false);
+          }}
+        >
+          <Ionicons name="calendar-outline" size={24} color={showSchedule ? "#FFD700" : "#666"} />
+          <Text style={[styles.navText, !showSchedule && styles.inactiveNavText]}>مواعيد الأنميات</Text>
         </TouchableOpacity>
       </View>
 
