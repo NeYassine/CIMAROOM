@@ -56,26 +56,45 @@ class AnimeAPITester:
             return False
     
     def test_top_anime(self):
-        """Test top anime endpoint - MOST IMPORTANT"""
+        """Test top anime endpoint - should return anime with Arabic titles when available, English titles otherwise, NEVER Japanese"""
         try:
             response = self.session.get(f"{API_BASE}/anime/top")
             if response.status_code == 200:
                 data = response.json()
                 if "results" in data and isinstance(data["results"], list) and len(data["results"]) > 0:
-                    # Check first anime structure (TMDB format)
+                    # Check first anime structure
                     first_anime = data["results"][0]
                     required_fields = ["id", "title", "poster_path"]
                     missing_fields = [field for field in required_fields if field not in first_anime]
                     
-                    if not missing_fields:
-                        self.log_result("GET /api/anime/top", "PASS", 
-                                      f"Retrieved {len(data['results'])} top anime successfully", 
-                                      {"sample_anime": first_anime["title"], "total_count": len(data["results"])})
-                        return True
-                    else:
+                    if missing_fields:
                         self.log_result("GET /api/anime/top", "FAIL", 
                                       f"Missing required fields in anime data: {missing_fields}")
                         return False
+                    
+                    # Check title language requirements
+                    title_issues = []
+                    for anime in data["results"][:5]:  # Check first 5 anime
+                        title = anime.get("title", "")
+                        title_arabic = anime.get("title_arabic", "")
+                        
+                        # Check if title contains Japanese characters (should NOT)
+                        if re.search(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]', title):
+                            title_issues.append(f"Japanese characters found in title: {title}")
+                        
+                        # Title should be Arabic or English, not empty
+                        if not title and not title_arabic:
+                            title_issues.append(f"Both title and title_arabic are empty for anime ID {anime.get('id')}")
+                    
+                    if title_issues:
+                        self.log_result("GET /api/anime/top", "FAIL", 
+                                      f"Title language issues: {'; '.join(title_issues[:3])}")
+                        return False
+                    
+                    self.log_result("GET /api/anime/top", "PASS", 
+                                  f"Retrieved {len(data['results'])} top anime with proper Arabic/English titles", 
+                                  {"sample_anime": first_anime["title"], "total_count": len(data["results"])})
+                    return True
                 else:
                     self.log_result("GET /api/anime/top", "FAIL", 
                                   f"Invalid response structure: {data}")
