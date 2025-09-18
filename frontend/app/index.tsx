@@ -1000,7 +1000,10 @@ export default function Index() {
           <Text style={[styles.navText, showSearch && styles.inactiveNavText]}>الرئيسية</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => router.push('/lists')}
+        >
           <Ionicons name="list-outline" size={24} color="#666" />
           <Text style={[styles.navText, styles.inactiveNavText]}>القوائم</Text>
         </TouchableOpacity>
