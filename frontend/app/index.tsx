@@ -435,17 +435,19 @@ export default function Index() {
     </TouchableOpacity>
   );
 
-  // Render featured anime hero section
+  // Render featured anime slider hero section
   const renderHeroSection = () => {
-    if (!featuredAnime) return null;
+    if (featuredAnime.length === 0) return null;
+
+    const currentAnime = featuredAnime[currentSlide];
 
     return (
       <View style={styles.heroSection}>
         <Image
           source={{ 
-            uri: featuredAnime.backdrop_path 
-              ? `https://image.tmdb.org/t/p/w780${featuredAnime.backdrop_path}` 
-              : `https://image.tmdb.org/t/p/w500${featuredAnime.poster_path}`
+            uri: currentAnime.backdrop_path 
+              ? `https://image.tmdb.org/t/p/w780${currentAnime.backdrop_path}` 
+              : `https://image.tmdb.org/t/p/w500${currentAnime.poster_path}`
           }}
           style={styles.heroImage}
           resizeMode="cover"
@@ -455,36 +457,79 @@ export default function Index() {
           <View style={styles.heroContent}>
             <Text style={styles.heroCategory}>أنيمي مميز</Text>
             <Text style={styles.heroTitle} numberOfLines={2}>
-              {featuredAnime.title_arabic || featuredAnime.title || featuredAnime.original_title}
+              {currentAnime.title_arabic || currentAnime.title || currentAnime.original_title}
             </Text>
             
             <View style={styles.heroMeta}>
               <View style={styles.heroRating}>
                 <Ionicons name="star" size={16} color="#FFD700" />
                 <Text style={styles.heroRatingText}>
-                  {featuredAnime.vote_average?.toFixed(1) || 'N/A'}
+                  {currentAnime.vote_average?.toFixed(1) || 'N/A'}
                 </Text>
               </View>
               <Text style={styles.heroEpisodes}>
-                {featuredAnime.episode_count ? `${featuredAnime.episode_count} حلقة` : 
-                 featuredAnime.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
+                {currentAnime.episode_count ? `${currentAnime.episode_count} حلقة` : 
+                 currentAnime.content_type === 'movie' ? 'فيلم أنيمي' : 'مسلسل أنيمي'}
               </Text>
             </View>
             
             <Text style={styles.heroDescription} numberOfLines={3}>
-              {featuredAnime.overview_arabic || featuredAnime.overview || 'لا يوجد وصف متاح'}
+              {currentAnime.overview_arabic || currentAnime.overview || 'لا يوجد وصف متاح'}
             </Text>
             
-            <TouchableOpacity
-              style={styles.watchButton}
-              onPress={handleWatchAnime}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="play" size={20} color="#fff" />
-              <Text style={styles.watchButtonText}>شاهد الآن</Text>
-            </TouchableOpacity>
+            <View style={styles.heroButtons}>
+              <TouchableOpacity
+                style={styles.watchButton}
+                onPress={() => {
+                  setSelectedAnime(currentAnime);
+                  setShowDetails(true);
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="play" size={20} color="#fff" />
+                <Text style={styles.watchButtonText}>شاهد التفاصيل</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={handleWatchAnime}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="information-circle-outline" size={20} color="#FFD700" />
+                <Text style={styles.infoButtonText}>شاهد الآن</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
+        
+        {/* Slider Navigation Dots */}
+        <View style={styles.sliderDotsContainer}>
+          {featuredAnime.map((_, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.sliderDot,
+                index === currentSlide && styles.sliderDotActive
+              ]}
+              onPress={() => setCurrentSlide(index)}
+            />
+          ))}
+        </View>
+        
+        {/* Navigation Arrows */}
+        <TouchableOpacity
+          style={styles.sliderArrowLeft}
+          onPress={() => setCurrentSlide(currentSlide > 0 ? currentSlide - 1 : featuredAnime.length - 1)}
+        >
+          <Ionicons name="chevron-back" size={30} color="#fff" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.sliderArrowRight}
+          onPress={() => setCurrentSlide(currentSlide < featuredAnime.length - 1 ? currentSlide + 1 : 0)}
+        >
+          <Ionicons name="chevron-forward" size={30} color="#fff" />
+        </TouchableOpacity>
       </View>
     );
   };
