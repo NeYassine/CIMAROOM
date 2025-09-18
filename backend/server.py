@@ -252,15 +252,40 @@ async def get_english_title_arabic_overview(item_id: int, content_type: str) -> 
         return '', ''
 
 def format_anime_content(content: Dict[str, Any], content_type: str) -> AnimeBasic:
-    """Format TMDB content into AnimeBasic model with Arabic and English titles"""
+    """Format TMDB content into AnimeBasic model with Arabic and English titles ONLY - NO Japanese"""
+    import re
     
-    # Get English title - prioritize English name over original Japanese
-    english_title = content.get('name') or content.get('title', '')
-    if not english_title or len(english_title) < 3:  # If English title is too short or missing
-        english_title = content.get('original_name') or content.get('original_title', '')
+    # Japanese character detection regex
+    japanese_pattern = re.compile(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+')
+    
+    def is_japanese_text(text: str) -> bool:
+        """Check if text contains Japanese characters"""
+        if not text:
+            return False
+        return bool(japanese_pattern.search(text))
+    
+    # Get candidate titles from all possible fields
+    title_candidates = [
+        content.get('name', ''),
+        content.get('title', ''),
+        content.get('original_name', ''),
+        content.get('original_title', ''),
+    ]
+    
+    # Filter out Japanese titles and empty strings
+    non_japanese_titles = [title for title in title_candidates if title and not is_japanese_text(title)]
+    
+    # Choose the best non-Japanese title
+    english_title = ''
+    if non_japanese_titles:
+        # Prefer the first non-Japanese title from the list
+        english_title = non_japanese_titles[0]
+    else:
+        # If all titles are Japanese, use a fallback
+        english_title = f"Anime #{content.get('id', 'Unknown')}"
     
     # Try to get Arabic title, fallback to English
-    arabic_title = content.get('name') or content.get('title', '') if content.get('name') or content.get('title') else english_title
+    arabic_title = english_title
     
     # Arabic title translations for popular anime
     arabic_titles = {
