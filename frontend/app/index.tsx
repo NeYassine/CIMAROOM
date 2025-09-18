@@ -1494,14 +1494,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Tajawal_500Medium',
   },
   loadMoreButton: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
   },
   loadMoreText: {
     color: '#FFD700',
     fontSize: 14,
     fontWeight: '600',
-    marginRight: 5,
+    marginLeft: 5,
     fontFamily: 'Tajawal_500Medium',
   },
   gridContainer: {
