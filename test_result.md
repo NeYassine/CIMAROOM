@@ -166,17 +166,17 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "Fall 2025 Seasonal Anime Focus"
+  - task: "Fixed Load More Seasonal Anime Functionality"
     implemented: true
     working: true
-    file: "index.tsx, server.py"
+    file: "index.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "main"
-          comment: "Successfully updated seasonal anime section to specifically show Fall 2025 anime only. Modified backend endpoint /api/anime/current-season to filter anime with release dates between September 1, 2025 - December 31, 2025. Updated frontend section title to 'أنميات خريف 2025' and modal title to reflect Fall 2025 focus. Both main section and 'load more' modal now display only Fall 2025 anime with proper date filtering and caching."
+          comment: "Fixed missing handleLoadSeasonalNextPage function that was causing 'تحميل مزيد' (Load More) functionality to not work. Added proper infinite scroll handler for Fall 2025 seasonal anime section. Both the main horizontal scroll section and the 'Load More' modal with infinite scroll pagination now work correctly. Added debugging console logs to monitor pagination behavior."
 
 metadata:
   created_by: "main_agent"
