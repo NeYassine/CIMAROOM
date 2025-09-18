@@ -101,7 +101,7 @@ export default function Index() {
     I18nManager.forceRTL(true);
   }, []);
 
-  // Fetch popular anime
+  // Fetch popular anime and set featured anime slider
   const fetchPopularAnime = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/anime/top?limit=10`);
@@ -109,12 +109,9 @@ export default function Index() {
       const animeList = data.results || [];
       setPopularAnime(animeList);
       
-      // Set featured anime (first one with highest rating)
+      // Set top 5 anime for featured slider
       if (animeList.length > 0) {
-        const featured = animeList.reduce((prev, current) => 
-          (prev.vote_average || 0) > (current.vote_average || 0) ? prev : current
-        );
-        setFeaturedAnime(featured);
+        setFeaturedAnime(animeList.slice(0, 5));
       }
     } catch (error) {
       console.error('Error fetching popular anime:', error);
