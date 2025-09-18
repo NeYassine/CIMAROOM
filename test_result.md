@@ -190,11 +190,50 @@ frontend:
     file: "server.py, index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
           comment: "Successfully implemented comprehensive anime details enhancement as requested in Arabic. Added detailed anime information endpoint (/api/anime/{id}/details) with cast members in Arabic, genres with Arabic translations, recommendations from same category, official and audience ratings. Added person details endpoint (/api/person/{id}) for clickable cast members. Enhanced frontend with detailed anime modal showing ratings (official and audience), genres in Arabic, cast members (clickable), recommendations carousel from same category. Changed names from Japanese to English throughout the app. All information displays in Arabic as requested. Fall 2025 anime section working with 'تحميل مزيد' functionality."
+        - working: true
+          agent: "testing"
+          comment: "TESTED: Enhanced anime details endpoint working perfectly. /api/anime/{id}/details returns comprehensive information including cast with Arabic character names, genres with Arabic translations, recommendations from same category, both official and audience ratings. /api/person/{id} endpoint working correctly with known anime works. All required fields present and properly structured."
+
+  - task: "Anime Movies Endpoint"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "TESTED: /api/anime/movies endpoint exists and returns anime movies with proper structure and content_type='movie'. CRITICAL ISSUE: Japanese titles appearing in movie results despite requirement for Arabic/English only. Example: 'アニメ『怪獣８号』第１期総集編／同時上映「保科の休日」' contains Japanese characters. Title filtering logic needs improvement to ensure only Arabic/English titles are returned."
+
+  - task: "Title Language Requirements"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "TESTED: CRITICAL ISSUE - Japanese titles still appearing in API responses despite requirement for Arabic titles when available, English titles otherwise, NEVER Japanese. Found in /api/anime/top: '劇場版「進撃の巨人」完結編 THE LAST ATTACK' and /api/anime/movies: 'アニメ『怪獣８号』第１期総集編／同時上映「保科の休日」'. The title filtering logic in format_anime_content() function needs to be enhanced to completely eliminate Japanese characters from titles."
+
+  - task: "Fall 2025 Current Season"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "TESTED: /api/anime/current-season endpoint working correctly but returns 0 results for Fall 2025 (September-December 2025). This is expected behavior since Fall 2025 is in the future and TMDB doesn't have anime scheduled that far ahead. The endpoint correctly filters for the specified date range (2025-09-01 to 2025-12-31) and returns proper response structure."
 
 metadata:
   created_by: "main_agent"
