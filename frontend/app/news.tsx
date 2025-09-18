@@ -356,6 +356,113 @@ export default function NewsScreen() {
           )}
         />
       )}
+
+      {/* Article Reader Modal */}
+      {showArticleReader && selectedArticle && (
+        <Modal
+          visible={showArticleReader}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => setShowArticleReader(false)}
+        >
+          <SafeAreaView style={styles.readerContainer}>
+            {/* Reader Header */}
+            <View style={styles.readerHeader}>
+              <TouchableOpacity 
+                onPress={() => setShowArticleReader(false)}
+                style={styles.readerBackButton}
+              >
+                <Ionicons name="arrow-forward" size={24} color="#fff" />
+              </TouchableOpacity>
+              
+              <Text style={styles.readerHeaderTitle} numberOfLines={1}>
+                {selectedArticle.source}
+              </Text>
+              
+              <TouchableOpacity 
+                onPress={() => openArticleLink(selectedArticle.link)}
+                style={styles.externalLinkButton}
+              >
+                <Ionicons name="open-outline" size={24} color="#FFD700" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Article Content */}
+            <ScrollView style={styles.readerContent} showsVerticalScrollIndicator={false}>
+              {/* Article Image */}
+              {selectedArticle.image_url ? (
+                <Image
+                  source={{ uri: selectedArticle.image_url }}
+                  style={styles.readerImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={[styles.readerImage, styles.readerPlaceholderImage]}>
+                  <Ionicons name="newspaper-outline" size={60} color="#666" />
+                </View>
+              )}
+
+              {/* Article Info */}
+              <View style={styles.readerArticleInfo}>
+                {/* Source and Date */}
+                <View style={styles.readerMeta}>
+                  <View style={styles.readerSourceContainer}>
+                    <Text style={styles.readerSourceText}>{selectedArticle.source}</Text>
+                    <View style={[styles.readerSourceDot, { 
+                      backgroundColor: sourceFilters.find(s => s.name.includes(selectedArticle.source.split(' ')[0]))?.color || '#FFD700' 
+                    }]} />
+                  </View>
+                  <Text style={styles.readerDateText}>
+                    {selectedArticle.published_arabic || getTimeAgo(selectedArticle.published)}
+                  </Text>
+                </View>
+
+                {/* Title */}
+                <Text style={styles.readerTitle}>
+                  {selectedArticle.title_arabic && selectedArticle.title_arabic !== selectedArticle.title 
+                    ? selectedArticle.title_arabic 
+                    : selectedArticle.title}
+                </Text>
+
+                {/* Author */}
+                {selectedArticle.author && (
+                  <Text style={styles.readerAuthor}>
+                    بواسطة: {selectedArticle.author}
+                  </Text>
+                )}
+
+                {/* Content */}
+                <View style={styles.readerContentBody}>
+                  {loadingArticle ? (
+                    <View style={styles.readerLoadingContainer}>
+                      <ActivityIndicator size="large" color="#FFD700" />
+                      <Text style={styles.readerLoadingText}>جاري تحميل المقال...</Text>
+                    </View>
+                  ) : (
+                    <>
+                      <Text style={styles.readerBodyText}>
+                        {articleContent}
+                      </Text>
+                      
+                      {/* External Link Button */}
+                      <TouchableOpacity 
+                        style={styles.readFullArticleButton}
+                        onPress={() => openArticleLink(selectedArticle.link)}
+                        activeOpacity={0.8}
+                      >
+                        <Ionicons name="open-outline" size={20} color="#000" />
+                        <Text style={styles.readFullArticleText}>
+                          اقرأ المقال كاملاً في الموقع الأصلي
+                        </Text>
+                      </TouchableOpacity>
+                    </>
+                  )}
+                </View>
+              </View>
+            </ScrollView>
+          </SafeAreaView>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
