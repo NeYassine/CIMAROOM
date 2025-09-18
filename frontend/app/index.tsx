@@ -58,6 +58,7 @@ export default function Index() {
   const [popularAnime, setPopularAnime] = useState<Anime[]>([]);
   const [seasonalAnime, setSeasonalAnime] = useState<Anime[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<Anime[]>([]);
+  const [animeMovies, setAnimeMovies] = useState<Anime[]>([]);
   const [featuredAnime, setFeaturedAnime] = useState<Anime | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,6 +80,13 @@ export default function Index() {
   const [moreSeasonalLoading, setMoreSeasonalLoading] = useState(false);
   const [moreSeasonalPage, setMoreSeasonalPage] = useState(1);
   const [hasMoreSeasonalPages, setHasMoreSeasonalPages] = useState(true);
+
+  // Anime movies states
+  const [showMoreMovies, setShowMoreMovies] = useState(false);
+  const [moreMoviesAnime, setMoreMoviesAnime] = useState<Anime[]>([]);
+  const [moreMoviesLoading, setMoreMoviesLoading] = useState(false);
+  const [moreMoviesPage, setMoreMoviesPage] = useState(1);
+  const [hasMoreMoviesPages, setHasMoreMoviesPages] = useState(true);
 
   // Load Tajawal fonts
   const [fontsLoaded] = useFonts({
