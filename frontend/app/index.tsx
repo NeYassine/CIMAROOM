@@ -596,15 +596,18 @@ export default function Index() {
         {!showSearch && popularAnime.length > 0 && (
           <View style={styles.section}>
             {renderSectionHeader('الأكثر شعبية', handleLoadMorePopular)}
-            <FlatList
-              data={popularAnime.slice(1, 7)} // Skip first one (featured)
-              renderItem={renderAnimeCard}
-              keyExtractor={(item) => item.id.toString()}
+            <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollContainer}
-              ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
-            />
+            >
+              {popularAnime.slice(1, 7).map((item, index) => (
+                <View key={item.id} style={{ flexDirection: 'row' }}>
+                  {renderAnimeCard({ item, index })}
+                  {index < popularAnime.slice(1, 7).length - 1 && <View style={styles.cardSeparator} />}
+                </View>
+              ))}
+            </ScrollView>
           </View>
         )}
 
