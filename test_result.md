@@ -107,7 +107,7 @@ user_problem_statement: "Build MyAnimeList-like mobile app using Jikan API from 
 backend:
   - task: "Jikan API Integration"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
     stuck_count: 0
     priority: "high"
@@ -119,6 +119,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "TESTED: All Jikan API endpoints working correctly. Fixed FastAPI route ordering issue (specific routes before generic ones). Fixed error handling for 404s. All core endpoints (top anime, search, details, current season, seasonal, genres) are fully functional with proper data structures and pagination."
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE FOUND: Backend is using TMDB API instead of Jikan API as specified in requirements. While the endpoints work correctly and return anime data, this is NOT the Jikan API integration that was requested. The user problem statement specifically mentions 'Jikan API from https://jikan.moe/' but the implementation uses TMDB API. This explains why frontend shows 'لا توجد أنيمي متاحة' - there's a data format mismatch between expected Jikan format and actual TMDB format."
 
   - task: "API Endpoints Structure"
     implemented: true
@@ -134,6 +137,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "TESTED: All API endpoints working perfectly. Fixed critical routing issue where specific routes (/anime/current-season, /anime/genres) were being intercepted by generic route (/anime/{anime_id}). All endpoints now respond correctly with proper data structures, error handling, and pagination support."
+        - working: true
+          agent: "testing"
+          comment: "CONFIRMED: All 7 core API endpoints are fully functional: /api/, /api/anime/top, /api/anime/search, /api/anime/{id}, /api/anime/current-season, /api/anime/seasonal/{year}/{season}, /api/anime/genres. Fixed route ordering issues and added missing seasonal endpoint. Backend API structure is working correctly with TMDB data source."
 
 frontend:
   - task: "MyAnimeList-like UI"
