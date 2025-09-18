@@ -190,6 +190,15 @@ export default function Index() {
     fetchMoreSeasonalAnime(1);
   };
 
+  // Handle infinite scroll in more seasonal page
+  const handleLoadSeasonalNextPage = () => {
+    if (!moreSeasonalLoading && hasMoreSeasonalPages) {
+      const nextPage = moreSeasonalPage + 1;
+      setMoreSeasonalPage(nextPage);
+      fetchMoreSeasonalAnime(nextPage);
+    }
+  };
+
   // Fetch more anime movies for infinite scroll
   const fetchMoreMoviesAnime = async (page: number = 1) => {
     try {
