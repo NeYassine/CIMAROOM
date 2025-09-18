@@ -59,8 +59,8 @@ export default function Index() {
   const [seasonalAnime, setSeasonalAnime] = useState<Anime[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<Anime[]>([]);
   const [animeMovies, setAnimeMovies] = useState<Anime[]>([]);
-  const [animeSchedule, setAnimeSchedule] = useState<any[]>([]);
-  const [featuredAnime, setFeaturedAnime] = useState<Anime | null>(null);
+  const [featuredAnime, setFeaturedAnime] = useState<Anime[]>([]); // Changed to array for slider
+  const [currentSlide, setCurrentSlide] = useState(0); // For slider navigation
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
@@ -69,7 +69,6 @@ export default function Index() {
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [showSchedule, setShowSchedule] = useState(false);
   const [showMorePopular, setShowMorePopular] = useState(false);
   const [morePopularAnime, setMorePopularAnime] = useState<Anime[]>([]);
   const [morePopularLoading, setMorePopularLoading] = useState(false);
