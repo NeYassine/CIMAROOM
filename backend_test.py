@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend API Testing for MyAnimeList-like App
-Tests all anime API endpoints using the Jikan API integration
+Tests all anime API endpoints focusing on Arabic/English titles and Fall 2025 content
 """
 
 import requests
@@ -10,12 +10,13 @@ import time
 from typing import Dict, Any, List
 import os
 from dotenv import load_dotenv
+import re
 
 # Load environment variables
 load_dotenv('/app/frontend/.env')
 
-# Get backend URL from environment - use localhost since we're testing internally
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'http://localhost:8001')
+# Get backend URL - use localhost since we're testing internally
+BACKEND_URL = 'http://localhost:8001'
 API_BASE = f"{BACKEND_URL}/api"
 
 class AnimeAPITester:
