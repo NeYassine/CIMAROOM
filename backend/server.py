@@ -899,6 +899,8 @@ async def get_anime_details(anime_id: int, content_type: str = "tv"):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/anime/search", response_model=AnimeSearchResponse)
 async def search_anime(
     q: str = None, 
     page: int = 1, 
