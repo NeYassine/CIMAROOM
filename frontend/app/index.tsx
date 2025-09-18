@@ -80,6 +80,13 @@ export default function Index() {
   const [moreSeasonalPage, setMoreSeasonalPage] = useState(1);
   const [hasMoreSeasonalPages, setHasMoreSeasonalPages] = useState(true);
 
+  // Load Tajawal fonts
+  const [fontsLoaded] = useFonts({
+    Tajawal_400Regular,
+    Tajawal_500Medium,
+    Tajawal_700Bold,
+  });
+
   // Enable RTL for Arabic
   useEffect(() => {
     I18nManager.forceRTL(true);
