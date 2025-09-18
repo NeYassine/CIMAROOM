@@ -561,17 +561,8 @@ export default function Index() {
                 onPress={() => handleAnimeSelection(currentAnime)}
                 activeOpacity={0.8}
               >
-                <Ionicons name="play" size={20} color="#fff" />
-                <Text style={styles.watchButtonText}>شاهد التفاصيل</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={styles.infoButton}
-                onPress={handleWatchAnime}
-                activeOpacity={0.8}
-              >
                 <Ionicons name="information-circle-outline" size={20} color="#FFD700" />
-                <Text style={styles.infoButtonText}>شاهد الآن</Text>
+                <Text style={styles.watchButtonText}>شاهد التفاصيل</Text>
               </TouchableOpacity>
             </View>
           </View>
