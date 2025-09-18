@@ -13,6 +13,8 @@ from datetime import datetime
 import asyncio
 import hashlib
 import time
+import feedparser
+import re
 
 
 ROOT_DIR = Path(__file__).parent
