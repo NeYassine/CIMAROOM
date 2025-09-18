@@ -144,6 +144,17 @@ export default function Index() {
     }
   };
 
+  // Fetch anime schedule
+  const fetchAnimeSchedule = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/anime/schedule`);
+      const data = await response.json();
+      setAnimeSchedule(data || []);
+    } catch (error) {
+      console.error('Error fetching anime schedule:', error);
+    }
+  };
+
   // Search anime
   const searchAnime = async (query: string) => {
     if (!query.trim()) {
