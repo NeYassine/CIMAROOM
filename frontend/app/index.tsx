@@ -813,6 +813,49 @@ export default function Index() {
           </SafeAreaView>
         </View>
       )}
+
+      {/* More Anime Movies Modal */}
+      {showMoreMovies && (
+        <View style={styles.morePopularContainer}>
+          <SafeAreaView style={styles.morePopularSafeArea}>
+            {/* Header */}
+            <View style={styles.morePopularHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowMoreMovies(false)}
+              >
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.morePopularTitle}>أفلام الأنيمي</Text>
+              <View style={styles.headerSpacer} />
+            </View>
+
+            {/* Content */}
+            <FlatList
+              data={moreMoviesAnime}
+              renderItem={renderMoreAnimeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={2}
+              contentContainerStyle={styles.morePopularList}
+              showsVerticalScrollIndicator={false}
+              onEndReached={handleLoadMoviesNextPage}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={
+                moreMoviesLoading ? (
+                  <View style={styles.loadingFooter}>
+                    <ActivityIndicator size="large" color="#FFD700" />
+                    <Text style={styles.loadingText}>جاري تحميل المزيد...</Text>
+                  </View>
+                ) : !hasMoreMoviesPages ? (
+                  <View style={styles.endOfListFooter}>
+                    <Text style={styles.endOfListText}>لا يوجد المزيد من أفلام الأنيمي</Text>
+                  </View>
+                ) : null
+              }
+            />
+          </SafeAreaView>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
