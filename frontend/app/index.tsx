@@ -472,8 +472,7 @@ export default function Index() {
         
         // Small delay to ensure modal is closed before showing details
         setTimeout(() => {
-          setSelectedAnime(item);
-          setShowDetails(true);
+          handleAnimeSelection(item);
         }, 100);
       }}
       activeOpacity={0.8}
