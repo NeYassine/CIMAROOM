@@ -1001,13 +1001,13 @@ export default function Index() {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="bookmark-outline" size={24} color="#666" />
-          <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
+          <Ionicons name="list-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>القوائم</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={24} color="#666" />
-          <Text style={[styles.navText, styles.inactiveNavText]}>الملف الشخصي</Text>
+          <Ionicons name="bookmark-outline" size={24} color="#666" />
+          <Text style={[styles.navText, styles.inactiveNavText]}>المفضلة</Text>
         </TouchableOpacity>
       </View>
 
