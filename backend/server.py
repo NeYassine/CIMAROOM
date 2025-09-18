@@ -336,22 +336,6 @@ async def search_anime(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
-async def get_anime_details(anime_id: int, content_type: str = "tv"):
-    """Get detailed information about a specific anime"""
-    try:
-        endpoint = f"/{content_type}/{anime_id}"
-        data = await make_tmdb_request(endpoint)
-        
-        if is_anime_content(data):
-            anime_item = format_anime_content(data, content_type)
-            return AnimeDetailResponse(data=anime_item)
-        else:
-            raise HTTPException(status_code=404, detail="Anime not found or not anime content")
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @api_router.get("/anime/current-season")
 async def get_current_season_anime(page: int = 1, limit: int = 20):
     """Get currently popular anime (simulates seasonal anime)"""
