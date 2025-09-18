@@ -670,7 +670,144 @@ async def get_arabic_synopsis_from_tmdb(title: str) -> str:
     
     return ""
 
-@api_router.get("/anime/search", response_model=AnimeSearchResponse)
+@api_router.get("/anime/{anime_id}/details")
+async def get_anime_details(anime_id: int, content_type: str = "tv"):
+    """Get detailed anime information including cast, genres, and recommendations"""
+    try:
+        cache_key = f"anime_details_{anime_id}_{content_type}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < CACHE_TTL:
+                return cached_data['data']
+        
+        # Get English details
+        english_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'en-US',
+            'append_to_response': 'credits,recommendations,similar'
+        }
+        
+        english_data = await make_tmdb_request(f"/{content_type}/{anime_id}", english_params)
+        
+        # Get Arabic details
+        arabic_params = {
+            'api_key': TMDB_API_KEY,
+            'language': 'ar'
+        }
+        
+        arabic_data = await make_tmdb_request(f"/{content_type}/{anime_id}", arabic_params)
+        
+        # Format cast information
+        cast = []
+        if english_data.get('credits', {}).get('cast'):
+            for actor in english_data['credits']['cast'][:10]:  # Top 10 cast members
+                cast_member = {
+                    'id': actor.get('id'),
+                    'name': actor.get('name', ''),
+                    'character': actor.get('character', ''),
+                    'profile_path': actor.get('profile_path'),
+                    'popularity': actor.get('popularity', 0)
+                }
+                cast.append(cast_member)
+        
+        # Format genres with Arabic translation
+        genres_arabic = {
+            'Action': 'أكشن',
+            'Adventure': 'مغامرة', 
+            'Animation': 'رسوم متحركة',
+            'Comedy': 'كوميديا',
+            'Crime': 'جريمة',
+            'Documentary': 'وثائقي',
+            'Drama': 'دراما',
+            'Family': 'عائلي',
+            'Fantasy': 'خيال',
+            'History': 'تاريخي',
+            'Horror': 'رعب',
+            'Music': 'موسيقي',
+            'Mystery': 'غموض',
+            'Romance': 'رومانسي',
+            'Science Fiction': 'خيال علمي',
+            'Thriller': 'إثارة',
+            'War': 'حرب',
+            'Western': 'غربي'
+        }
+        
+        genres = []
+        for genre in english_data.get('genres', []):
+            genre_name = genre.get('name', '')
+            genres.append({
+                'id': genre.get('id'),
+                'name': genre_name,
+                'name_arabic': genres_arabic.get(genre_name, genre_name)
+            })
+        
+        # Get recommendations (similar anime)
+        recommendations = []
+        if english_data.get('recommendations', {}).get('results'):
+            for rec in english_data['recommendations']['results'][:6]:  # Top 6 recommendations
+                if is_anime_content(rec):
+                    rec_item = {
+                        'id': rec.get('id'),
+                        'title': rec.get('name') or rec.get('title', ''),
+                        'poster_path': rec.get('poster_path'),
+                        'vote_average': rec.get('vote_average'),
+                        'content_type': content_type
+                    }
+                    recommendations.append(rec_item)
+        
+        # Get similar anime if recommendations are not enough
+        if len(recommendations) < 6 and english_data.get('similar', {}).get('results'):
+            for sim in english_data['similar']['results'][:6-len(recommendations)]:
+                if is_anime_content(sim):
+                    sim_item = {
+                        'id': sim.get('id'),
+                        'title': sim.get('name') or sim.get('title', ''),
+                        'poster_path': sim.get('poster_path'),
+                        'vote_average': sim.get('vote_average'),
+                        'content_type': content_type
+                    }
+                    recommendations.append(sim_item)
+        
+        # Format detailed response
+        detailed_anime = {
+            'id': english_data.get('id'),
+            'title': english_data.get('name') or english_data.get('title', ''),
+            'original_title': english_data.get('original_name') or english_data.get('original_title', ''),
+            'poster_path': english_data.get('poster_path'),
+            'backdrop_path': english_data.get('backdrop_path'),
+            'overview': arabic_data.get('overview', english_data.get('overview', '')),
+            'vote_average': english_data.get('vote_average'),
+            'vote_count': english_data.get('vote_count'),
+            'popularity': english_data.get('popularity'),
+            'release_date': english_data.get('release_date') or english_data.get('first_air_date'),
+            'first_air_date': english_data.get('first_air_date'),
+            'episode_count': english_data.get('number_of_episodes'),
+            'season_count': english_data.get('number_of_seasons'),
+            'status': english_data.get('status', ''),
+            'genres': genres,
+            'cast': cast,
+            'recommendations': recommendations,
+            'content_type': content_type,
+            'runtime': english_data.get('runtime') or (english_data.get('episode_run_time', [None])[0] if english_data.get('episode_run_time') else None),
+            'production_companies': english_data.get('production_companies', []),
+            'networks': english_data.get('networks', []),
+            'created_by': english_data.get('created_by', []),
+            'tagline': arabic_data.get('tagline', english_data.get('tagline', '')),
+            'homepage': english_data.get('homepage', '')
+        }
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': detailed_anime,
+            'timestamp': time.time()
+        }
+        
+        return detailed_anime
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 async def search_anime(
     q: str = None, 
     page: int = 1, 
