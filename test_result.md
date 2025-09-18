@@ -166,17 +166,17 @@ frontend:
           agent: "main"
           comment: "Successfully converted anime sections from grid layout (2 per row) to horizontal scroll layout. Replaced FlatList with ScrollView for better scroll performance. All sections now display anime in single horizontal row with smooth scrolling."
           
-  - task: "Removed Anime Schedule and Enhanced Hero Section with Slider"
+  - task: "Enhanced Anime Content Filtering and API Optimization"
     implemented: true
     working: true
-    file: "index.tsx"
+    file: "server.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "main"
-          comment: "Successfully removed all anime schedule functionality and replaced with enhanced hero section. Removed schedule page, navigation button, API calls, and related code. Created new featured anime slider with 5 top anime from popular list. Added interactive slider with navigation dots, left/right arrows, and touch controls. Hero section now displays one anime at a time with ability to navigate between 5 featured anime. Added 'شاهد التفاصيل' button that opens anime details modal when clicked. Enhanced hero section with dual buttons: 'شاهد التفاصيل' (shows details) and 'شاهد الآن' (external link). Updated popular anime section to skip first 5 anime (now used in slider) and show next 6 anime in horizontal scroll."
+          comment: "Successfully implemented advanced anime content filtering and API optimization. Enhanced is_anime_content() function with comprehensive anime detection using 15+ strong indicators including Japanese origin, anime keywords (dragon ball, naruto, one piece, etc.), anime studios (mappa, madhouse, ufotable, etc.), Japanese characters detection, and production company analysis. Updated API endpoints to fetch English titles first then Arabic descriptions separately. Added sophisticated filtering requiring minimum 3 strong anime indicators to ensure only real anime content is returned. Implemented vote count thresholds (100+ for TV, 50+ for movies) to ensure quality content. APIs now return genuine anime with English titles and Arabic descriptions, filtering out non-anime content effectively."
 
 metadata:
   created_by: "main_agent"
