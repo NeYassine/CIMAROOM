@@ -247,7 +247,7 @@ async def get_top_anime(page: int = 1, limit: int = 25):
 
 @api_router.get("/anime/movies", response_model=AnimeSearchResponse)
 async def get_anime_movies(page: int = 1, limit: int = 25):
-    """Get popular anime movies"""
+    """Get popular anime movies with Arabic content preference"""
     try:
         cache_key = f"anime_movies_page_{page}_limit_{limit}"
         
@@ -257,24 +257,42 @@ async def get_anime_movies(page: int = 1, limit: int = 25):
             if time.time() - cached_data['timestamp'] < CACHE_TTL:
                 return cached_data['data']
         
-        # Get anime movies from TMDB
-        movie_params = {
+        # Get Arabic anime movies first
+        arabic_movie_params = {
             'page': page,
             'with_genres': '16',  # Animation genre
-            'with_original_language': 'ja|ko|zh',  # Asian origins (Japanese, Korean, Chinese)
+            'with_original_language': 'ar',  # Arabic content
             'sort_by': 'popularity.desc',
             'api_key': TMDB_API_KEY,
             'language': TMDB_LANGUAGE
         }
         
-        movie_data = await make_tmdb_request("/discover/movie", movie_params)
+        arabic_movie_data = await make_tmdb_request("/discover/movie", arabic_movie_params)
         
         # Filter for anime content and format
         anime_movies = []
-        for movie in movie_data.get('results', []):
-            if is_anime_content(movie):
-                anime_item = format_anime_content(movie, 'movie')
-                anime_movies.append(anime_item)
+        for movie in arabic_movie_data.get('results', []):
+            anime_item = format_anime_content(movie, 'movie')
+            anime_movies.append(anime_item)
+        
+        # If Arabic content is not enough, add international popular anime movies
+        if len(anime_movies) < limit:
+            intl_movie_params = {
+                'page': page,
+                'with_genres': '16',  # Animation genre
+                'sort_by': 'popularity.desc',
+                'api_key': TMDB_API_KEY,
+                'language': TMDB_LANGUAGE
+            }
+            
+            intl_movie_data = await make_tmdb_request("/discover/movie", intl_movie_params)
+            
+            for movie in intl_movie_data.get('results', []):
+                if len(anime_movies) >= limit:
+                    break
+                if is_anime_content(movie):
+                    anime_item = format_anime_content(movie, 'movie')
+                    anime_movies.append(anime_item)
         
         # Sort by anime confidence and popularity
         anime_movies.sort(key=lambda x: (x.anime_confidence or 0, x.popularity or 0), reverse=True)
@@ -285,7 +303,7 @@ async def get_anime_movies(page: int = 1, limit: int = 25):
         response = AnimeSearchResponse(
             results=anime_movies,
             page=page,
-            total_pages=movie_data.get('total_pages', 1),
+            total_pages=max(arabic_movie_data.get('total_pages', 1), intl_movie_data.get('total_pages', 1) if 'intl_movie_data' in locals() else 1),
             total_results=len(anime_movies)
         )
         
