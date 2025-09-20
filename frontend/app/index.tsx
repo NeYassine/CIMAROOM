@@ -825,10 +825,21 @@ export default function Index() {
                 <View style={styles.socialContainer}>
                   <Text style={styles.sectionSubTitle}>وسائل التواصل الاجتماعي</Text>
                   <View style={styles.socialButtons}>
-                    {currentAnimeData.external_ids.homepage && (
+                    {currentAnimeData.homepage && (
                       <TouchableOpacity
                         style={styles.socialButton}
-                        onPress={() => console.log('Open homepage')}
+                        onPress={async () => {
+                          try {
+                            const supported = await Linking.canOpenURL(currentAnimeData.homepage);
+                            if (supported) {
+                              await Linking.openURL(currentAnimeData.homepage);
+                            } else {
+                              Alert.alert('خطأ', 'لا يمكن فتح الموقع الرسمي');
+                            }
+                          } catch (error) {
+                            Alert.alert('خطأ', 'لا يمكن فتح الموقع الرسمي');
+                          }
+                        }}
                       >
                         <Ionicons name="globe-outline" size={20} color="#FFD700" />
                         <Text style={styles.socialButtonText}>الموقع الرسمي</Text>
@@ -838,7 +849,19 @@ export default function Index() {
                     {currentAnimeData.external_ids.imdb_id && (
                       <TouchableOpacity
                         style={styles.socialButton}
-                        onPress={() => console.log('Open IMDb')}
+                        onPress={async () => {
+                          try {
+                            const imdbUrl = `https://www.imdb.com/title/${currentAnimeData.external_ids.imdb_id}`;
+                            const supported = await Linking.canOpenURL(imdbUrl);
+                            if (supported) {
+                              await Linking.openURL(imdbUrl);
+                            } else {
+                              Alert.alert('خطأ', 'لا يمكن فتح IMDb');
+                            }
+                          } catch (error) {
+                            Alert.alert('خطأ', 'لا يمكن فتح IMDb');
+                          }
+                        }}
                       >
                         <Ionicons name="film-outline" size={20} color="#F5C518" />
                         <Text style={styles.socialButtonText}>IMDb</Text>
@@ -848,7 +871,19 @@ export default function Index() {
                     {currentAnimeData.external_ids.facebook_id && (
                       <TouchableOpacity
                         style={styles.socialButton}
-                        onPress={() => console.log('Open Facebook')}
+                        onPress={async () => {
+                          try {
+                            const facebookUrl = `https://www.facebook.com/${currentAnimeData.external_ids.facebook_id}`;
+                            const supported = await Linking.canOpenURL(facebookUrl);
+                            if (supported) {
+                              await Linking.openURL(facebookUrl);
+                            } else {
+                              Alert.alert('خطأ', 'لا يمكن فتح Facebook');
+                            }
+                          } catch (error) {
+                            Alert.alert('خطأ', 'لا يمكن فتح Facebook');
+                          }
+                        }}
                       >
                         <Ionicons name="logo-facebook" size={20} color="#1877F2" />
                         <Text style={styles.socialButtonText}>Facebook</Text>
@@ -858,7 +893,19 @@ export default function Index() {
                     {currentAnimeData.external_ids.twitter_id && (
                       <TouchableOpacity
                         style={styles.socialButton}
-                        onPress={() => console.log('Open Twitter')}
+                        onPress={async () => {
+                          try {
+                            const twitterUrl = `https://twitter.com/${currentAnimeData.external_ids.twitter_id}`;
+                            const supported = await Linking.canOpenURL(twitterUrl);
+                            if (supported) {
+                              await Linking.openURL(twitterUrl);
+                            } else {
+                              Alert.alert('خطأ', 'لا يمكن فتح Twitter');
+                            }
+                          } catch (error) {
+                            Alert.alert('خطأ', 'لا يمكن فتح Twitter');
+                          }
+                        }}
                       >
                         <Ionicons name="logo-twitter" size={20} color="#1DA1F2" />
                         <Text style={styles.socialButtonText}>Twitter</Text>
@@ -868,7 +915,19 @@ export default function Index() {
                     {currentAnimeData.external_ids.instagram_id && (
                       <TouchableOpacity
                         style={styles.socialButton}
-                        onPress={() => console.log('Open Instagram')}
+                        onPress={async () => {
+                          try {
+                            const instagramUrl = `https://www.instagram.com/${currentAnimeData.external_ids.instagram_id}`;
+                            const supported = await Linking.canOpenURL(instagramUrl);
+                            if (supported) {
+                              await Linking.openURL(instagramUrl);
+                            } else {
+                              Alert.alert('خطأ', 'لا يمكن فتح Instagram');
+                            }
+                          } catch (error) {
+                            Alert.alert('خطأ', 'لا يمكن فتح Instagram');
+                          }
+                        }}
                       >
                         <Ionicons name="logo-instagram" size={20} color="#E4405F" />
                         <Text style={styles.socialButtonText}>Instagram</Text>
