@@ -746,65 +746,6 @@ export default function Index() {
                 </View>
               )}
               
-              {/* Facts Section */}
-              <View style={styles.factsContainer}>
-                <Text style={styles.sectionSubTitle}>حقائق</Text>
-                
-                {/* Status */}
-                <View style={styles.factRow}>
-                  <Text style={styles.factLabel}>الحالة</Text>
-                  <Text style={styles.factValue}>
-                    {currentAnimeData.status_arabic || currentAnimeData.status || 'غير محدد'}
-                  </Text>
-                </View>
-                
-                {/* Type */}
-                <View style={styles.factRow}>
-                  <Text style={styles.factLabel}>النوع</Text>
-                  <Text style={styles.factValue}>
-                    {currentAnimeData.type_arabic || currentAnimeData.type || 'مكتوب'}
-                  </Text>
-                </View>
-                
-                {/* Original Language */}
-                <View style={styles.factRow}>
-                  <Text style={styles.factLabel}>اللغة الأصلية</Text>
-                  <Text style={styles.factValue}>
-                    {currentAnimeData.original_language_arabic || 'اليابانية'}
-                  </Text>
-                </View>
-                
-                {/* Runtime */}
-                {currentAnimeData.runtime && (
-                  <View style={styles.factRow}>
-                    <Text style={styles.factLabel}>مدة الحلقة</Text>
-                    <Text style={styles.factValue}>
-                      {currentAnimeData.runtime} دقيقة
-                    </Text>
-                  </View>
-                )}
-                
-                {/* Episode Count */}
-                {currentAnimeData.episode_count && (
-                  <View style={styles.factRow}>
-                    <Text style={styles.factLabel}>عدد الحلقات</Text>
-                    <Text style={styles.factValue}>
-                      {currentAnimeData.episode_count} حلقة
-                    </Text>
-                  </View>
-                )}
-                
-                {/* Season Count */}
-                {currentAnimeData.season_count && (
-                  <View style={styles.factRow}>
-                    <Text style={styles.factLabel}>عدد المواسم</Text>
-                    <Text style={styles.factValue}>
-                      {currentAnimeData.season_count} موسم
-                    </Text>
-                  </View>
-                )}
-              </View>
-
               {/* Networks Section */}
               {currentAnimeData.networks && currentAnimeData.networks.length > 0 && (
                 <View style={styles.networksContainer}>
