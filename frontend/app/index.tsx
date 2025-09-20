@@ -646,6 +646,22 @@ export default function Index() {
                 {currentAnimeData.title_arabic || currentAnimeData.title || 'بدون عنوان'}
               </Text>
               
+              {/* English Name */}
+              {currentAnimeData.title && (currentAnimeData.title_arabic && currentAnimeData.title_arabic !== currentAnimeData.title) && (
+                <Text style={styles.detailsEnglishTitle}>
+                  {currentAnimeData.title}
+                </Text>
+              )}
+              
+              {/* Original Name (if different from both Arabic and English) */}
+              {currentAnimeData.original_title && 
+               currentAnimeData.original_title !== currentAnimeData.title && 
+               currentAnimeData.original_title !== (currentAnimeData.title_arabic || '') && (
+                <Text style={styles.detailsOriginalTitle}>
+                  {currentAnimeData.original_title}
+                </Text>
+              )}
+              
               {/* Ratings Section */}
               <View style={styles.ratingsContainer}>
                 <View style={styles.detailsScoreContainer}>
