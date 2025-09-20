@@ -887,33 +887,144 @@ async def get_anime_details(anime_id: int, content_type: str = "tv"):
         # Simulate audience rating (slightly different from official)
         audience_rating = max(0, min(10, tmdb_rating + (hash(str(anime_id)) % 10 - 5) * 0.1))
         
+        # Format networks with Arabic names
+        networks_formatted = []
+        for network in english_data.get('networks', []):
+            network_name = network.get('name', '')
+            network_arabic = {
+                'TV Tokyo': 'تي في طوكيو',
+                'TV Aichi': 'تي في آيتشي', 
+                'TVQ': 'تي في كيو',
+                'TV Osaka': 'تي في أوساكا',
+                'TVh': 'تي في إتش',
+                'TSC': 'تي اس سي',
+                'Fuji TV': 'فوجي تي في',
+                'TBS': 'تي بي اس',
+                'NTV': 'إن تي في',
+                'TV Asahi': 'تي في آساهي',
+                'Netflix': 'نتفليكس',
+                'Crunchyroll': 'كرانشي رول',
+                'Adult Swim': 'أدلت سويم',
+                'Cartoon Network': 'كارتون نتوورك'
+            }.get(network_name, network_name)
+            
+            networks_formatted.append({
+                'id': network.get('id'),
+                'name': network_name,
+                'name_arabic': network_arabic,
+                'logo_path': network.get('logo_path'),
+                'origin_country': network.get('origin_country')
+            })
+
+        # Format production companies
+        production_companies_formatted = []
+        for company in english_data.get('production_companies', []):
+            company_name = company.get('name', '')
+            company_arabic = {
+                'Studio Ghibli': 'استوديو غيبلي',
+                'Toei Animation': 'توي أنيميشن',
+                'Madhouse': 'مادهاوس',
+                'MAPPA': 'مابا',
+                'Pierrot': 'بيرو',
+                'Bones': 'بونز',
+                'A-1 Pictures': 'إيه-1 بيكتشرز',
+                'WIT Studio': 'ويت استوديو',
+                'Ufotable': 'يوفوتيبل',
+                'Production I.G': 'برودكشن آي جي'
+            }.get(company_name, company_name)
+            
+            production_companies_formatted.append({
+                'id': company.get('id'),
+                'name': company_name,
+                'name_arabic': company_arabic,
+                'logo_path': company.get('logo_path'),
+                'origin_country': company.get('origin_country')
+            })
+
+        # Get original language with Arabic translation
+        original_language = english_data.get('original_language', '')
+        language_arabic = {
+            'ja': 'اليابانية',
+            'ko': 'الكورية',
+            'zh': 'الصينية',
+            'en': 'الإنجليزية',
+            'fr': 'الفرنسية',
+            'de': 'الألمانية'
+        }.get(original_language, original_language)
+
+        # Format content type with Arabic
+        type_arabic = {
+            'Scripted': 'مكتوب',
+            'Documentary': 'وثائقي',
+            'Talk Show': 'برنامج حواري',
+            'Reality': 'واقعي',
+            'News': 'أخبار'
+        }.get(english_data.get('type', 'Scripted'), 'مكتوب')
+
+        # Format status with Arabic
+        status_arabic = {
+            'Returning Series': 'مسلسل مستمر',
+            'Ended': 'منتهي',
+            'Canceled': 'ملغي',
+            'In Production': 'قيد الإنتاج',
+            'Planned': 'مخطط له',
+            'Released': 'مُصدر',
+            'Post Production': 'مرحلة ما بعد الإنتاج'
+        }.get(english_data.get('status', ''), english_data.get('status', ''))
+
+        # Social media and external links
+        external_ids = {}
+        try:
+            external_response = await make_tmdb_request(f"/{content_type}/{anime_id}/external_ids")
+            external_ids = {
+                'imdb_id': external_response.get('imdb_id'),
+                'facebook_id': external_response.get('facebook_id'),
+                'instagram_id': external_response.get('instagram_id'),
+                'twitter_id': external_response.get('twitter_id'),
+                'homepage': english_data.get('homepage')
+            }
+        except:
+            pass
+
         # Format detailed response
         detailed_anime = {
             'id': english_data.get('id'),
-            'title': english_data.get('name') or english_data.get('title', ''),  # English title
+            'title': english_data.get('name') or english_data.get('title', ''),
             'original_title': english_data.get('original_name') or english_data.get('original_title', ''),
             'poster_path': english_data.get('poster_path'),
             'backdrop_path': english_data.get('backdrop_path'),
-            'overview': arabic_data.get('overview', english_data.get('overview', '')),  # Arabic description
+            'overview': arabic_data.get('overview', english_data.get('overview', '')),
             'vote_average': tmdb_rating,  # Official rating
             'audience_rating': round(audience_rating, 1),  # Audience rating
             'vote_count': vote_count,
             'popularity': english_data.get('popularity'),
             'release_date': english_data.get('release_date') or english_data.get('first_air_date'),
             'first_air_date': english_data.get('first_air_date'),
+            'last_air_date': english_data.get('last_air_date'),
             'episode_count': english_data.get('number_of_episodes'),
             'season_count': english_data.get('number_of_seasons'),
             'status': english_data.get('status', ''),
+            'status_arabic': status_arabic,
             'genres': genres,
             'cast': cast,
             'recommendations': recommendations,
             'content_type': content_type,
+            'type': english_data.get('type', 'Scripted'),
+            'type_arabic': type_arabic,
             'runtime': english_data.get('runtime') or (english_data.get('episode_run_time', [None])[0] if english_data.get('episode_run_time') else None),
-            'production_companies': english_data.get('production_companies', []),
-            'networks': english_data.get('networks', []),
+            'production_companies': production_companies_formatted,
+            'networks': networks_formatted,
             'created_by': english_data.get('created_by', []),
             'tagline': arabic_data.get('tagline', english_data.get('tagline', '')),
-            'homepage': english_data.get('homepage', '')
+            'homepage': english_data.get('homepage', ''),
+            'original_language': original_language,
+            'original_language_arabic': language_arabic,
+            'origin_country': english_data.get('origin_country', []),
+            'spoken_languages': english_data.get('spoken_languages', []),
+            'external_ids': external_ids,
+            'in_production': english_data.get('in_production', False),
+            'next_episode_to_air': english_data.get('next_episode_to_air'),
+            'last_episode_to_air': english_data.get('last_episode_to_air')
         }
         
         # Cache the result
