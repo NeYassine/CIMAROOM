@@ -782,39 +782,35 @@ export default function Index() {
                 </View>
               )}
 
-              {/* Production Companies Section */}
+              {/* Production Companies Section - Horizontal Scroll */}
               {currentAnimeData.production_companies && currentAnimeData.production_companies.length > 0 && (
                 <View style={styles.companiesContainer}>
                   <Text style={styles.sectionSubTitle}>الاستوديوهات</Text>
-                  <View style={styles.companiesList}>
-                    {currentAnimeData.production_companies.map((company, index) => (
-                      <TouchableOpacity
-                        key={company.id}
-                        style={styles.companyCard}
-                        onPress={() => {
-                          Alert.alert(
-                            company.name_arabic || company.name,
-                            `شاهد المزيد من أعمال ${company.name_arabic || company.name}`,
-                            [
-                              { text: 'إغلاق', style: 'cancel' },
-                              { text: 'عرض المزيد', onPress: () => console.log(`Show more from ${company.name}`) }
-                            ]
-                          );
-                        }}
-                        activeOpacity={0.8}
-                      >
-                        <View style={styles.companyInfo}>
-                          <Text style={styles.companyName}>
-                            {company.name_arabic || company.name}
-                          </Text>
-                          <Text style={styles.companyCountry}>
-                            {company.origin_country}
-                          </Text>
-                        </View>
-                        <Ionicons name="chevron-back" size={16} color="#666" />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={styles.companiesHorizontalList}>
+                      {currentAnimeData.production_companies.map((company, index) => (
+                        <TouchableOpacity
+                          key={company.id}
+                          style={styles.companyHorizontalCard}
+                          onPress={() => {
+                            // Navigate to studio page showing all anime from this studio
+                            router.push(`/studio/${company.id}?name=${encodeURIComponent(company.name_arabic || company.name)}`);
+                          }}
+                          activeOpacity={0.8}
+                        >
+                          <View style={styles.companyHorizontalInfo}>
+                            <Text style={styles.companyHorizontalName}>
+                              {company.name_arabic || company.name}
+                            </Text>
+                            <Text style={styles.companyHorizontalCountry}>
+                              {company.origin_country || 'JP'}
+                            </Text>
+                          </View>
+                          <Ionicons name="chevron-back" size={16} color="#FFD700" />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
                 </View>
               )}
 
