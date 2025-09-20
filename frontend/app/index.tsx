@@ -2380,34 +2380,44 @@ const styles = StyleSheet.create({
     fontFamily: 'Tajawal_400Regular',
   },
   
-  // Production Companies Section Styles
+  // Production Companies Section Styles - Horizontal
   companiesContainer: {
     marginBottom: 20,
   },
-  companiesList: {
-    marginTop: 10,
+  companiesHorizontalList: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
   },
-  companyCard: {
+  companyHorizontalCard: {
     flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#2A2A2A',
     paddingVertical: 12,
     paddingHorizontal: 15,
-    backgroundColor: '#2A2A2A',
-    marginBottom: 8,
-    borderRadius: 8,
+    borderRadius: 12,
+    marginRight: 12,
+    minWidth: 150,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  companyInfo: {
+  companyHorizontalInfo: {
     flex: 1,
+    marginRight: 8,
   },
-  companyName: {
+  companyHorizontalName: {
     fontSize: 14,
     fontWeight: '600',
     color: '#fff',
     marginBottom: 4,
     fontFamily: 'Tajawal_500Medium',
   },
-  companyCountry: {
+  companyHorizontalCountry: {
     fontSize: 12,
     color: '#999',
     fontFamily: 'Tajawal_400Regular',
