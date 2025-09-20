@@ -746,6 +746,201 @@ export default function Index() {
                 </View>
               )}
               
+              {/* Facts Section */}
+              <View style={styles.factsContainer}>
+                <Text style={styles.sectionSubTitle}>حقائق</Text>
+                
+                {/* Status */}
+                <View style={styles.factRow}>
+                  <Text style={styles.factLabel}>الحالة</Text>
+                  <Text style={styles.factValue}>
+                    {currentAnimeData.status_arabic || currentAnimeData.status || 'غير محدد'}
+                  </Text>
+                </View>
+                
+                {/* Type */}
+                <View style={styles.factRow}>
+                  <Text style={styles.factLabel}>النوع</Text>
+                  <Text style={styles.factValue}>
+                    {currentAnimeData.type_arabic || currentAnimeData.type || 'مكتوب'}
+                  </Text>
+                </View>
+                
+                {/* Original Language */}
+                <View style={styles.factRow}>
+                  <Text style={styles.factLabel}>اللغة الأصلية</Text>
+                  <Text style={styles.factValue}>
+                    {currentAnimeData.original_language_arabic || 'اليابانية'}
+                  </Text>
+                </View>
+                
+                {/* Runtime */}
+                {currentAnimeData.runtime && (
+                  <View style={styles.factRow}>
+                    <Text style={styles.factLabel}>مدة الحلقة</Text>
+                    <Text style={styles.factValue}>
+                      {currentAnimeData.runtime} دقيقة
+                    </Text>
+                  </View>
+                )}
+                
+                {/* Episode Count */}
+                {currentAnimeData.episode_count && (
+                  <View style={styles.factRow}>
+                    <Text style={styles.factLabel}>عدد الحلقات</Text>
+                    <Text style={styles.factValue}>
+                      {currentAnimeData.episode_count} حلقة
+                    </Text>
+                  </View>
+                )}
+                
+                {/* Season Count */}
+                {currentAnimeData.season_count && (
+                  <View style={styles.factRow}>
+                    <Text style={styles.factLabel}>عدد المواسم</Text>
+                    <Text style={styles.factValue}>
+                      {currentAnimeData.season_count} موسم
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Networks Section */}
+              {currentAnimeData.networks && currentAnimeData.networks.length > 0 && (
+                <View style={styles.networksContainer}>
+                  <Text style={styles.sectionSubTitle}>الشبكات</Text>
+                  <View style={styles.networksList}>
+                    {currentAnimeData.networks.map((network, index) => (
+                      <TouchableOpacity
+                        key={network.id}
+                        style={styles.networkCard}
+                        onPress={() => {
+                          Alert.alert(
+                            network.name_arabic || network.name,
+                            `شاهد المزيد من برامج ${network.name_arabic || network.name}`,
+                            [
+                              { text: 'إغلاق', style: 'cancel' },
+                              { text: 'عرض المزيد', onPress: () => console.log(`Show more from ${network.name}`) }
+                            ]
+                          );
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <View style={styles.networkInfo}>
+                          <Text style={styles.networkName}>
+                            {network.name_arabic || network.name}
+                          </Text>
+                          <Text style={styles.networkCountry}>
+                            {network.origin_country}
+                          </Text>
+                        </View>
+                        <Ionicons name="chevron-back" size={16} color="#666" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Production Companies Section */}
+              {currentAnimeData.production_companies && currentAnimeData.production_companies.length > 0 && (
+                <View style={styles.companiesContainer}>
+                  <Text style={styles.sectionSubTitle}>الاستوديوهات</Text>
+                  <View style={styles.companiesList}>
+                    {currentAnimeData.production_companies.map((company, index) => (
+                      <TouchableOpacity
+                        key={company.id}
+                        style={styles.companyCard}
+                        onPress={() => {
+                          Alert.alert(
+                            company.name_arabic || company.name,
+                            `شاهد المزيد من أعمال ${company.name_arabic || company.name}`,
+                            [
+                              { text: 'إغلاق', style: 'cancel' },
+                              { text: 'عرض المزيد', onPress: () => console.log(`Show more from ${company.name}`) }
+                            ]
+                          );
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <View style={styles.companyInfo}>
+                          <Text style={styles.companyName}>
+                            {company.name_arabic || company.name}
+                          </Text>
+                          <Text style={styles.companyCountry}>
+                            {company.origin_country}
+                          </Text>
+                        </View>
+                        <Ionicons name="chevron-back" size={16} color="#666" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Social Media Section */}
+              {currentAnimeData.external_ids && (
+                currentAnimeData.external_ids.imdb_id || 
+                currentAnimeData.external_ids.facebook_id || 
+                currentAnimeData.external_ids.twitter_id || 
+                currentAnimeData.external_ids.instagram_id ||
+                currentAnimeData.homepage
+              ) && (
+                <View style={styles.socialContainer}>
+                  <Text style={styles.sectionSubTitle}>وسائل التواصل الاجتماعي</Text>
+                  <View style={styles.socialButtons}>
+                    {currentAnimeData.external_ids.homepage && (
+                      <TouchableOpacity
+                        style={styles.socialButton}
+                        onPress={() => console.log('Open homepage')}
+                      >
+                        <Ionicons name="globe-outline" size={20} color="#FFD700" />
+                        <Text style={styles.socialButtonText}>الموقع الرسمي</Text>
+                      </TouchableOpacity>
+                    )}
+                    
+                    {currentAnimeData.external_ids.imdb_id && (
+                      <TouchableOpacity
+                        style={styles.socialButton}
+                        onPress={() => console.log('Open IMDb')}
+                      >
+                        <Ionicons name="film-outline" size={20} color="#F5C518" />
+                        <Text style={styles.socialButtonText}>IMDb</Text>
+                      </TouchableOpacity>
+                    )}
+                    
+                    {currentAnimeData.external_ids.facebook_id && (
+                      <TouchableOpacity
+                        style={styles.socialButton}
+                        onPress={() => console.log('Open Facebook')}
+                      >
+                        <Ionicons name="logo-facebook" size={20} color="#1877F2" />
+                        <Text style={styles.socialButtonText}>Facebook</Text>
+                      </TouchableOpacity>
+                    )}
+                    
+                    {currentAnimeData.external_ids.twitter_id && (
+                      <TouchableOpacity
+                        style={styles.socialButton}
+                        onPress={() => console.log('Open Twitter')}
+                      >
+                        <Ionicons name="logo-twitter" size={20} color="#1DA1F2" />
+                        <Text style={styles.socialButtonText}>Twitter</Text>
+                      </TouchableOpacity>
+                    )}
+                    
+                    {currentAnimeData.external_ids.instagram_id && (
+                      <TouchableOpacity
+                        style={styles.socialButton}
+                        onPress={() => console.log('Open Instagram')}
+                      >
+                        <Ionicons name="logo-instagram" size={20} color="#E4405F" />
+                        <Text style={styles.socialButtonText}>Instagram</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              )}
+
               {/* Recommendations Section */}
               {currentAnimeData.recommendations && currentAnimeData.recommendations.length > 0 && (
                 <View style={styles.recommendationsContainer}>
