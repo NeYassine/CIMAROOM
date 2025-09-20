@@ -1316,6 +1316,67 @@ async def get_anime_genres():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/anime/network/{network_id}")
+async def get_network_anime(network_id: int, page: int = 1, limit: int = 20):
+    """Get anime from specific network"""
+    try:
+        cache_key = f"network_anime_{network_id}_page_{page}_limit_{limit}"
+        
+        # Check cache first
+        if cache_key in cache:
+            cached_data = cache[cache_key]
+            if time.time() - cached_data['timestamp'] < CACHE_TTL:
+                return cached_data['data']
+        
+        # Get anime from specific network
+        params = {
+            'page': page,
+            'with_networks': network_id,
+            'with_genres': '16',  # Animation genre
+            'sort_by': 'popularity.desc',
+            'api_key': TMDB_API_KEY,
+            'language': 'en-US'
+        }
+        
+        data = await make_tmdb_request("/discover/tv", params)
+        
+        anime_results = []
+        
+        # Process and filter for anime content
+        for item in data.get('results', []):
+            if is_anime_content(item):
+                # Get Arabic description
+                try:
+                    arabic_params = {
+                        'api_key': TMDB_API_KEY,
+                        'language': 'ar'
+                    }
+                    arabic_data = await make_tmdb_request(f"/tv/{item.get('id')}", arabic_params)
+                    item['overview'] = arabic_data.get('overview', item.get('overview', ''))
+                except:
+                    pass
+                
+                anime_item = format_anime_content(item, 'tv')
+                anime_results.append(anime_item)
+        
+        response = AnimeSearchResponse(
+            results=anime_results,
+            page=page,
+            total_pages=data.get('total_pages', 1),
+            total_results=len(anime_results)
+        )
+        
+        # Cache the result
+        cache[cache_key] = {
+            'data': response,
+            'timestamp': time.time()
+        }
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/anime/{anime_id}", response_model=AnimeDetailResponse)
 async def get_anime_details(anime_id: int, content_type: str = "tv"):
     """Get detailed information about a specific anime"""
