@@ -756,14 +756,13 @@ export default function Index() {
                         key={network.id}
                         style={styles.networkCard}
                         onPress={() => {
-                          Alert.alert(
-                            network.name_arabic || network.name,
-                            `شاهد المزيد من برامج ${network.name_arabic || network.name}`,
-                            [
-                              { text: 'إغلاق', style: 'cancel' },
-                              { text: 'عرض المزيد', onPress: () => console.log(`Show more from ${network.name}`) }
-                            ]
-                          );
+                          // Close details modal first
+                          setShowDetails(false);
+                          setDetailedAnime(null);
+                          // Navigate to network page
+                          setTimeout(() => {
+                            router.push(`/network/${network.id}?name=${encodeURIComponent(network.name_arabic || network.name)}`);
+                          }, 100);
                         }}
                         activeOpacity={0.8}
                       >
@@ -775,7 +774,7 @@ export default function Index() {
                             {network.origin_country}
                           </Text>
                         </View>
-                        <Ionicons name="chevron-back" size={16} color="#666" />
+                        <Ionicons name="chevron-back" size={16} color="#FFD700" />
                       </TouchableOpacity>
                     ))}
                   </View>
