@@ -2324,4 +2324,122 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Tajawal_400Regular',
   },
+  
+  // Facts Section Styles
+  factsContainer: {
+    marginBottom: 20,
+  },
+  factRow: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: '#2A2A2A',
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  factLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFD700',
+    fontFamily: 'Tajawal_500Medium',
+  },
+  factValue: {
+    fontSize: 14,
+    color: '#fff',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Networks Section Styles
+  networksContainer: {
+    marginBottom: 20,
+  },
+  networksList: {
+    marginTop: 10,
+  },
+  networkCard: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: '#2A2A2A',
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  networkInfo: {
+    flex: 1,
+  },
+  networkName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  networkCountry: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Production Companies Section Styles
+  companiesContainer: {
+    marginBottom: 20,
+  },
+  companiesList: {
+    marginTop: 10,
+  },
+  companyCard: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: '#2A2A2A',
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  companyInfo: {
+    flex: 1,
+  },
+  companyName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+    fontFamily: 'Tajawal_500Medium',
+  },
+  companyCountry: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'Tajawal_400Regular',
+  },
+  
+  // Social Media Section Styles
+  socialContainer: {
+    marginBottom: 20,
+  },
+  socialButtons: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    marginTop: 10,
+    gap: 10,
+  },
+  socialButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    backgroundColor: '#2A2A2A',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  socialButtonText: {
+    fontSize: 14,
+    color: '#fff',
+    marginRight: 8,
+    fontFamily: 'Tajawal_400Regular',
+  },
 });
