@@ -551,10 +551,6 @@ export default function Index() {
               </Text>
             </View>
             
-            <Text style={styles.heroDescription} numberOfLines={3}>
-              {currentAnime.overview_arabic || currentAnime.overview || 'لا يوجد وصف متاح'}
-            </Text>
-            
             <View style={styles.heroButtons}>
               <TouchableOpacity
                 style={styles.watchButton}
