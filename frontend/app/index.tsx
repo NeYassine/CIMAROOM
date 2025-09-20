@@ -717,6 +717,173 @@ export default function Index() {
                 </View>
               )}
               
+              {/* Watch Links Section */}
+              <View style={styles.watchLinksContainer}>
+                <Text style={styles.sectionSubTitle}>شاهد الآن</Text>
+                <View style={styles.watchLinksGrid}>
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#FF6500' }]}
+                    onPress={async () => {
+                      try {
+                        const crunchyrollUrl = `https://www.crunchyroll.com/search?q=${encodeURIComponent(currentAnimeData.title || '')}`;
+                        const supported = await Linking.canOpenURL(crunchyrollUrl);
+                        if (supported) {
+                          await Linking.openURL(crunchyrollUrl);
+                        } else {
+                          Alert.alert('خطأ', 'لا يمكن فتح Crunchyroll');
+                        }
+                      } catch (error) {
+                        Alert.alert('خطأ', 'لا يمكن فتح Crunchyroll');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="play-circle" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.watchLinkText}>Crunchyroll</Text>
+                    <Text style={styles.watchLinkSubtext}>مدبلج + مترجم</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#E50914' }]}
+                    onPress={async () => {
+                      try {
+                        const netflixUrl = `https://www.netflix.com/search?q=${encodeURIComponent(currentAnimeData.title || '')}`;
+                        const supported = await Linking.canOpenURL(netflixUrl);
+                        if (supported) {
+                          await Linking.openURL(netflixUrl);
+                        } else {
+                          Alert.alert('خطأ', 'لا يمكن فتح Netflix');
+                        }
+                      } catch (error) {
+                        Alert.alert('خطأ', 'لا يمكن فتح Netflix');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="tv" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.watchLinkText}>Netflix</Text>
+                    <Text style={styles.watchLinkSubtext}>جودة عالية</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#410099' }]}
+                    onPress={async () => {
+                      try {
+                        const funimationUrl = `https://www.funimation.com/search/?q=${encodeURIComponent(currentAnimeData.title || '')}`;
+                        const supported = await Linking.canOpenURL(funimationUrl);
+                        if (supported) {
+                          await Linking.openURL(funimationUrl);
+                        } else {
+                          Alert.alert('خطأ', 'لا يمكن فتح Funimation');
+                        }
+                      } catch (error) {
+                        Alert.alert('خطأ', 'لا يمكن فتح Funimation');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="videocam" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.watchLinkText}>Funimation</Text>
+                    <Text style={styles.watchLinkSubtext}>مدبلج إنجليزي</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#1DB954' }]}
+                    onPress={async () => {
+                      try {
+                        const hulu = `https://www.hulu.com/search?q=${encodeURIComponent(currentAnimeData.title || '')}`;
+                        const supported = await Linking.canOpenURL(hulu);
+                        if (supported) {
+                          await Linking.openURL(hulu);
+                        } else {
+                          Alert.alert('خطأ', 'لا يمكن فتح Hulu');
+                        }
+                      } catch (error) {
+                        Alert.alert('خطأ', 'لا يمكن فتح Hulu');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="desktop" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.watchLinkText}>Hulu</Text>
+                    <Text style={styles.watchLinkSubtext}>أنمي حصري</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#00A8E1' }]}
+                    onPress={async () => {
+                      try {
+                        const primevideo = `https://www.primevideo.com/search/ref=atv_sr_def_c_unkc_1_1?phrase=${encodeURIComponent(currentAnimeData.title || '')}`;
+                        const supported = await Linking.canOpenURL(primevideo);
+                        if (supported) {
+                          await Linking.openURL(primevideo);
+                        } else {
+                          Alert.alert('خطأ', 'لا يمكن فتح Amazon Prime');
+                        }
+                      } catch (error) {
+                        Alert.alert('خطأ', 'لا يمكن فتح Amazon Prime');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="storefront" size={24} color="#fff" />
+                    </View>
+                    <Text style={styles.watchLinkText}>Prime Video</Text>
+                    <Text style={styles.watchLinkSubtext}>Amazon</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.watchLinkButton, { backgroundColor: '#FFD700', borderWidth: 2, borderColor: '#333' }]}
+                    onPress={() => {
+                      Alert.alert(
+                        'روابط إضافية',
+                        'البحث عن مصادر أخرى لمشاهدة الأنمي',
+                        [
+                          { text: 'إغلاق', style: 'cancel' },
+                          { 
+                            text: 'Google Search', 
+                            onPress: async () => {
+                              try {
+                                const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(currentAnimeData.title || '')}+watch+anime+online`;
+                                const supported = await Linking.canOpenURL(googleUrl);
+                                if (supported) {
+                                  await Linking.openURL(googleUrl);
+                                }
+                              } catch (error) {
+                                Alert.alert('خطأ', 'لا يمكن فتح البحث');
+                              }
+                            }
+                          }
+                        ]
+                      );
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.watchLinkIcon}>
+                      <Ionicons name="search" size={24} color="#333" />
+                    </View>
+                    <Text style={[styles.watchLinkText, { color: '#333' }]}>مصادر أخرى</Text>
+                    <Text style={[styles.watchLinkSubtext, { color: '#666' }]}>بحث شامل</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.watchTipsContainer}>
+                  <Ionicons name="information-circle-outline" size={16} color="#FFD700" />
+                  <Text style={styles.watchTipsText}>
+                    تحقق من توفر الأنمي في منطقتك • بعض المنصات قد تتطلب اشتراك
+                  </Text>
+                </View>
+              </View>
+
               {/* Synopsis Section */}
               {currentAnimeData.overview && (
                 <View style={styles.synopsisContainer}>
